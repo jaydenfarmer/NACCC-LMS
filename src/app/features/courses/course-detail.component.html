@@ -1,0 +1,183 @@
+<div class="course-detail">
+  @if (course(); as currentCourse) {
+    <div class="course-header">
+      <div class="breadcrumb">
+        <a routerLink="/courses">← Back to Courses</a>
+      </div>
+      
+      <div class="header-content">
+        <div class="header-left">
+          <span class="category-badge">{{ currentCourse.category }}</span>
+          <h1>{{ currentCourse.title }}</h1>
+          <p class="description">{{ currentCourse.description }}</p>
+          
+          <div class="course-meta">
+            <div class="meta-item">
+              <img [src]="currentCourse.instructor.avatar" [alt]="currentCourse.instructor.name" class="instructor-avatar" />
+              <div>
+                <div class="meta-label">Instructor</div>
+                <div class="meta-value">{{ currentCourse.instructor.name }}</div>
+              </div>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">⭐</span>
+              <div>
+                <div class="meta-label">Rating</div>
+                <div class="meta-value">{{ currentCourse.rating }}/5.0</div>
+              </div>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">👥</span>
+              <div>
+                <div class="meta-label">Students</div>
+                <div class="meta-value">{{ currentCourse.enrolledCount }}</div>
+              </div>
+            </div>
+            <div class="meta-item">
+              <span class="meta-icon">⏱️</span>
+              <div>
+                <div class="meta-label">Duration</div>
+                <div class="meta-value">{{ currentCourse.duration }} min</div>
+              </div>
+            </div>
+          </div>
+
+          @if (!isEnrolled()) {
+            <button (click)="enroll()" class="btn-enroll">Enroll in Course</button>
+          } @else if (enrollment(); as enr) {
+            <div class="progress-section">
+              <div class="progress-header">
+                <span>Your Progress</span>
+                <span class="progress-percentage">{{ enr.progress }}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="enr.progress"></div>
+              </div>
+              <div class="progress-stats">
+                <span>{{ enr.completedLessons }} of {{ currentCourse.totalLessons }} lessons completed</span>
+              </div>
+            </div>
+          }
+        </div>
+        
+        <div class="header-right">
+          <img [src]="currentCourse.thumbnail" [alt]="currentCourse.title" class="course-image" />
+        </div>
+      </div>
+    </div>
+
+    @if (isEnrolled()) {
+      <div class="course-content">
+        <div class="lessons-sidebar">
+          <h2>Course Content</h2>
+          <div class="lessons-list">
+            @for (lesson of lessons(); track lesson.id) {
+              <div 
+                class="lesson-item"
+                [class.completed]="lesson.isCompleted"
+                [class.active]="selectedLesson()?.id === lesson.id"
+                (click)="selectLesson(lesson)"
+              >
+                <div class="lesson-header">
+                  <span class="lesson-icon">{{ getLessonIcon(lesson.type) }}</span>
+                  <div class="lesson-info">
+                    <div class="lesson-title">{{ lesson.title }}</div>
+                    <div class="lesson-meta">
+                      @if (lesson.duration) {
+                        <span>{{ lesson.duration }} min</span>
+                      }
+                      <span class="lesson-type">{{ lesson.type }}</span>
+                    </div>
+                  </div>
+                  @if (lesson.isCompleted) {
+                    <span class="check-icon">✓</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="player-area">
+          @if (selectedLesson(); as lesson) {
+            <div class="player">
+              <h2>{{ lesson.title }}</h2>
+              <p class="lesson-description">{{ lesson.description }}</p>
+              
+              @if (lesson.type === 'video') {
+                <div class="video-container">
+                  <iframe
+                    [src]="lesson.contentUrl"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                  ></iframe>
+                </div>
+              } @else if (lesson.type === 'pdf') {
+                <div class="pdf-container">
+                  <div class="pdf-placeholder">
+                    <span class="pdf-icon">📄</span>
+                    <h3>PDF Document</h3>
+                    <p>{{ lesson.title }}</p>
+                    <button class="btn-download">Download PDF</button>
+                  </div>
+                </div>
+              } @else if (lesson.type === 'quiz') {
+                <div class="quiz-container">
+                  <div class="quiz-placeholder">
+                    <span class="quiz-icon">✍️</span>
+                    <h3>Knowledge Check</h3>
+                    <p>Test your understanding of the material</p>
+                    <button class="btn-start-quiz">Start Quiz</button>
+                  </div>
+                </div>
+              }
+
+              <div class="lesson-actions">
+                @if (!lesson.isCompleted) {
+                  <button (click)="completeLesson(lesson.id)" class="btn-complete">
+                    Mark as Complete
+                  </button>
+                } @else {
+                  <div class="completed-badge">
+                    ✓ Completed
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="no-lesson-selected">
+              <span class="icon">📚</span>
+              <h3>Select a lesson to begin</h3>
+              <p>Choose a lesson from the sidebar to start learning</p>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="not-enrolled">
+        <h2>Course Curriculum</h2>
+        <p>Enroll to access all course materials</p>
+        <div class="curriculum-preview">
+          @for (lesson of lessons(); track lesson.id) {
+            <div class="preview-item">
+              <span class="lesson-icon">{{ getLessonIcon(lesson.type) }}</span>
+              <div class="preview-info">
+                <div class="preview-title">{{ lesson.title }}</div>
+                <div class="preview-meta">
+                  {{ lesson.type }} • {{ lesson.duration }} min
+                </div>
+              </div>
+              <span class="lock-icon">🔒</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="loading">
+      <h2>Course not found</h2>
+      <a routerLink="/courses" class="btn-back">Back to Courses</a>
+    </div>
+  }
+</div>

@@ -1,0 +1,40 @@
+<header class="header">
+  <div class="header-content">
+    <div class="header-left">
+      <div class="logo">
+        <span class="logo-icon">🎓</span>
+        <span class="logo-text">Credit Counseling LMS</span>
+      </div>
+    </div>
+
+    <nav class="header-nav">
+      @for (item of visibleNavItems(); track item.path) {
+        <a 
+          [routerLink]="item.path" 
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="header-right">
+      @if (user(); as currentUser) {
+        <div class="user-menu">
+          <div class="user-info">
+            <img [src]="currentUser.avatar" [alt]="currentUser.firstName" class="avatar" />
+            <div class="user-details">
+              <span class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</span>
+              <span class="user-role">{{ currentUser.role }}</span>
+            </div>
+          </div>
+          <button (click)="logout()" class="btn-logout">
+            Logout
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

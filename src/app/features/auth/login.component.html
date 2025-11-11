@@ -1,0 +1,70 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>Credit Counseling LMS</h1>
+      <p>Sign in to your account</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="login-form">
+      @if (errorMessage()) {
+        <div class="error-message">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn-primary">Sign In</button>
+    </form>
+
+    <div class="demo-accounts">
+      <p class="demo-title">Demo Accounts:</p>
+      <div class="demo-buttons">
+        <button
+          type="button"
+          class="btn-demo"
+          (click)="setDemoUser('learner@example.com', 'password')"
+        >
+          Learner
+        </button>
+        <button
+          type="button"
+          class="btn-demo"
+          (click)="setDemoUser('instructor@example.com', 'password')"
+        >
+          Instructor
+        </button>
+        <button
+          type="button"
+          class="btn-demo"
+          (click)="setDemoUser('admin@example.com', 'password')"
+        >
+          Admin
+        </button>
+      </div>
+      <p class="demo-hint">Password: password</p>
+    </div>
+  </div>
+</div>

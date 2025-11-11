@@ -1,0 +1,119 @@
+<div class="dashboard">
+  <div class="dashboard-header">
+    <div>
+      <h1>Welcome back, {{ user()?.firstName }}! 👋</h1>
+      <p class="subtitle">Continue your learning journey</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📚</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().totalCourses }}</div>
+        <div class="stat-label">Enrolled Courses</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().completed }}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().inProgress }}</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-content">
+        <div class="stat-value">{{ stats().avgProgress }}%</div>
+        <div class="stat-label">Avg. Progress</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Continue Learning</h2>
+      <a routerLink="/my-learning" class="link">View all →</a>
+    </div>
+
+    @if (recentCourses().length > 0) {
+      <div class="courses-grid">
+        @for (course of recentCourses(); track course.id) {
+          <div class="course-card">
+            <img [src]="course.thumbnail" [alt]="course.title" class="course-thumbnail" />
+            <div class="course-content">
+              <span class="course-category">{{ course.category }}</span>
+              <h3 class="course-title">{{ course.title }}</h3>
+              <p class="course-description">{{ course.description }}</p>
+              
+              @if (getEnrollmentForCourse(course.id); as enrollment) {
+                <div class="progress-section">
+                  <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="enrollment.progress"></div>
+                  </div>
+                  <span class="progress-text">{{ enrollment.progress }}% complete</span>
+                </div>
+              }
+
+              <div class="course-footer">
+                <div class="course-meta">
+                  <span>⏱️ {{ course.duration }} min</span>
+                  <span>📖 {{ course.totalLessons }} lessons</span>
+                </div>
+                <a [routerLink]="['/courses', course.id]" class="btn-continue">Continue</a>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="empty-state">
+        <div class="empty-icon">📚</div>
+        <h3>No courses yet</h3>
+        <p>Explore our course catalog and start learning!</p>
+        <a routerLink="/courses" class="btn-primary">Browse Courses</a>
+      </div>
+    }
+  </div>
+
+  @if (user()?.role === 'admin') {
+    <div class="section">
+      <div class="section-header">
+        <h2>Quick Actions</h2>
+      </div>
+      <div class="actions-grid">
+        <a routerLink="/admin/courses/new" class="action-card">
+          <div class="action-icon">➕</div>
+          <div class="action-content">
+            <h3>Create Course</h3>
+            <p>Add a new course to the catalog</p>
+          </div>
+        </a>
+        <a routerLink="/admin/users" class="action-card">
+          <div class="action-icon">👥</div>
+          <div class="action-content">
+            <h3>Manage Users</h3>
+            <p>View and manage user accounts</p>
+          </div>
+        </a>
+        <a routerLink="/admin/reports" class="action-card">
+          <div class="action-icon">📈</div>
+          <div class="action-content">
+            <h3>View Reports</h3>
+            <p>Analyze learning metrics</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,106 @@
+<div class="courses-page">
+  <div class="page-header">
+    <h1>Course Catalog</h1>
+    <p class="subtitle">Explore our comprehensive credit counseling training programs</p>
+  </div>
+
+  <div class="filters-section">
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Search courses..."
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        class="search-input"
+      />
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <div class="filters">
+      <select
+        [value]="selectedCategory()"
+        (change)="onCategoryChange($any($event.target).value)"
+        class="filter-select"
+      >
+        <option value="all">All Categories</option>
+        @for (category of categories; track category) {
+          @if (category !== 'all') {
+            <option [value]="category">{{ category }}</option>
+          }
+        }
+      </select>
+
+      <select
+        [value]="selectedDifficulty()"
+        (change)="onDifficultyChange($any($event.target).value)"
+        class="filter-select"
+      >
+        <option value="all">All Levels</option>
+        @for (difficulty of difficulties; track difficulty) {
+          @if (difficulty !== 'all') {
+            <option [value]="difficulty">{{ difficulty | titlecase }}</option>
+          }
+        }
+      </select>
+    </div>
+  </div>
+
+  <div class="results-info">
+    <span>Showing {{ filteredCourses().length }} courses</span>
+  </div>
+
+  <div class="courses-grid">
+    @for (course of filteredCourses(); track course.id) {
+      <div class="course-card">
+        <a [routerLink]="['/courses', course.id]" class="course-link">
+          <img [src]="course.thumbnail" [alt]="course.title" class="course-thumbnail" />
+        </a>
+        
+        <div class="course-content">
+          <div class="course-header">
+            <span class="course-category">{{ course.category }}</span>
+            <span class="badge" [ngClass]="getDifficultyBadgeClass(course.difficulty)">
+              {{ course.difficulty }}
+            </span>
+          </div>
+
+          <a [routerLink]="['/courses', course.id]" class="course-link">
+            <h3 class="course-title">{{ course.title }}</h3>
+          </a>
+          
+          <p class="course-description">{{ course.description }}</p>
+
+          <div class="course-instructor">
+            <img [src]="course.instructor.avatar" [alt]="course.instructor.name" class="instructor-avatar" />
+            <span class="instructor-name">{{ course.instructor.name }}</span>
+          </div>
+
+          <div class="course-stats">
+            <span class="stat">⭐ {{ course.rating }}</span>
+            <span class="stat">👥 {{ course.enrolledCount }}</span>
+            <span class="stat">⏱️ {{ course.duration }} min</span>
+            <span class="stat">📖 {{ course.totalLessons }}</span>
+          </div>
+
+          <div class="course-footer">
+            @if (isEnrolled(course.id)) {
+              <a [routerLink]="['/courses', course.id]" class="btn-enrolled">
+                Continue Learning →
+              </a>
+            } @else {
+              <button (click)="enroll(course.id)" class="btn-enroll">
+                Enroll Now
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No courses found</h3>
+        <p>Try adjusting your filters or search term</p>
+      </div>
+    }
+  </div>
+</div>
