@@ -1,14 +1,23 @@
 <div class="sidebar">
-    <nav class="sidebar-nav">
-        @for (item of navItems(); track item.path) {
-        <a 
-            [routerLink]="item.path" 
-            routerLinkActive="active"
-            class="sidebar-link"
-        >
-            <span class="sidebar-icon">{{ item.icon }}</span>
-            <span class="sidebar-label">{{ item.label }}</span>
-        </a>
-        }
-    </nav>
+  <div class="sidebar-header">
+    <h3>NACCC LMS</h3>
+    <!-- Optional: Show current user info -->
+    @if (user(); as currentUser) {
+    <div class="current-user">
+      <small>{{ currentUser.firstName }} ({{ currentUser.role }})</small>
+    </div>
+    }
+  </div>
+  <nav class="sidebar-nav">
+    @for (item of navItems(); track item.path) {
+    <a [routerLink]="item.path" routerLinkActive="active" class="sidebar-link">
+      <span class="sidebar-icon">{{ item.icon }}</span>
+      <span class="sidebar-label">{{ item.label }}</span>
+    </a>
+    } @empty {
+    <div class="no-nav-items">
+      <p>No navigation items available</p>
+    </div>
+    }
+  </nav>
 </div>
