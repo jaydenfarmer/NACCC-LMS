@@ -1,91 +1,109 @@
 import { Injectable, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { User, UserRole } from '../models/user.model';
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string; // 'admin', 'instructor', 'learner'
+  avatar?: string;
+  permissions?: string[];
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  private currentUser = signal<User | null>(null);
-  readonly user = this.currentUser.asReadonly();
+  // User signal
+  user = signal<User | null>(null);
 
-  // Mock users for demo
-  private mockUsers: { email: string; password: string; user: User }[] = [
-    {
-      email: 'learner@example.com',
-      password: 'password',
-      user: {
-        id: '1',
-        email: 'learner@example.com',
-        firstName: 'John',
-        lastName: 'Doe',
-        role: 'learner',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John'
-      }
-    },
-    {
-      email: 'instructor@example.com',
-      password: 'password',
-      user: {
-        id: '2',
-        email: 'instructor@example.com',
-        firstName: 'Jane',
-        lastName: 'Smith',
-        role: 'instructor',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jane'
-      }
-    },
-    {
-      email: 'admin@example.com',
-      password: 'password',
-      user: {
-        id: '3',
-        email: 'admin@example.com',
-        firstName: 'Admin',
-        lastName: 'User',
-        role: 'admin',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Admin'
-      }
-    }
-  ];
-
-  constructor(private router: Router) {
-    // Check if user was stored in session
-    const stored = sessionStorage.getItem('currentUser');
-    if (stored) {
-      this.currentUser.set(JSON.parse(stored));
-    }
+  // Check if user has specific role
+  hasRole(role: string): boolean {
+    const currentUser = this.user();
+    return currentUser?.role.toLowerCase() === role.toLowerCase();
   }
 
-  login(email: string, password: string): boolean {
-    const match = this.mockUsers.find(
-      u => u.email === email && u.password === password
-    );
-
-    if (match) {
-      this.currentUser.set(match.user);
-      sessionStorage.setItem('currentUser', JSON.stringify(match.user));
-      return true;
-    }
-    return false;
+  // Check if user has any of the specified roles
+  hasAnyRole(roles: string[]): boolean {
+    const currentUser = this.user();
+    if (!currentUser) return false;
+    return roles.some((role) => role.toLowerCase() === currentUser.role.toLowerCase());
   }
 
-  logout(): void {
-    this.currentUser.set(null);
-    sessionStorage.removeItem('currentUser');
-    this.router.navigate(['/login']);
+  // Check if user has specific permission
+  hasPermission(permission: string): boolean {
+    const currentUser = this.user();
+    if (!currentUser) return false;
+
+    // Admins have all permissions
+    if (currentUser.role === 'admin') return true;
+
+    // Check explicit permissions
+    return currentUser.permissions?.includes(permission) || false;
+  }
+
+  // Set user permissions based on role (example implementation)
+  private setDefaultPermissions(user: User): User {
+    switch (user.role.toLowerCase()) {
+      case 'admin':
+        user.permissions = [
+          'view_students',
+          'manage_students',
+          'view_assignments',
+          'manage_assignments',
+          'view_grades',
+          'edit_grades',
+          'generate_reports',
+          'manage_users',
+        ];
+        break;
+      case 'instructor':
+        user.permissions = [
+          'view_students',
+          'view_assignments',
+          'manage_assignments',
+          'view_grades',
+          'edit_grades',
+        ];
+        break;
+      case 'learner':
+        user.permissions = ['view_assignments', 'view_grades'];
+        break;
+    }
+    return user;
   }
 
   isAuthenticated(): boolean {
-    return this.currentUser() !== null;
+    return this.user() !== null;
   }
 
-  hasRole(role: UserRole): boolean {
-    return this.currentUser()?.role === role;
+  // Login method - MUST return boolean for compatibility with LoginComponent
+  login(email: string, password: string): boolean {
+    // Your login validation logic here
+    // For demo purposes, accepting any credentials
+    if (email && password) {
+      // Determine role based on email (demo logic)
+      let role = 'learner';
+      if (email.includes('admin')) role = 'admin';
+      else if (email.includes('instructor')) role = 'instructor';
+
+      const user = this.setDefaultPermissions({
+        id: '1',
+        firstName: 'John',
+        lastName: 'Doe',
+        email: email,
+        role: role,
+      });
+
+      this.user.set(user);
+      return true; // Login successful
+    }
+
+    return false; // Login failed
   }
 
-  hasAnyRole(roles: UserRole[]): boolean {
-    const userRole = this.currentUser()?.role;
-    return userRole ? roles.includes(userRole) : false;
+  logout(): void {
+    this.user.set(null);
+    // Additional logout logic
   }
 }
