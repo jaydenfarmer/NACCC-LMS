@@ -1,6 +1,8 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnDestroy, OnInit, HostBinding } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { SidebarService } from '../../../core/services/sidebar.service';
+import { Subscription } from 'rxjs';
 
 interface NavItem {
   path: string;
@@ -18,7 +20,23 @@ interface NavItem {
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.css'],
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit, OnDestroy {
+  private sub = new Subscription();
+
+  @HostBinding('class.collapsed') collapsed = false; // host class toggled automatically
+
+  constructor(private sidebar: SidebarService) {}
+
+  ngOnInit(): void {
+    this.sub.add(this.sidebar.collapsed$.subscribe(c => {
+      this.collapsed = !!c;
+    }));
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
+
   private authService = inject(AuthService);
 
   private allNavItems = signal<NavItem[]>([

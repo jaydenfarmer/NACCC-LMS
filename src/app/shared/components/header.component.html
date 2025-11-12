@@ -1,6 +1,21 @@
 <header class="header">
   <div class="header-content">
     <div class="header-left">
+      <div class="sidebar-control">
+        <button
+          type="button"
+          class="sidebar-toggle"
+          aria-label="Toggle sidebar"
+          (click)="toggleSidebar()"
+        >
+          <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect y="0" width="20" height="2" rx="1" fill="currentColor"></rect>
+            <rect y="7" width="20" height="2" rx="1" fill="currentColor"></rect>
+            <rect y="14" width="20" height="2" rx="1" fill="currentColor"></rect>
+          </svg>
+        </button>
+      </div>
+
       <div class="logo">
         <img [src]="logoPath" alt="NACCC Logo" />
       </div>
@@ -8,15 +23,34 @@
 
     <div class="header-right">
       @if (user(); as currentUser) {
-      <div class="user-menu">
-        <div class="user-info">
+      <div class="user-menu" [class.open]="userMenuOpen">
+        <button
+          type="button"
+          class="user-trigger"
+          aria-haspopup="true"
+          [attr.aria-expanded]="userMenuOpen"
+          (click)="toggleUserMenu($event)"
+        >
           <img [src]="currentUser.avatar" [alt]="currentUser.firstName" class="avatar" />
-          <div class="user-details">
-            <span class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</span>
-            <span class="user-role">{{ currentUser.role }}</span>
+          <svg class="caret" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <div class="user-dropdown" *ngIf="userMenuOpen" role="menu">
+          <div class="user-profile">
+            <img [src]="currentUser.avatar" [alt]="currentUser.firstName" class="avatar-lg" />
+            <div class="profile-info">
+              <div class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</div>
+              <div class="user-role">{{ currentUser.role }}</div>
+            </div>
+          </div>
+
+          <div class="dropdown-actions">
+            <button type="button" class="dropdown-item" (click)="goToProfile()">View Profile</button>
+            <button type="button" class="dropdown-item danger" (click)="logout()">Logout</button>
           </div>
         </div>
-        <button (click)="logout()" class="btn-logout">Logout</button>
       </div>
       }
     </div>

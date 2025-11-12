@@ -1,13 +1,16 @@
 .header {
-  background: white;
+  background: #fff;
   border-bottom: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
-  z-index: 100;
-  width: 100%; /* Ensure full width */
+  z-index: 1200;
+  width: 100%;
+  overflow: visible; /* allow dropdowns to escape */
+  box-sizing: border-box;
 }
 
+/* layout container */
 .header-content {
   display: flex;
   align-items: center;
@@ -16,29 +19,44 @@
   height: 4rem;
   max-width: 1400px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
+/* left area: hamburger + logo */
 .header-left {
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
 }
 
+/* absolute-positioned toggle near left edge while keeping content centered */
+.sidebar-control {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex: 0 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1210;
+}
+
+/* logo */
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: #1a202c;
+  min-width: 0;
+  margin-left: 40px; /* ensure logo doesn't overlap the absolute toggle */
+}
+.logo img {
+  height: 40px;
+  display: block;
+  max-width: 100%;
 }
 
-.logo-icon {
-  font-size: 1.75rem;
-}
-
-.logo-text {
-  white-space: nowrap;
-}
-
+/* nav link */
 .nav-link {
   display: flex;
   align-items: center;
@@ -51,65 +69,92 @@
   font-size: 0.875rem;
   transition: all 0.2s;
 }
-
 .nav-link:hover {
   background: #f7fafc;
   color: #667eea;
 }
-
 .nav-link.active {
   background: #eef2ff;
   color: #667eea;
 }
+.nav-icon { font-size: 1.125rem; }
 
-.nav-icon {
-  font-size: 1.125rem;
-}
-
+/* right area */
 .header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   flex-shrink: 0;
 }
 
+/* user/menu */
 .user-menu {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
   gap: 1rem;
 }
 
+/* user trigger (avatar + caret) */
+.user-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 0;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #374151;
+}
+.user-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
+.caret { color: #6b7280; }
+
+/* avatar variants */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  object-fit: cover;
+}
+.avatar-lg {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  border: 1.5px solid #e6eefc;
+  object-fit: cover;
+}
+
+/* user details in header (small) */
 .user-info {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
-
-.avatar {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  border: 2px solid #e2e8f0;
-}
-
 .user-details {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
-
 .user-name {
   font-weight: 600;
   font-size: 0.875rem;
   color: #1a202c;
 }
-
 .user-role {
   font-size: 0.75rem;
   color: #718096;
   text-transform: capitalize;
 }
 
+/* logout button (kept for backward compatibility) */
 .btn-logout {
   padding: 0.5rem 1rem;
-  background: white;
+  background: #fff;
   color: #667eea;
   border: 1.5px solid #667eea;
   border-radius: 6px;
@@ -118,30 +163,109 @@
   cursor: pointer;
   transition: all 0.2s;
 }
-
 .btn-logout:hover {
   background: #667eea;
-  color: white;
+  color: #fff;
 }
 
+/* hamburger toggle styles */
+.sidebar-toggle {
+  background: transparent;
+  border: 0;
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #374151;
+  transition: transform 120ms ease, color 120ms ease;
+  border-radius: 6px;
+}
+.sidebar-toggle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16);
+}
+.sidebar-toggle svg {
+  width: 20px;
+  height: 16px;
+  display: block;
+}
+.sidebar-toggle svg rect {
+  fill: currentColor;
+  transition: transform 160ms ease, opacity 120ms ease;
+}
+.sidebar-toggle:hover {
+  color: #1f2937;
+  transform: translateY(-1px);
+}
+/* animated open state */
+.sidebar-toggle.is-open svg rect:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.sidebar-toggle.is-open svg rect:nth-child(2) { opacity: 0; }
+.sidebar-toggle.is-open svg rect:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* dropdown panel - fixed so it cannot be clipped by parent containers */
+.user-dropdown {
+  position: fixed;
+  top: calc(var(--header-height, 64px) + 8px);
+  right: 16px;
+  width: 220px;
+  background: #fff;
+  border: 1px solid #e6edf3;
+  box-shadow: 0 8px 24px rgba(11,22,39,0.08);
+  border-radius: 8px;
+  padding: 10px;
+  box-sizing: border-box;
+  z-index: 1400;
+  max-width: calc(100vw - 32px);
+}
+
+/* profile header inside dropdown */
+.user-profile {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.profile-info .user-name {
+  font-weight: 700;
+  color: #0f1724;
+}
+.profile-info .user-role {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+/* dropdown actions */
+.dropdown-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+}
+.dropdown-item {
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #374151;
+}
+.dropdown-item:hover { background: #f7fafc; }
+.dropdown-item.danger { color: #b91c1c; }
+
+/* responsive adjustments */
 @media (max-width: 768px) {
-  .header-content {
-    padding: 0 1rem;
-  }
-
-  .logo-text {
-    display: none;
-  }
-
-  .header-nav {
-    padding: 0 1rem;
-  }
-
-  .nav-label {
-    display: none;
-  }
-
-  .user-details {
-    display: none;
-  }
+  .header-content { padding: 0 1rem; }
+  .logo img { height: 32px; }
+  .nav-label { display: none; }
+  .user-details { display: none; }
+  .sidebar-control { left: 8px; }
+  .user-dropdown { right: 8px; width: 220px; top: calc(var(--header-height, 64px) + 6px); }
 }
+
+/* safety/compat helpers */
+.fixed-offset { left: var(--sidebar-width, 260px); width: calc(100% - var(--sidebar-width, 260px)); }
