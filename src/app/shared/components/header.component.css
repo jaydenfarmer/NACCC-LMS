@@ -77,7 +77,9 @@
   background: #eef2ff;
   color: #667eea;
 }
-.nav-icon { font-size: 1.125rem; }
+.nav-icon {
+  font-size: 1.125rem;
+}
 
 /* right area */
 .header-right {
@@ -109,9 +111,11 @@
 }
 .user-trigger:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
 }
-.caret { color: #6b7280; }
+.caret {
+  color: #6b7280;
+}
 
 /* avatar variants */
 .avatar {
@@ -172,7 +176,7 @@
 .sidebar-toggle {
   background: transparent;
   border: 0;
-  padding: 6px;
+  padding: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -199,9 +203,15 @@
   transform: translateY(-1px);
 }
 /* animated open state */
-.sidebar-toggle.is-open svg rect:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-.sidebar-toggle.is-open svg rect:nth-child(2) { opacity: 0; }
-.sidebar-toggle.is-open svg rect:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.sidebar-toggle.is-open svg rect:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.sidebar-toggle.is-open svg rect:nth-child(2) {
+  opacity: 0;
+}
+.sidebar-toggle.is-open svg rect:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
 
 /* dropdown panel - fixed so it cannot be clipped by parent containers */
 .user-dropdown {
@@ -211,7 +221,7 @@
   width: 220px;
   background: #fff;
   border: 1px solid #e6edf3;
-  box-shadow: 0 8px 24px rgba(11,22,39,0.08);
+  box-shadow: 0 8px 24px rgba(11, 22, 39, 0.08);
   border-radius: 8px;
   padding: 10px;
   box-sizing: border-box;
@@ -254,18 +264,39 @@
   font-weight: 600;
   color: #374151;
 }
-.dropdown-item:hover { background: #f7fafc; }
-.dropdown-item.danger { color: #b91c1c; }
+.dropdown-item:hover {
+  background: #f7fafc;
+}
+.dropdown-item.danger {
+  color: #b91c1c;
+}
 
 /* responsive adjustments */
 @media (max-width: 768px) {
-  .header-content { padding: 0 1rem; }
-  .logo img { height: 32px; }
-  .nav-label { display: none; }
-  .user-details { display: none; }
-  .sidebar-control { left: 8px; }
-  .user-dropdown { right: 8px; width: 220px; top: calc(var(--header-height, 64px) + 6px); }
+  .header-content {
+    padding: 0 1rem;
+  }
+  .logo img {
+    height: 32px;
+  }
+  .nav-label {
+    display: none;
+  }
+  .user-details {
+    display: none;
+  }
+  .sidebar-control {
+    left: 8px;
+  }
+  .user-dropdown {
+    right: 8px;
+    width: 220px;
+    top: calc(var(--header-height, 64px) + 6px);
+  }
 }
 
 /* safety/compat helpers */
-.fixed-offset { left: var(--sidebar-width, 260px); width: calc(100% - var(--sidebar-width, 260px)); }
+.fixed-offset {
+  left: var(--sidebar-width, 260px);
+  width: calc(100% - var(--sidebar-width, 260px));
+}

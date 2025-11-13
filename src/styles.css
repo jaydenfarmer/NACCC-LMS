@@ -7,13 +7,39 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
   background: #f7fafc;
   color: #1a202c;
   line-height: 1.6;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
+:root {
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 60px;
+  --header-height: 4rem;
+}
+
+/* Default main content positioning */
+.main-content {
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.3s ease;
+  min-height: calc(100vh - var(--header-height));
+  padding: 2rem;
+}
+
+/* When body has sidebar-collapsed class, adjust main content */
+body.sidebar-collapsed .main-content {
+  margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Also make sure your layout component uses the main-content class */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}

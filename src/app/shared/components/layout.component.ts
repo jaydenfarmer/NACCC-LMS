@@ -10,15 +10,11 @@ import { SidebarComponent } from './sidebar/sidebar';
   standalone: true,
   imports: [CommonModule, RouterOutlet, HeaderComponent, SidebarComponent],
   template: `
+    <app-header></app-header>
     <div class="app-layout">
-      <app-sidebar class="app-sidebar"></app-sidebar>
-
-        <app-header class="app-header"></app-header>
+      <app-sidebar></app-sidebar>
       <main class="main-content">
-
-        <div class="page-body">
-          <router-outlet></router-outlet>
-        </div>
+        <router-outlet></router-outlet>
       </main>
     </div>
   `,
