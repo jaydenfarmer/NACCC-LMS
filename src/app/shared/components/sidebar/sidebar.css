@@ -8,30 +8,52 @@
   top: var(--header-height);
   z-index: 1000;
   overflow-y: auto;
+  transition: width 0.3s ease;
+}
+
+:host(.collapsed) .sidebar {
+  width: 70px;
 }
 
 .sidebar-header {
   padding: 1rem;
   border-bottom: 1px solid #34495e;
   text-align: center;
+  overflow: hidden;
 }
 
 .sidebar-header h3 {
   margin: 0;
   color: #ecf0f1;
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
+:host(.collapsed) .sidebar-header h3 {
+  opacity: 0;
 }
 
 .sidebar-nav {
-  padding: 1rem 0;
+  padding: 0.5rem; /* Add padding to create gap from edges */
 }
 
 .sidebar-link {
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
+  margin: 0.25rem 0; /* Add vertical gap between links */
   color: #bdc3c7;
   text-decoration: none;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px; /* Optional: rounded corners */
+}
+
+:host(.collapsed) .sidebar-link {
+  /* Keep same padding structure - don't center */
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0;
 }
 
 .sidebar-link:hover {
@@ -45,17 +67,93 @@
 }
 
 .sidebar-icon {
-  margin-right: 0.75rem;
+  /* KEEP ICON POSITION FIXED */
   width: 20px;
-  text-align: center;
+  height: 20px;
+  flex-shrink: 0;
+  margin-right: 0.75rem;
+  margin-bottom: 6px;
+}
+
+.sidebar-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+}
+
+/* Don't change icon margin when collapsed */
+:host(.collapsed) .sidebar-icon {
+  margin-right: 0.75rem; /* Keep the same margin - don't remove it */
 }
 
 .sidebar-label {
   font-weight: 500;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+:host(.collapsed) .sidebar-label {
+  opacity: 0;
+  transform: translateX(-10px);
+  visibility: hidden;
+}
+
+/* Tooltip for collapsed state */
+:host(.collapsed) .sidebar-link::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #34495e;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1001;
+  margin-left: 0.5rem;
+}
+
+:host(.collapsed) .sidebar-link:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Tooltip arrow */
+:host(.collapsed) .sidebar-link::before {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-right: 5px solid #34495e;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1001;
+}
+
+:host(.collapsed) .sidebar-link:hover::before {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Main content adjustment */
 .main-content {
   margin-left: 250px;
-  padding: 1rem;
+  transition: margin-left 0.3s ease;
+}
+
+:host(.collapsed) ~ .main-content,
+.main-content.sidebar-collapsed {
+  margin-left: 60px;
 }

@@ -22,22 +22,32 @@ interface NavItem {
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   private sub = new Subscription();
+  private sidebarService = inject(SidebarService);
+  private authService = inject(AuthService);
 
-  @HostBinding('class.collapsed') collapsed = false; // host class toggled automatically
+  collapsed = signal(false);
 
-  constructor(private sidebar: SidebarService) {}
+  @HostBinding('class.collapsed')
+  get isCollapsed() {
+    return this.collapsed();
+  }
 
   ngOnInit(): void {
-    this.sub.add(this.sidebar.collapsed$.subscribe(c => {
-      this.collapsed = !!c;
-    }));
+    // Initialize with current value from service
+    this.collapsed.set(this.sidebarService.value);
+
+    // Subscribe to service changes and update our signal
+    this.sub.add(
+      this.sidebarService.collapsed$.subscribe((value) => {
+        console.log('Service collapsed changed to:', value); // Debug
+        this.collapsed.set(value);
+      })
+    );
   }
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
   }
-
-  private authService = inject(AuthService);
 
   private allNavItems = signal<NavItem[]>([
     {

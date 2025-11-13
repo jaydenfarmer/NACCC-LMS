@@ -20,9 +20,11 @@ interface NavItem {
 })
 export class HeaderComponent {
   logoPath = 'images/logos/NACCC_LOGO.png';
-  constructor(private authService: AuthService,
+  constructor(
+    private authService: AuthService,
     private router: Router,
-  public sidebar: SidebarService) {}
+    public sidebar: SidebarService
+  ) {}
 
   get user() {
     return this.authService.user;
@@ -52,6 +54,6 @@ export class HeaderComponent {
   }
 
   toggleSidebar(): void {
-    this.sidebar.toggle(); // central toggle, persisted
+    this.sidebar.toggle();
   }
 }
