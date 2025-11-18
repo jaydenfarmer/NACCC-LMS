@@ -1,0 +1,28 @@
+@if (announcement && !dismissed()) {
+<div class="announcement-banner" [class]="'banner-' + (announcement.type || 'info')">
+  <div class="banner-content">
+    <div class="banner-icon">
+      @if (announcement.type === 'warning') {
+        ⚠️
+      } @else if (announcement.type === 'success') {
+        ✅
+      } @else {
+        ℹ️
+      }
+    </div>
+    <div class="banner-message">
+      <span [innerHTML]="announcement.message"></span>
+      @if (announcement.link && announcement.linkText) {
+        <a [href]="announcement.link" target="_blank" rel="noopener noreferrer" class="banner-link">
+          {{ announcement.linkText }}
+        </a>
+      }
+    </div>
+    @if (announcement.dismissible) {
+      <button type="button" class="banner-dismiss" (click)="dismiss()" aria-label="Dismiss">
+        ✕
+      </button>
+    }
+  </div>
+</div>
+}

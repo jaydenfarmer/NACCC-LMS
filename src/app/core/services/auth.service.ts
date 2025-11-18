@@ -102,6 +102,19 @@ export class AuthService {
     return false; // Login failed
   }
 
+  switchRole(role: 'admin' | 'instructor' | 'learner'): void {
+    const currentUser = this.user();
+    if (!currentUser) return;
+
+    // Update user role and permissions
+    const updatedUser = this.setDefaultPermissions({
+      ...currentUser,
+      role: role,
+    });
+
+    this.user.set(updatedUser);
+  }
+
   logout(): void {
     this.user.set(null);
     // Additional logout logic

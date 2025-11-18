@@ -1,14 +1,37 @@
 .sidebar {
-  width: 250px;
-  height: 100vh;
-  background-color: #2c3e50;
+  width: 260px;
+  height: calc(100vh - var(--header-height, 64px));
+  background-color: #2c5aa0;
   color: white;
   position: fixed;
   left: 0;
-  top: var(--header-height);
+  top: var(--header-height, 64px);
   z-index: 1000;
   overflow-y: auto;
+  overflow-x: hidden;
   transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  /* Prevent scrollbar from affecting layout width */
+  scrollbar-gutter: stable;
+}
+
+/* Custom scrollbar styling */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 :host(.collapsed) .sidebar {
@@ -17,7 +40,7 @@
 
 .sidebar-header {
   padding: 1rem;
-  border-bottom: 1px solid #34495e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
   overflow: hidden;
 }
@@ -34,45 +57,112 @@
 }
 
 .sidebar-nav {
-  padding: 0.5rem; /* Add padding to create gap from edges */
+  padding: 0.25rem 0.5rem;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .sidebar-link {
   display: flex;
   align-items: center;
-  padding: 0.75rem 1rem;
-  margin: 0.25rem 0; /* Add vertical gap between links */
-  color: #bdc3c7;
+  padding: 0.5rem 1rem;
+  margin: 0.125rem 0;
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
-  border-radius: 8px; /* Optional: rounded corners */
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-size: 0.8125rem;
+  cursor: pointer;
 }
 
 :host(.collapsed) .sidebar-link {
-  /* Keep same padding structure - don't center */
-  padding: 0.75rem 1rem;
-  margin: 0.25rem 0;
+  margin: 0.125rem 0;
+  justify-content: center;
 }
 
 .sidebar-link:hover {
-  background-color: #34495e;
-  color: #ecf0f1;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 .sidebar-link.active {
-  background-color: #3498db;
+  background-color: rgba(255, 255, 255, 0.15);
   color: white;
+  font-weight: 600;
+}
+
+/* Parent link with submenu */
+.sidebar-parent {
+  position: relative;
+}
+
+.expand-arrow {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  stroke: currentColor;
+}
+
+.sidebar-parent.expanded .expand-arrow {
+  transform: rotate(180deg);
+}
+
+/* Submenu styles */
+.sidebar-item-group {
+  margin: 0.25rem 0;
+}
+
+.sidebar-submenu {
+  padding-left: 0;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.sidebar-child {
+  padding-left: 2.5rem;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  font-size: 0.75rem;
+}
+
+:host(.collapsed) .sidebar-child {
+  padding-left: 1rem;
+}
+
+:host(.collapsed) .sidebar-submenu {
+  display: none;
+}
+
+:host(.collapsed) .expand-arrow {
+  display: none;
 }
 
 .sidebar-icon {
-  /* KEEP ICON POSITION FIXED */
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
   flex-shrink: 0;
-  margin-right: 0.75rem;
-  margin-bottom: 6px;
+  margin-right: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .sidebar-icon svg {
@@ -81,9 +171,8 @@
   stroke: currentColor;
 }
 
-/* Don't change icon margin when collapsed */
 :host(.collapsed) .sidebar-icon {
-  margin-right: 0.75rem; /* Keep the same margin - don't remove it */
+  margin-right: 0;
 }
 
 .sidebar-label {
@@ -91,12 +180,34 @@
   transition: opacity 0.3s ease, transform 0.3s ease;
   white-space: nowrap;
   overflow: hidden;
+  flex: 1;
 }
 
 :host(.collapsed) .sidebar-label {
   opacity: 0;
   transform: translateX(-10px);
   visibility: hidden;
+}
+
+/* Sidebar Footer (Help Center) */
+.sidebar-footer {
+  padding: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: auto;
+}
+
+.help-link {
+  position: relative;
+}
+
+.external-icon {
+  margin-left: auto;
+  stroke: currentColor;
+  opacity: 0.7;
+}
+
+:host(.collapsed) .external-icon {
+  display: none;
 }
 
 /* Tooltip for collapsed state */

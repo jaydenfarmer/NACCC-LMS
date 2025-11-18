@@ -11,6 +11,8 @@ interface NavItem {
   roles?: string[];
   permissions?: string[];
   requireAll?: boolean; // If true, user must have ALL permissions, not just one
+  children?: NavItem[]; // For expandable submenus
+  expanded?: boolean; // For tracking expanded state
 }
 
 @Component({
@@ -50,55 +52,258 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   private allNavItems = signal<NavItem[]>([
+    // Learner Navigation
     {
       path: '/dashboard',
-      label: 'Dashboard',
-      icon: '📊',
-      roles: ['admin', 'instructor', 'learner'],
+      label: 'Home',
+      icon: '🏠',
+      roles: ['learner'],
+    },
+    {
+      path: '/my-training',
+      label: 'My training',
+      icon: '📖',
+      roles: ['learner'],
+    },
+    {
+      path: '/courses',
+      label: 'Catalog',
+      icon: '📚',
+      roles: ['learner'],
+    },
+    {
+      path: '/calendar',
+      label: 'Calendar',
+      icon: '📅',
+      roles: ['learner'],
+    },
+    {
+      path: '/skills',
+      label: 'Skills',
+      icon: '🎯',
+      roles: ['learner'],
+    },
+
+    // Instructor Navigation
+    {
+      path: '/dashboard',
+      label: 'Home',
+      icon: '🏠',
+      roles: ['instructor'],
     },
     {
       path: '/courses',
       label: 'Courses',
       icon: '📚',
-      roles: ['admin', 'instructor', 'learner'],
+      roles: ['instructor'],
     },
     {
-      path: '/students',
-      label: 'Students',
+      path: '/learning-paths',
+      label: 'Learning paths',
+      icon: '🛤️',
+      roles: ['instructor'],
+    },
+    {
+      path: '/groups',
+      label: 'Groups',
       icon: '👥',
-      permissions: ['view_students', 'manage_students'],
+      roles: ['instructor'],
     },
     {
-      path: '/assignments',
-      label: 'Assignments',
+      path: '/grading-hub',
+      label: 'Grading Hub',
       icon: '📝',
-      permissions: ['view_assignments'],
+      roles: ['instructor'],
     },
     {
-      path: '/grades',
-      label: 'Grades',
-      icon: '📋',
-      permissions: ['view_grades'],
+      path: '/conferences',
+      label: 'Conferences',
+      icon: '🎥',
+      roles: ['instructor'],
     },
     {
       path: '/reports',
       label: 'Reports',
-      icon: '📈',
-      roles: ['admin'],
-      permissions: ['generate_reports'],
-      requireAll: true,
+      icon: '📊',
+      roles: ['instructor'],
+      children: [
+        {
+          path: '/reports/overview',
+          label: 'Overview',
+          icon: '📈',
+          roles: ['instructor'],
+        },
+        {
+          path: '/reports/students',
+          label: 'Student Progress',
+          icon: '👤',
+          roles: ['instructor'],
+        },
+        {
+          path: '/reports/courses',
+          label: 'Course Analytics',
+          icon: '📚',
+          roles: ['instructor'],
+        },
+      ],
     },
     {
-      path: '/user-management',
-      label: 'User Management',
+      path: '/calendar',
+      label: 'Calendar',
+      icon: '📅',
+      roles: ['instructor'],
+    },
+    {
+      path: '/skills',
+      label: 'Skills',
+      icon: '🎯',
+      roles: ['instructor'],
+    },
+
+    // Administrator Navigation
+    {
+      path: '/dashboard',
+      label: 'Home',
+      icon: '🏠',
+      roles: ['admin'],
+    },
+    {
+      path: '/users',
+      label: 'Users',
       icon: '👤',
-      permissions: ['manage_users'],
+      roles: ['admin'],
+    },
+    {
+      path: '/courses',
+      label: 'Courses',
+      icon: '📚',
+      roles: ['admin'],
+    },
+    {
+      path: '/learning-paths',
+      label: 'Learning paths',
+      icon: '🛤️',
+      roles: ['admin'],
+    },
+    {
+      path: '/course-store',
+      label: 'Course store',
+      icon: '🏪',
+      roles: ['admin'],
+      children: [
+        {
+          path: '/course-store/catalog',
+          label: 'Browse Catalog',
+          icon: '📖',
+          roles: ['admin'],
+        },
+        {
+          path: '/course-store/purchased',
+          label: 'Purchased',
+          icon: '✅',
+          roles: ['admin'],
+        },
+      ],
+    },
+    {
+      path: '/groups',
+      label: 'Groups',
+      icon: '👥',
+      roles: ['admin'],
+    },
+    {
+      path: '/branches',
+      label: 'Branches',
+      icon: '🌿',
+      roles: ['admin'],
+    },
+    {
+      path: '/automations',
+      label: 'Automations',
+      icon: '⚡',
+      roles: ['admin'],
+    },
+    {
+      path: '/notifications',
+      label: 'Notifications',
+      icon: '🔔',
+      roles: ['admin'],
+    },
+    {
+      path: '/reports',
+      label: 'Reports',
+      icon: '📊',
+      roles: ['admin'],
+      children: [
+        {
+          path: '/reports/overview',
+          label: 'Overview',
+          icon: '📈',
+          roles: ['admin'],
+        },
+        {
+          path: '/reports/users',
+          label: 'User Reports',
+          icon: '👤',
+          roles: ['admin'],
+        },
+        {
+          path: '/reports/courses',
+          label: 'Course Analytics',
+          icon: '📚',
+          roles: ['admin'],
+        },
+        {
+          path: '/reports/portal-activity',
+          label: 'Portal Activity',
+          icon: '📊',
+          roles: ['admin'],
+        },
+      ],
+    },
+    {
+      path: '/calendar',
+      label: 'Calendar',
+      icon: '📅',
+      roles: ['admin'],
+    },
+    {
+      path: '/skills',
+      label: 'Skills',
+      icon: '🎯',
+      roles: ['admin'],
     },
     {
       path: '/settings',
-      label: 'Settings',
+      label: 'Account & Settings',
       icon: '⚙️',
-      roles: ['admin', 'instructor'],
+      roles: ['admin'],
+      children: [
+        {
+          path: '/settings/general',
+          label: 'General',
+          icon: '🔧',
+          roles: ['admin'],
+        },
+        {
+          path: '/settings/security',
+          label: 'Security',
+          icon: '🔒',
+          roles: ['admin'],
+        },
+        {
+          path: '/settings/integrations',
+          label: 'Integrations',
+          icon: '🔌',
+          roles: ['admin'],
+        },
+      ],
+    },
+    {
+      path: '/subscription',
+      label: 'Subscription',
+      icon: '💳',
+      roles: ['admin'],
     },
   ]);
 
@@ -131,6 +336,12 @@ export class SidebarComponent implements OnInit, OnDestroy {
       return hasRole && hasPermission;
     });
   });
+
+  toggleSubmenu(item: NavItem, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    item.expanded = !item.expanded;
+  }
 
   user = this.authService.user;
 }

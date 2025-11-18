@@ -37,6 +37,9 @@ import { SidebarComponent } from './sidebar/sidebar';
         min-height: calc(100vh - var(--header-height));
         display: flex;
         flex-direction: column;
+        transition: margin-left 0.3s ease;
+        width: calc(100% - var(--sidebar-width));
+        position: relative;
       }
 
       .page-body {
@@ -48,20 +51,16 @@ import { SidebarComponent } from './sidebar/sidebar';
 
       /* Responsive: sidebar overlays on small screens */
       @media (max-width: 920px) {
-        .app-sidebar {
-          transform: translateX(-100%);
-          transition: transform 180ms ease;
-          top: var(--header-height);
-          height: calc(100vh - var(--header-height));
-        }
-
-        /* when toggled open, add 'sidebar-open' to <html> or <body> */
-        .sidebar-open .app-sidebar {
-          transform: translateX(0);
-        }
-
         .main-content {
           margin-left: 0;
+          width: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .main-content {
+          margin-left: 0;
+          width: 100%;
         }
       }
     `,
