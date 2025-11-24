@@ -1,119 +1,229 @@
 <div class="dashboard">
+  <!-- Announcement Banner -->
+  <app-announcement-banner [announcement]="announcement()"></app-announcement-banner>
+
   <div class="dashboard-header">
     <div>
-      <h1>Welcome back, {{ user()?.firstName }}! 👋</h1>
-      <p class="subtitle">Continue your learning journey</p>
+      <h1>Welcome, {{ user()?.firstName }}! 👋</h1>
+      @if (user()?.role === 'learner') {
+        <p class="subtitle">Continue your learning journey</p>
+      } @else if (user()?.role === 'instructor') {
+        <p class="subtitle">Manage your courses and students</p>
+      } @else {
+        <p class="subtitle">Manage your learning portal</p>
+      }
     </div>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon">📚</div>
-      <div class="stat-content">
-        <div class="stat-value">{{ stats().totalCourses }}</div>
-        <div class="stat-label">Enrolled Courses</div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">✅</div>
-      <div class="stat-content">
-        <div class="stat-value">{{ stats().completed }}</div>
-        <div class="stat-label">Completed</div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">⏳</div>
-      <div class="stat-content">
-        <div class="stat-value">{{ stats().inProgress }}</div>
-        <div class="stat-label">In Progress</div>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <div class="stat-icon">📊</div>
-      <div class="stat-content">
-        <div class="stat-value">{{ stats().avgProgress }}%</div>
-        <div class="stat-label">Avg. Progress</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-header">
-      <h2>Continue Learning</h2>
-      <a routerLink="/my-learning" class="link">View all →</a>
-    </div>
-
-    @if (recentCourses().length > 0) {
-      <div class="courses-grid">
-        @for (course of recentCourses(); track course.id) {
-          <div class="course-card">
-            <img [src]="course.thumbnail" [alt]="course.title" class="course-thumbnail" />
-            <div class="course-content">
-              <span class="course-category">{{ course.category }}</span>
-              <h3 class="course-title">{{ course.title }}</h3>
-              <p class="course-description">{{ course.description }}</p>
-              
-              @if (getEnrollmentForCourse(course.id); as enrollment) {
-                <div class="progress-section">
-                  <div class="progress-bar">
-                    <div class="progress-fill" [style.width.%]="enrollment.progress"></div>
-                  </div>
-                  <span class="progress-text">{{ enrollment.progress }}% complete</span>
-                </div>
-              }
-
-              <div class="course-footer">
-                <div class="course-meta">
-                  <span>⏱️ {{ course.duration }} min</span>
-                  <span>📖 {{ course.totalLessons }} lessons</span>
-                </div>
-                <a [routerLink]="['/courses', course.id]" class="btn-continue">Continue</a>
-              </div>
-            </div>
-          </div>
-        }
-      </div>
-    } @else {
-      <div class="empty-state">
-        <div class="empty-icon">📚</div>
-        <h3>No courses yet</h3>
-        <p>Explore our course catalog and start learning!</p>
-        <a routerLink="/courses" class="btn-primary">Browse Courses</a>
-      </div>
+    @if (user()?.role === 'admin' || user()?.role === 'instructor') {
+      <button class="btn-customize">
+        Customize
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     }
   </div>
 
-  @if (user()?.role === 'admin') {
-    <div class="section">
-      <div class="section-header">
-        <h2>Quick Actions</h2>
+  <!-- LEARNER DASHBOARD -->
+  @if (user()?.role === 'learner') {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats().totalCourses }}</div>
+          <div class="stat-label">Enrolled Courses</div>
+        </div>
       </div>
-      <div class="actions-grid">
-        <a routerLink="/admin/courses/new" class="action-card">
-          <div class="action-icon">➕</div>
-          <div class="action-content">
-            <h3>Create Course</h3>
-            <p>Add a new course to the catalog</p>
-          </div>
-        </a>
-        <a routerLink="/admin/users" class="action-card">
-          <div class="action-icon">👥</div>
-          <div class="action-content">
-            <h3>Manage Users</h3>
-            <p>View and manage user accounts</p>
-          </div>
-        </a>
-        <a routerLink="/admin/reports" class="action-card">
-          <div class="action-icon">📈</div>
-          <div class="action-content">
-            <h3>View Reports</h3>
-            <p>Analyze learning metrics</p>
-          </div>
-        </a>
+
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats().completed }}</div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats().inProgress }}</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-content">
+          <div class="stat-value">{{ stats().avgProgress }}%</div>
+          <div class="stat-label">Avg. Progress</div>
+        </div>
       </div>
     </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>Recent course activity →</h2>
+      </div>
+
+      @if (recentCourses().length > 0) {
+        <div class="courses-grid">
+          @for (course of recentCourses(); track course.id) {
+            <div class="course-card">
+              <img [src]="course.thumbnail" [alt]="course.title" class="course-thumbnail" />
+              <div class="course-content">
+                <h3 class="course-title">{{ course.title }}</h3>
+                
+                @if (getEnrollmentForCourse(course.id); as enrollment) {
+                  <div class="course-footer">
+                    <button class="btn-icon" title="Set reminder">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor">
+                        <circle cx="8" cy="8" r="6" stroke-width="1.5"/>
+                        <path d="M8 4v4l2 2" stroke-width="1.5" stroke-linecap="round"/>
+                      </svg>
+                    </button>
+                    <a [routerLink]="['/courses', course.id]" class="btn-start">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <circle cx="8" cy="8" r="8"/>
+                        <path d="M6 5l5 3-5 3z" fill="white"/>
+                      </svg>
+                      Start
+                    </a>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-icon">📚</div>
+          <h3>No courses yet</h3>
+          <p>Explore our course catalog and start learning!</p>
+          <a routerLink="/courses" class="btn-primary">Browse Courses</a>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- INSTRUCTOR/ADMIN DASHBOARD -->
+  @if (user()?.role === 'admin' || user()?.role === 'instructor') {
+    <div class="admin-grid">
+      <!-- Portal Activity Chart -->
+      <div class="chart-card">
+        <div class="card-header">
+          <h3>Portal activity</h3>
+          <select class="time-select">
+            <option>Week</option>
+            <option>Month</option>
+            <option>Year</option>
+          </select>
+        </div>
+        <div class="chart-container">
+          <canvas #portalActivityChart></canvas>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions-card">
+        <h3>Quick actions</h3>
+        <div class="actions-list">
+          @if (user()?.role === 'admin') {
+            <button class="action-button">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                <path d="M10 5v10M5 10h10" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Add user
+            </button>
+            <button class="action-button">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="14" height="14" rx="2" stroke-width="1.5"/>
+                <path d="M7 3v4M13 3v4M3 9h14" stroke-width="1.5"/>
+              </svg>
+              Add course
+            </button>
+            <button class="action-button">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="14" height="14" rx="2" stroke-width="1.5"/>
+                <path d="M10 7v6M7 10h6" stroke-width="1.5"/>
+              </svg>
+              Portal settings
+            </button>
+            <button class="action-button">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                <path d="M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" stroke-width="1.5"/>
+                <path d="M10 6v4l2 2" stroke-width="1.5"/>
+              </svg>
+              Add group
+            </button>
+            <button class="action-button">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                <rect x="3" y="5" width="14" height="12" rx="2" stroke-width="1.5"/>
+                <path d="M3 9h14" stroke-width="1.5"/>
+              </svg>
+              Add category
+            </button>
+          } @else {
+            <button class="action-button">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="14" height="14" rx="2" stroke-width="1.5"/>
+                <path d="M7 3v4M13 3v4M3 9h14" stroke-width="1.5"/>
+              </svg>
+              Add course
+            </button>
+            <button class="action-button">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                <path d="M10 5v10M5 10h10" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Add assignment
+            </button>
+            <button class="action-button">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                <path d="M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" stroke-width="1.5"/>
+                <path d="M10 6v4l2 2" stroke-width="1.5"/>
+              </svg>
+              Schedule conference
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Stats for Admin -->
+    @if (user()?.role === 'admin') {
+      <div class="section">
+        <div class="section-header">
+          <h2>Overview</h2>
+        </div>
+        <div class="stats-grid-admin">
+          <div class="stat-card-admin">
+            <div class="stat-icon-admin">👥</div>
+            <div class="stat-details">
+              <div class="stat-value-admin">248</div>
+              <div class="stat-label-admin">Total Users</div>
+            </div>
+          </div>
+          <div class="stat-card-admin">
+            <div class="stat-icon-admin">📚</div>
+            <div class="stat-details">
+              <div class="stat-value-admin">42</div>
+              <div class="stat-label-admin">Active Courses</div>
+            </div>
+          </div>
+          <div class="stat-card-admin">
+            <div class="stat-icon-admin">✅</div>
+            <div class="stat-details">
+              <div class="stat-value-admin">1,284</div>
+              <div class="stat-label-admin">Completions</div>
+            </div>
+          </div>
+          <div class="stat-card-admin">
+            <div class="stat-icon-admin">📈</div>
+            <div class="stat-details">
+              <div class="stat-value-admin">87%</div>
+              <div class="stat-label-admin">Avg. Completion</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
   }
 </div>

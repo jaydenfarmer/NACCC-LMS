@@ -8,6 +8,7 @@ export interface User {
   role: string; // 'admin', 'instructor', 'learner'
   avatar?: string;
   permissions?: string[];
+  availableRoles?: string[]; // Roles this user can switch between
 }
 
 @Injectable({
@@ -82,17 +83,15 @@ export class AuthService {
     // Your login validation logic here
     // For demo purposes, accepting any credentials
     if (email && password) {
-      // Determine role based on email (demo logic)
-      let role = 'learner';
-      if (email.includes('admin')) role = 'admin';
-      else if (email.includes('instructor')) role = 'instructor';
-
+      // Default demo account with all roles (super user)
       const user = this.setDefaultPermissions({
         id: '1',
-        firstName: 'John',
-        lastName: 'Doe',
+        firstName: 'Jayden',
+        lastName: 'Farmer',
         email: email,
-        role: role,
+        role: 'admin', // Start as admin
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + email,
+        availableRoles: ['admin', 'instructor', 'learner'], // Can switch between all roles
       });
 
       this.user.set(user);
@@ -106,7 +105,13 @@ export class AuthService {
     const currentUser = this.user();
     if (!currentUser) return;
 
-    // Update user role and permissions
+    // Check if user has permission to switch to this role
+    if (!currentUser.availableRoles?.includes(role)) {
+      console.warn(`User does not have permission to switch to ${role}`);
+      return;
+    }
+
+    // Update user role and permissions without logging out
     const updatedUser = this.setDefaultPermissions({
       ...currentUser,
       role: role,

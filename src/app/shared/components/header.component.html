@@ -86,41 +86,49 @@
           </div>
 
           <!-- Role Switcher -->
-          <div class="role-switcher">
-            <div class="dropdown-label">Switch role</div>
-            <label class="role-option">
-              <input
-                type="radio"
-                name="role"
-                value="admin"
-                [checked]="currentUser.role === 'admin'"
-                (change)="switchRole('admin')"
-              />
-              <span>Administrator</span>
-            </label>
-            <label class="role-option">
-              <input
-                type="radio"
-                name="role"
-                value="instructor"
-                [checked]="currentUser.role === 'instructor'"
-                (change)="switchRole('instructor')"
-              />
-              <span>Instructor</span>
-            </label>
-            <label class="role-option">
-              <input
-                type="radio"
-                name="role"
-                value="learner"
-                [checked]="currentUser.role === 'learner'"
-                (change)="switchRole('learner')"
-              />
-              <span>Learner</span>
-            </label>
-          </div>
+          @if (currentUser.availableRoles && currentUser.availableRoles.length > 1) {
+            <div class="role-switcher">
+              <div class="dropdown-label">Switch role</div>
+              @if (currentUser.availableRoles.includes('admin')) {
+                <label class="role-option">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="admin"
+                    [checked]="currentUser.role === 'admin'"
+                    (change)="switchRole('admin')"
+                  />
+                  <span>Administrator</span>
+                </label>
+              }
+              @if (currentUser.availableRoles.includes('instructor')) {
+                <label class="role-option">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="instructor"
+                    [checked]="currentUser.role === 'instructor'"
+                    (change)="switchRole('instructor')"
+                  />
+                  <span>Instructor</span>
+                </label>
+              }
+              @if (currentUser.availableRoles.includes('learner')) {
+                <label class="role-option">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="learner"
+                    [checked]="currentUser.role === 'learner'"
+                    (change)="switchRole('learner')"
+                  />
+                  <span>Learner</span>
+                </label>
+              }
+            </div>
 
-          <div class="dropdown-divider"></div>
+            <div class="dropdown-divider"></div>
+          }
 
           <div class="dropdown-actions">
             <button type="button" class="dropdown-item" (click)="goToProfile()">

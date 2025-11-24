@@ -67,8 +67,8 @@ export class HeaderComponent {
   switchRole(role: 'admin' | 'instructor' | 'learner') {
     this.userMenuOpen = false;
     this.authService.switchRole(role);
-    // Reload to update sidebar and permissions
-    window.location.reload();
+    // Navigate to dashboard to refresh the view
+    this.router.navigate(['/dashboard']);
   }
 
   goToProfile() {
