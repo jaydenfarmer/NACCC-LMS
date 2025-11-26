@@ -25,6 +25,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/courses/course-detail.component').then(m => m.CourseDetailComponent)
       },
       {
+        path: 'courses/:courseId/lesson/:lessonId/exam',
+        loadComponent: () => import('./features/courses/exam.component').then(m => m.ExamComponent)
+      },
+      {
         path: 'my-learning',
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
         canActivate: [roleGuard(['learner'])]
@@ -48,6 +52,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'login'
+    redirectTo: 'dashboard'
   }
 ];

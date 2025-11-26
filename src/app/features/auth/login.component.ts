@@ -29,7 +29,12 @@ export class LoginComponent {
     this.errorMessage.set('');
     
     if (this.authService.login(this.email(), this.password())) {
-      this.router.navigate([this.returnUrl()]);
+      const dest = this.returnUrl() || '/dashboard';
+      try {
+        // eslint-disable-next-line no-console
+        console.debug('[Login] successful, returning to:', dest);
+      } catch (e) {}
+      this.router.navigateByUrl(dest);
     } else {
       this.errorMessage.set('Invalid email or password');
     }

@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CourseService } from '../../core/services/course.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Course, Lesson } from '../../core/models/course.model';
+import { Course, Module, Lesson } from '../../core/models/course.model';
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './course-detail.component.html',
-  styleUrl: './course-detail.component.css'
+  styleUrls: ['./course-detail.component.css']
 })
 export class CourseDetailComponent {
   courseId = signal<string>('');
@@ -18,6 +18,10 @@ export class CourseDetailComponent {
   course = computed(() => {
     const id = this.courseId();
     return id ? this.courseService.getCourseById(id) : undefined;
+  });
+
+  modules = computed(() => {
+    return this.course()?.modules || [];
   });
 
   enrollment = computed(() => {
@@ -29,52 +33,21 @@ export class CourseDetailComponent {
 
   isEnrolled = computed(() => !!this.enrollment());
 
-  // Mock lessons for demo
-  lessons = signal<Lesson[]>([
-    {
-      id: 'lesson-1',
-      courseId: this.courseId(),
-      title: 'Introduction to Credit Counseling',
-      description: 'Overview of credit counseling principles and best practices',
-      order: 1,
-      type: 'video',
-      contentUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      duration: 15,
-      isCompleted: false
-    },
-    {
-      id: 'lesson-2',
-      courseId: this.courseId(),
-      title: 'Understanding Credit Reports',
-      description: 'How to read and interpret credit reports',
-      order: 2,
-      type: 'video',
-      contentUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-      duration: 20,
-      isCompleted: false
-    },
-    {
-      id: 'lesson-3',
-      courseId: this.courseId(),
-      title: 'Client Assessment Techniques',
-      description: 'Best practices for assessing client financial situations',
-      order: 3,
-      type: 'pdf',
-      contentUrl: '/assets/sample.pdf',
-      duration: 10,
-      isCompleted: false
-    },
-    {
-      id: 'lesson-4',
-      courseId: this.courseId(),
-      title: 'Knowledge Check',
-      description: 'Test your understanding of the material',
-      order: 4,
-      type: 'quiz',
-      duration: 5,
-      isCompleted: false
-    }
-  ]);
+  totalLessons = computed(() => {
+    return this.modules().reduce((sum, mod) => sum + mod.lessons.length, 0);
+  });
+
+  completedLessonsCount = computed(() => {
+    return this.modules().reduce((sum, mod) => 
+      sum + mod.lessons.filter(l => l.isCompleted).length, 0
+    );
+  });
+
+  progressPercentage = computed(() => {
+    const total = this.totalLessons();
+    const completed = this.completedLessonsCount();
+    return total > 0 ? Math.round((completed / total) * 100) : 0;
+  });
 
   selectedLesson = signal<Lesson | null>(null);
 
@@ -86,7 +59,36 @@ export class CourseDetailComponent {
   ) {
     this.route.params.subscribe(params => {
       this.courseId.set(params['id']);
+      
+      // Auto-select first incomplete lesson when course loads
+      setTimeout(() => {
+        const firstIncomplete = this.findFirstIncompleteLesson();
+        if (firstIncomplete) {
+          this.selectLesson(firstIncomplete);
+        } else if (this.modules().length > 0 && this.modules()[0].lessons.length > 0) {
+          this.selectLesson(this.modules()[0].lessons[0]);
+        }
+      }, 0);
     });
+  }
+
+  findFirstIncompleteLesson(): Lesson | null {
+    for (const module of this.modules()) {
+      const incompleteLesson = module.lessons.find(l => !l.isCompleted);
+      if (incompleteLesson) {
+        return incompleteLesson;
+      }
+    }
+    return null;
+  }
+
+  toggleModule(moduleId: string): void {
+    const course = this.course();
+    if (!course || !course.modules) return;
+
+    course.modules = course.modules.map(mod => 
+      mod.id === moduleId ? { ...mod, isExpanded: !mod.isExpanded } : mod
+    );
   }
 
   enroll(): void {
@@ -101,22 +103,54 @@ export class CourseDetailComponent {
     this.selectedLesson.set(lesson);
   }
 
-  completeLesson(lessonId: string): void {
-    const lessons = this.lessons();
-    const index = lessons.findIndex(l => l.id === lessonId);
-    if (index !== -1) {
-      lessons[index].isCompleted = true;
-      this.lessons.set([...lessons]);
+  completeLesson(): void {
+    const lesson = this.selectedLesson();
+    if (!lesson || lesson.isCompleted) return;
+
+    const course = this.course();
+    if (!course || !course.modules) return;
+
+    // Mark lesson as completed
+    course.modules = course.modules.map(mod => ({
+      ...mod,
+      lessons: mod.lessons.map(l => 
+        l.id === lesson.id ? { ...l, isCompleted: true } : l
+      )
+    }));
+
+    // Update enrollment progress
+    const enrollmentData = this.enrollment();
+    if (enrollmentData) {
+      const newProgress = this.progressPercentage();
+      const newCompletedCount = this.completedLessonsCount();
+      this.courseService.updateProgress(enrollmentData.id, newProgress, newCompletedCount);
+    }
+
+    // Auto-advance to next lesson
+    const nextLesson = this.findNextLesson(lesson);
+    if (nextLesson) {
+      this.selectLesson(nextLesson);
+    }
+  }
+
+  findNextLesson(currentLesson: Lesson): Lesson | null {
+    const modules = this.modules();
+    for (let i = 0; i < modules.length; i++) {
+      const lessons = modules[i].lessons;
+      const currentIndex = lessons.findIndex(l => l.id === currentLesson.id);
       
-      // Update progress
-      const enrollment = this.enrollment();
-      const course = this.course();
-      if (enrollment && course) {
-        const completedCount = lessons.filter(l => l.isCompleted).length;
-        const progress = Math.round((completedCount / lessons.length) * 100);
-        this.courseService.updateProgress(enrollment.id, progress, completedCount);
+      if (currentIndex !== -1) {
+        // Check if there's a next lesson in current module
+        if (currentIndex + 1 < lessons.length) {
+          return lessons[currentIndex + 1];
+        }
+        // Check if there's a next module
+        if (i + 1 < modules.length && modules[i + 1].lessons.length > 0) {
+          return modules[i + 1].lessons[0];
+        }
       }
     }
+    return null;
   }
 
   getLessonIcon(type: string): string {
@@ -124,8 +158,15 @@ export class CourseDetailComponent {
       'video': '🎥',
       'pdf': '📄',
       'quiz': '✍️',
-      'assignment': '📝'
+      'exam': '📝',
+      'assignment': '📋'
     };
     return icons[type] || '📚';
+  }
+
+  getModuleProgress(module: Module): number {
+    const completed = module.lessons.filter(l => l.isCompleted).length;
+    const total = module.lessons.length;
+    return total > 0 ? Math.round((completed / total) * 100) : 0;
   }
 }

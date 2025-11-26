@@ -1,0 +1,59 @@
+<div class="exam-root">
+  <div *ngIf="loading()" class="loading">Loading exam…</div>
+
+  <div *ngIf="!loading()">
+    <h2>{{ course?.title }} — {{ lesson?.title }}</h2>
+
+    <div *ngIf="locked()" class="password-box">
+      <p>This exam requires a password to begin. Enter the password provided by your instructor.</p>
+      <input type="password" [(ngModel)]="enteredPassword" placeholder="Exam password" />
+      <div class="actions">
+        <button (click)="submitPassword()" class="btn">Unlock</button>
+        <button (click)="cancel()" class="btn btn-muted">Cancel</button>
+      </div>
+      <div *ngIf="passwordError()" class="error">{{ passwordError() }}</div>
+    </div>
+
+    <div *ngIf="!locked() && !started()" class="exam-info">
+      <p>Duration: {{ lesson?.duration || 0 }} minutes</p>
+      <p>Passing Score: {{ lesson?.passingScore || 'N/A' }}</p>
+      <div class="actions">
+        <button (click)="startExam()" class="btn btn-primary">Start Exam</button>
+        <button (click)="cancel()" class="btn btn-muted">Back</button>
+      </div>
+    </div>
+
+    <div *ngIf="started()" class="exam-running">
+      <div class="exam-top">
+        <h3>Exam in progress</h3>
+        <div class="timer">Time left: {{ (timerSeconds / 60) | number:'1.0-0' }}m {{ timerSeconds % 60 }}s</div>
+      </div>
+
+      <form class="questions-form" (ngSubmit)="submitExam()">
+        <div *ngFor="let q of questions; let i = index" class="question">
+          <div class="q-text">{{ i + 1 }}. {{ q.text }}</div>
+          <div class="options">
+            <label *ngFor="let opt of q.options; let oi = index" class="option">
+              <input type="radio" name="{{ q.id }}" [checked]="answers[q.id] === oi" (change)="selectOption(q.id, oi)" />
+              <span>{{ opt }}</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">Submit Exam</button>
+          <button type="button" (click)="cancel()" class="btn btn-muted">Exit</button>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="finished()" class="exam-result">
+      <h3>Exam Submitted</h3>
+      <p>Your score: <strong>{{ score }}%</strong></p>
+      <p *ngIf="score !== null">Result: <strong>{{ score >= (lesson?.passingScore ?? 70) ? 'Passed' : 'Failed' }}</strong></p>
+      <div class="actions">
+        <button (click)="cancel()" class="btn btn-primary">Return to Course</button>
+      </div>
+    </div>
+  </div>
+</div>

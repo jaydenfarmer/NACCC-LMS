@@ -9,6 +9,11 @@ export const authGuard: CanActivateFn = (route, state) => {
   if (authService.isAuthenticated()) {
     return true;
   }
+  // Log redirect for debugging return URL behavior
+  try {
+    // eslint-disable-next-line no-console
+    console.debug('[authGuard] unauthenticated, redirecting to /login with returnUrl=', state.url);
+  } catch (e) {}
 
   router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
   return false;

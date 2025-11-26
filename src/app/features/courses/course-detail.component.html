@@ -44,17 +44,17 @@
 
           @if (!isEnrolled()) {
             <button (click)="enroll()" class="btn-enroll">Enroll in Course</button>
-          } @else if (enrollment(); as enr) {
+          } @else {
             <div class="progress-section">
               <div class="progress-header">
                 <span>Your Progress</span>
-                <span class="progress-percentage">{{ enr.progress }}%</span>
+                <span class="progress-percentage">{{ progressPercentage() }}%</span>
               </div>
               <div class="progress-bar">
-                <div class="progress-fill" [style.width.%]="enr.progress"></div>
+                <div class="progress-fill" [style.width.%]="progressPercentage()"></div>
               </div>
               <div class="progress-stats">
-                <span>{{ enr.completedLessons }} of {{ currentCourse.totalLessons }} lessons completed</span>
+                <span>{{ completedLessonsCount() }} of {{ totalLessons() }} lessons completed</span>
               </div>
             </div>
           }
@@ -69,30 +69,70 @@
     @if (isEnrolled()) {
       <div class="course-content">
         <div class="lessons-sidebar">
-          <h2>Course Content</h2>
-          <div class="lessons-list">
-            @for (lesson of lessons(); track lesson.id) {
-              <div 
-                class="lesson-item"
-                [class.completed]="lesson.isCompleted"
-                [class.active]="selectedLesson()?.id === lesson.id"
-                (click)="selectLesson(lesson)"
-              >
-                <div class="lesson-header">
-                  <span class="lesson-icon">{{ getLessonIcon(lesson.type) }}</span>
-                  <div class="lesson-info">
-                    <div class="lesson-title">{{ lesson.title }}</div>
-                    <div class="lesson-meta">
-                      @if (lesson.duration) {
-                        <span>{{ lesson.duration }} min</span>
-                      }
-                      <span class="lesson-type">{{ lesson.type }}</span>
+          <div class="sidebar-header">
+            <h2>Course Content</h2>
+            <div class="course-progress">{{ progressPercentage() }}% Complete</div>
+          </div>
+          
+          <div class="modules-list">
+            @for (module of modules(); track module.id) {
+              <div class="module-section" [class.expanded]="module.isExpanded">
+                <div class="module-header" (click)="toggleModule(module.id)">
+                  <div class="module-left">
+                    <span class="expand-icon">{{ module.isExpanded ? '▼' : '▶' }}</span>
+                    <div class="module-info">
+                      <div class="module-title">{{ module.title }}</div>
+                      <div class="module-meta">
+                        {{ module.lessons.length }} lessons • {{ getModuleProgress(module) }}% complete
+                      </div>
                     </div>
                   </div>
-                  @if (lesson.isCompleted) {
-                    <span class="check-icon">✓</span>
-                  }
+                  <div class="module-progress-circle">
+                    <svg width="32" height="32" viewBox="0 0 32 32">
+                      <circle cx="16" cy="16" r="14" fill="none" stroke="#e5e7eb" stroke-width="3"/>
+                      <circle 
+                        cx="16" 
+                        cy="16" 
+                        r="14" 
+                        fill="none" 
+                        stroke="#2c5aa0" 
+                        stroke-width="3"
+                        stroke-dasharray="88"
+                        [attr.stroke-dashoffset]="88 - (88 * getModuleProgress(module) / 100)"
+                        stroke-linecap="round"
+                        transform="rotate(-90 16 16)"
+                      />
+                    </svg>
+                    <span class="progress-text">{{ getModuleProgress(module) }}%</span>
+                  </div>
                 </div>
+                
+                @if (module.isExpanded) {
+                  <div class="lessons-list">
+                    @for (lesson of module.lessons; track lesson.id) {
+                      <div 
+                        class="lesson-item"
+                        [class.completed]="lesson.isCompleted"
+                        [class.active]="selectedLesson()?.id === lesson.id"
+                        (click)="selectLesson(lesson)"
+                      >
+                        <span class="lesson-icon">{{ getLessonIcon(lesson.type) }}</span>
+                        <div class="lesson-info">
+                          <div class="lesson-title">{{ lesson.title }}</div>
+                          <div class="lesson-meta">
+                            @if (lesson.duration) {
+                              <span>{{ lesson.duration }} min</span>
+                            }
+                            <span class="lesson-type">{{ lesson.type }}</span>
+                          </div>
+                        </div>
+                        @if (lesson.isCompleted) {
+                          <span class="check-icon">✓</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
               </div>
             }
           </div>
@@ -107,7 +147,7 @@
               @if (lesson.type === 'video') {
                 <div class="video-container">
                   <iframe
-                    [src]="lesson.contentUrl"
+                    [src]="lesson.content"
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen
@@ -131,11 +171,20 @@
                     <button class="btn-start-quiz">Start Quiz</button>
                   </div>
                 </div>
+              } @else if (lesson.type === 'exam') {
+                <div class="exam-container">
+                      <div class="exam-placeholder">
+                        <span class="exam-icon">📝</span>
+                        <h3>Final Exam</h3>
+                        <p>Complete this exam to earn your certificate</p>
+                        <button [routerLink]="['/courses', currentCourse.id, 'lesson', lesson.id, 'exam']" class="btn-start-exam">Start Exam</button>
+                      </div>
+                </div>
               }
 
               <div class="lesson-actions">
                 @if (!lesson.isCompleted) {
-                  <button (click)="completeLesson(lesson.id)" class="btn-complete">
+                  <button (click)="completeLesson()" class="btn-complete">
                     Mark as Complete
                   </button>
                 } @else {
@@ -159,16 +208,27 @@
         <h2>Course Curriculum</h2>
         <p>Enroll to access all course materials</p>
         <div class="curriculum-preview">
-          @for (lesson of lessons(); track lesson.id) {
-            <div class="preview-item">
-              <span class="lesson-icon">{{ getLessonIcon(lesson.type) }}</span>
-              <div class="preview-info">
-                <div class="preview-title">{{ lesson.title }}</div>
-                <div class="preview-meta">
-                  {{ lesson.type }} • {{ lesson.duration }} min
+          @for (module of modules(); track module.id) {
+            <div class="preview-module">
+              <div class="preview-module-header">
+                <span class="expand-icon">▶</span>
+                <div class="module-info">
+                  <div class="module-title">{{ module.title }}</div>
+                  <div class="module-meta">{{ module.lessons.length }} lessons</div>
                 </div>
               </div>
-              <span class="lock-icon">🔒</span>
+              @for (lesson of module.lessons; track lesson.id) {
+                <div class="preview-item">
+                  <span class="lesson-icon">{{ getLessonIcon(lesson.type) }}</span>
+                  <div class="preview-info">
+                    <div class="preview-title">{{ lesson.title }}</div>
+                    <div class="preview-meta">
+                      {{ lesson.type }} • {{ lesson.duration }} min
+                    </div>
+                  </div>
+                  <span class="lock-icon">🔒</span>
+                </div>
+              }
             </div>
           }
         </div>

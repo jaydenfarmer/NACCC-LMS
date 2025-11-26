@@ -337,10 +337,26 @@ export class SidebarComponent implements OnInit, OnDestroy {
     });
   });
 
-  toggleSubmenu(item: NavItem, event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    item.expanded = !item.expanded;
+  // Show submenu (flyout) on hover
+  showSubmenu(item: NavItem): void {
+    const updated = this.allNavItems().map(navItem => navItem.path === item.path ? { ...navItem, expanded: true } : navItem);
+    this.allNavItems.set(updated);
+  }
+
+  // Hide the flyout when leaving
+  hideSubmenu(item: NavItem): void {
+    const updated = this.allNavItems().map(navItem => navItem.path === item.path ? { ...navItem, expanded: false } : navItem);
+    this.allNavItems.set(updated);
+  }
+
+  // Keep toggle for keyboard/accessibility (click)
+  toggleSubmenu(item: NavItem, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    const updated = this.allNavItems().map(navItem => navItem.path === item.path ? { ...navItem, expanded: !navItem.expanded } : navItem);
+    this.allNavItems.set(updated);
   }
 
   user = this.authService.user;

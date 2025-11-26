@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Course, Enrollment } from '../models/course.model';
+import { Course, Enrollment, Module, Lesson } from '../models/course.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,14 @@ export class CourseService {
   }
 
   getCourseById(id: string): Course | undefined {
-    return this.courses().find(c => c.id === id);
+    const course = this.courses().find(c => c.id === id);
+    if (course) {
+      // Add modules data if not already present
+      if (!course.modules || course.modules.length === 0) {
+        course.modules = this.getMockModulesForCourse(id);
+      }
+    }
+    return course;
   }
 
   getUserEnrollments(userId: string): Enrollment[] {
@@ -248,6 +255,324 @@ export class CourseService {
         lastAccessedAt: new Date('2024-10-28'),
         status: 'completed',
         certificateIssued: true
+      }
+    ];
+  }
+
+  private getMockModulesForCourse(courseId: string): Module[] {
+    // Return modules based on courseId
+    if (courseId === 'course-1') {
+      const modules: Module[] = [
+        {
+          id: 'mod-1-1',
+          courseId,
+          title: 'Getting Started with Credit Counseling',
+          description: 'Introduction to the field of credit counseling and its importance',
+          order: 1,
+          isExpanded: false,
+          lessons: [
+            {
+              id: 'lesson-1',
+              title: 'What is Credit Counseling?',
+              description: 'Overview of credit counseling profession and services',
+              type: 'video',
+              duration: 15,
+              order: 1,
+              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+              isCompleted: true
+            },
+            {
+              id: 'lesson-2',
+              title: 'The Role of a Credit Counselor',
+              description: 'Understanding responsibilities and expectations',
+              type: 'video',
+              duration: 20,
+              order: 2,
+              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+              isCompleted: true
+            },
+            {
+              id: 'lesson-3',
+              title: 'Industry Standards & Regulations',
+              description: 'Key regulations governing credit counseling',
+              type: 'pdf',
+              duration: 10,
+              order: 3,
+              content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+              isCompleted: true
+            }
+          ]
+        },
+        {
+          id: 'mod-1-2',
+          courseId,
+          title: 'Client Assessment Techniques',
+          description: 'Learn how to assess client financial situations',
+          order: 2,
+          isExpanded: false,
+          lessons: [
+            {
+              id: 'lesson-4',
+              title: 'Initial Client Interview',
+              description: 'Conducting effective first meetings',
+              type: 'video',
+              duration: 25,
+              order: 1,
+              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+              isCompleted: true
+            },
+            {
+              id: 'lesson-5',
+              title: 'Financial Document Review',
+              description: 'Analyzing client financial documents',
+              type: 'video',
+              duration: 18,
+              order: 2,
+              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+              isCompleted: true
+            },
+            {
+              id: 'lesson-6',
+              title: 'Assessment Quiz',
+              description: 'Test your knowledge of client assessment',
+              type: 'quiz',
+              duration: 15,
+              order: 3,
+              content: '',
+              isCompleted: false
+            }
+          ]
+        },
+        {
+          id: 'mod-1-3',
+          courseId,
+          title: 'Creating Debt Management Plans',
+          description: 'Master the art of creating effective DMPs',
+          order: 3,
+          isExpanded: false,
+          lessons: [
+            {
+              id: 'lesson-7',
+              title: 'DMP Fundamentals',
+              description: 'Understanding debt management plan basics',
+              type: 'video',
+              duration: 22,
+              order: 1,
+              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+              isCompleted: true
+            },
+            {
+              id: 'lesson-8',
+              title: 'Calculating Monthly Payments',
+              description: 'How to determine affordable payment amounts',
+              type: 'video',
+              duration: 20,
+              order: 2,
+              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+              isCompleted: true
+            },
+            {
+              id: 'lesson-9',
+              title: 'DMP Case Studies',
+              description: 'Review real-world DMP scenarios',
+              type: 'pdf',
+              duration: 12,
+              order: 3,
+              content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+              isCompleted: true
+            }
+          ]
+        },
+        {
+          id: 'mod-1-4',
+          courseId,
+          title: 'Final Assessment',
+          description: 'Complete the course final exam',
+          order: 4,
+          isExpanded: false,
+          lessons: [
+            {
+              id: 'lesson-10',
+              title: 'Course Review',
+              description: 'Summary of key concepts',
+              type: 'pdf',
+              duration: 8,
+              order: 1,
+              content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+              isCompleted: false
+            },
+            {
+              id: 'lesson-11',
+              title: 'Practice Quiz',
+              description: 'Prepare for the final exam',
+              type: 'quiz',
+              duration: 20,
+              order: 2,
+              content: '',
+              isCompleted: false
+            },
+            {
+              id: 'lesson-12',
+              title: 'Final Exam',
+              description: 'Complete to earn your certificate',
+              type: 'exam',
+              duration: 45,
+              order: 3,
+              content: '',
+              isCompleted: false
+            }
+          ]
+        }
+      ];
+
+      // Ensure lessons include courseId and moduleId for typing
+      modules.forEach((mod) => {
+        mod.lessons.forEach((l) => {
+          if (!l.courseId) (l as any).courseId = courseId;
+          if (!l.moduleId) (l as any).moduleId = mod.id;
+        });
+      });
+
+      return modules;
+    }
+
+    // Default modules for other courses
+    const defaultModules: Module[] = [
+      {
+        id: `mod-${courseId}-1`,
+        courseId,
+        title: 'Introduction',
+        description: 'Getting started with this course',
+        order: 1,
+        isExpanded: false,
+        lessons: [
+          {
+            id: `lesson-${courseId}-1`,
+            title: 'Course Overview',
+            description: 'What you will learn in this course',
+            type: 'video',
+            duration: 15,
+            order: 1,
+            content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+            isCompleted: false
+          },
+          {
+            id: `lesson-${courseId}-2`,
+            title: 'Course Materials',
+            description: 'Download course resources',
+            type: 'pdf',
+            duration: 5,
+            order: 2,
+            content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+            isCompleted: false
+          }
+        ]
+      },
+      {
+        id: `mod-${courseId}-2`,
+        courseId,
+        title: 'Core Concepts',
+        description: 'Main course content',
+        order: 2,
+        isExpanded: false,
+        lessons: [
+          {
+            id: `lesson-${courseId}-3`,
+            title: 'Key Topics',
+            description: 'Essential knowledge for this course',
+            type: 'video',
+            duration: 30,
+            order: 1,
+            content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+            isCompleted: false
+          },
+          {
+            id: `lesson-${courseId}-4`,
+            title: 'Knowledge Check',
+            description: 'Test your understanding',
+            type: 'quiz',
+            duration: 15,
+            order: 2,
+            content: '',
+            isCompleted: false
+          }
+        ]
+      }
+    ];
+
+    defaultModules.forEach((mod) => {
+      mod.lessons.forEach((l) => {
+        if (!l.courseId) (l as any).courseId = courseId;
+        if (!l.moduleId) (l as any).moduleId = mod.id;
+      });
+    });
+
+    return defaultModules;
+  }
+
+  // Return mock questions for an exam lesson. In a real app this would come from the backend.
+  getQuestionsForLesson(courseId: string, lessonId: string) {
+    return this.getMockQuestionsForLesson(courseId, lessonId);
+  }
+
+  private getMockQuestionsForLesson(courseId: string, lessonId: string) {
+    // Provide a predictable set of mock multiple-choice questions for course-1 / lesson-12
+    if (courseId === 'course-1' && lessonId === 'lesson-12') {
+      return [
+        {
+          id: 'q1',
+          text: 'Which of the following best describes a Debt Management Plan (DMP)?',
+          options: [
+            'A short-term loan to cover emergency expenses',
+            'A negotiated repayment plan with creditors to lower payments',
+            'A type of investment vehicle for retirement savings',
+            'An insurance policy to protect against debt'
+          ],
+          correctIndex: 1
+        },
+        {
+          id: 'q2',
+          text: 'When assessing a client, which document is most important to review?',
+          options: [
+            'Client social media profiles',
+            'Recent bank statements and credit reports',
+            'Client favorite movies list',
+            'None of the above'
+          ],
+          correctIndex: 1
+        },
+        {
+          id: 'q3',
+          text: 'Which action is appropriate when a client cannot meet their monthly obligations?',
+          options: [
+            'Recommend immediate bankruptcy without assessment',
+            'Create an abusive collection plan',
+            'Work with the client to build a realistic budget and negotiate with creditors',
+            'Ignore the issue and hope it resolves'
+          ],
+          correctIndex: 2
+        },
+        {
+          id: 'q4',
+          text: 'What is a common goal of credit counseling?',
+          options: [
+            'Maximize interest charges',
+            'Improve client financial literacy and sustainable repayment',
+            'Encourage risky investments',
+            'Reduce client income'
+          ],
+          correctIndex: 1
+        }
+      ];
+    }
+
+    // Default small question set for other lessons
+    return [
+      {
+        id: 'q1',
+        text: 'This is a placeholder question for the lesson.',
+        options: ['Option A', 'Option B', 'Option C', 'Option D'],
+        correctIndex: 0
       }
     ];
   }

@@ -91,67 +91,61 @@
   color: #fff;
 }
 
-.sidebar-link.active {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: white;
-  font-weight: 600;
-}
-
-/* Parent link with submenu */
-.sidebar-parent {
+/* Flyout (right-side) submenu styles - TalentLMS-like */
+.sidebar-item-group {
+  margin: 0.25rem 0;
   position: relative;
 }
 
-.expand-arrow {
-  margin-left: auto;
-  transition: transform 0.2s ease;
-  stroke: currentColor;
-}
-
-.sidebar-parent.expanded .expand-arrow {
-  transform: rotate(180deg);
-}
-
-/* Submenu styles */
-.sidebar-item-group {
-  margin: 0.25rem 0;
-}
-
-.sidebar-submenu {
-  padding-left: 0;
+.sidebar-flyout {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  min-width: 240px;
+  background: #ffffff;
+  color: #2d3748;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(18, 49, 86, 0.12);
+  z-index: 1100;
+  margin-left: 10px;
   overflow: hidden;
-  animation: slideDown 0.2s ease;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    max-height: 0;
-  }
-  to {
-    opacity: 1;
-    max-height: 500px;
-  }
+.sidebar-flyout .flyout-header {
+  background: linear-gradient(90deg, #2c5aa0 0%, #24508c 100%);
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
 }
 
-.sidebar-child {
-  padding-left: 2.5rem;
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
-  font-size: 0.75rem;
+.flyout-items {
+  display: flex;
+  flex-direction: column;
 }
 
-:host(.collapsed) .sidebar-child {
-  padding-left: 1rem;
+.flyout-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.875rem;
+  color: #2d3748;
+  text-decoration: none;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 
-:host(.collapsed) .sidebar-submenu {
-  display: none;
+.flyout-link:hover {
+  background: #eef2ff;
+  color: #1e3a8a;
 }
 
-:host(.collapsed) .expand-arrow {
-  display: none;
+.flyout-link.active {
+  background: #2c5aa0;
+  color: white;
 }
+
+.flyout-icon { width: 18px; min-width: 18px; }
+
+:host(.collapsed) .sidebar-flyout { left: 70px; }
 
 .sidebar-icon {
   width: 18px;

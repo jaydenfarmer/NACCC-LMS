@@ -18,6 +18,21 @@ export class AuthService {
   // User signal
   user = signal<User | null>(null);
 
+  private STORAGE_KEY = 'lms.user';
+
+  constructor() {
+    // Restore user from localStorage if present
+    try {
+      const raw = localStorage.getItem(this.STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as User;
+        this.user.set(parsed);
+      }
+    } catch (e) {
+      // ignore parse errors
+    }
+  }
+
   // Check if user has specific role
   hasRole(role: string): boolean {
     const currentUser = this.user();
@@ -95,6 +110,9 @@ export class AuthService {
       });
 
       this.user.set(user);
+      try {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
+      } catch (e) {}
       return true; // Login successful
     }
 
@@ -118,10 +136,16 @@ export class AuthService {
     });
 
     this.user.set(updatedUser);
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedUser));
+    } catch (e) {}
   }
 
   logout(): void {
     this.user.set(null);
     // Additional logout logic
+    try {
+      localStorage.removeItem(this.STORAGE_KEY);
+    } catch (e) {}
   }
 }

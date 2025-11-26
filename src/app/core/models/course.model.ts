@@ -44,13 +44,15 @@ export interface Enrollment {
 
 export interface Lesson {
   id: string;
-  courseId: string;
+  courseId?: string;
   moduleId?: string; // Parent module reference
   title: string;
   description: string;
   order: number;
   type: 'video' | 'pdf' | 'quiz' | 'assignment' | 'exam' | 'webinar' | 'case-study' | 'keywords';
   contentUrl?: string;
+  // Friendly alias used across mock data and templates
+  content?: string;
   duration?: number;
   isCompleted?: boolean;
   isLocked?: boolean; // Progress gating
