@@ -1,9 +1,13 @@
 <div class="sidebar">
+
   <nav class="sidebar-nav">
     @for (item of navItems(); track item.path) {
       @if (item.children && item.children.length > 0) {
-        <!-- Parent item with submenu: hover shows TalentLMS-style flyout to the right -->
-        <div class="sidebar-item-group" (mouseenter)="showSubmenu(item)" (mouseleave)="hideSubmenu(item)">
+        <!-- Parent item with submenu: hover shows flyout as overlay -->
+             <div class="sidebar-item-group"
+               [class.flyout-open]="isFlyoutOpen(item)"
+               (mouseenter)="openFlyout(item, $event); setSidebarHover(true)"
+               (mouseleave)="setSidebarHover(false)">
           <a [routerLink]="item.path" routerLinkActive="active" class="sidebar-link sidebar-parent">
             <span class="sidebar-icon">{{ item.icon }}</span>
             <span class="sidebar-label">{{ item.label }}</span>
@@ -11,21 +15,6 @@
               <path d="M3.5 2l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </a>
-
-          <!-- Flyout menu -->
-          @if (item.expanded) {
-            <div class="sidebar-flyout" role="menu">
-              <div class="flyout-header">{{ item.label }}</div>
-              <div class="flyout-items">
-                @for (child of item.children; track child.path) {
-                  <a [routerLink]="child.path" routerLinkActive="active" class="flyout-link" role="menuitem">
-                    <span class="flyout-icon">{{ child.icon }}</span>
-                    <span class="flyout-label">{{ child.label }}</span>
-                  </a>
-                }
-              </div>
-            </div>
-          }
         </div>
       } @else {
         <!-- Regular link item without submenu -->
@@ -40,6 +29,9 @@
       </div>
     }
   </nav>
+
+
+  <!-- Flyout overlay is now rendered globally in app.html -->
 
   <!-- Help Center link at bottom -->
   <div class="sidebar-footer">

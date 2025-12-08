@@ -24,6 +24,7 @@ interface NavItem {
 })
 export class SidebarComponent implements OnInit, OnDestroy {
   private sub = new Subscription();
+  // Use only the injected sidebarService
   private sidebarService = inject(SidebarService);
   private authService = inject(AuthService);
 
@@ -337,27 +338,50 @@ export class SidebarComponent implements OnInit, OnDestroy {
     });
   });
 
-  // Show submenu (flyout) on hover
-  showSubmenu(item: NavItem): void {
-    const updated = this.allNavItems().map(navItem => navItem.path === item.path ? { ...navItem, expanded: true } : navItem);
-    this.allNavItems.set(updated);
+
+
+  // Open flyout overlay globally via service
+  openFlyout(item: NavItem, event: MouseEvent): void {
+    const sidebarRect = (event.target as HTMLElement).closest('.sidebar-item-group')?.getBoundingClientRect();
+    const sidebarEl = document.querySelector('.sidebar');
+    const sidebarBounds = sidebarEl ? sidebarEl.getBoundingClientRect() : { left: 0, top: 0, width: 260 };
+    let position = { top: 0, left: 260 };
+    if (sidebarRect) {
+      position = {
+        top: sidebarRect.top - sidebarBounds.top,
+        left: sidebarBounds.width + 8 // 8px gap
+      };
+    }
+    this.sidebarService.flyoutOpenItemPath = item.path;
+    this.sidebarService.setFlyoutHover(true);
+    this.sidebarService.openFlyout(item, position);
   }
 
-  // Hide the flyout when leaving
-  hideSubmenu(item: NavItem): void {
-    const updated = this.allNavItems().map(navItem => navItem.path === item.path ? { ...navItem, expanded: false } : navItem);
-    this.allNavItems.set(updated);
+  // Close flyout overlay globally
+  closeFlyout(): void {
+    setTimeout(() => {
+      this.sidebarService.setFlyoutHover(false);
+      this.sidebarService.flyoutOpenItemPath = null;
+      this.sidebarService.closeFlyout();
+    }, 80);
   }
 
-  // Keep toggle for keyboard/accessibility (click)
+  isFlyoutOpen(item: NavItem): boolean {
+    return this.sidebarService.flyoutOpenItemPath === item.path;
+  }
+
+  // (Optional) Keep toggle for keyboard/accessibility (click)
   toggleSubmenu(item: NavItem, event?: Event): void {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
     }
-    const updated = this.allNavItems().map(navItem => navItem.path === item.path ? { ...navItem, expanded: !navItem.expanded } : navItem);
-    this.allNavItems.set(updated);
+    this.sidebarService.closeFlyout();
   }
 
   user = this.authService.user;
+
+  setSidebarHover(val: boolean) {
+    this.sidebarService.setFlyoutHover(val);
+  }
 }

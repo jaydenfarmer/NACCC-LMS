@@ -1,1 +1,20 @@
+
 <router-outlet></router-outlet>
+
+<!-- Sidebar flyout overlay rendered globally -->
+<ng-container *ngIf="flyoutState.open && flyoutState.item">
+	  <div class="sidebar-flyout-overlay"
+		  [ngStyle]="{ top: flyoutState.position.top + 'px', left: flyoutState.position.left + 'px' }"
+		  (mouseenter)="setFlyoutHover(true)"
+		  (mouseleave)="setFlyoutHover(false)"
+		  role="menu">
+		<div class="flyout-header">{{ flyoutState.item.label }}</div>
+		<div class="flyout-items">
+			<a *ngFor="let child of flyoutState.item.children; trackBy: trackByPath"
+				 [routerLink]="child.path" routerLinkActive="active" class="flyout-link" role="menuitem">
+				<span class="flyout-icon">{{ child.icon }}</span>
+				<span class="flyout-label">{{ child.label }}</span>
+			</a>
+		</div>
+	</div>
+</ng-container>
