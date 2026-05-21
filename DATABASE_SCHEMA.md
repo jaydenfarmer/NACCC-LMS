@@ -112,6 +112,12 @@
 | created_at            | timestamp |                                                         |
 | updated_at            | timestamp |                                                         |
 
+salesforce_sync_log: id, tenant_id, entity_type (company, user, enrollment),
+entity_id, salesforce_id,
+sync_status (pending, success, failed),
+error_message, last_attempted_at,
+created_at
+
 ---
 
 ## CONTENT
@@ -347,6 +353,12 @@ _One row per course/branch assignment. A course with no rows here is main domain
 | group_id        | integer   | Foreign key → enrollment_groups (nullable — future) |
 | created_at      | timestamp |                                                     |
 | updated_at      | timestamp |                                                     |
+
+enrollment_groups: TO BE DESIGNED IN PHASE 3
+
+- Will store group enrollment batches
+- enrollments.group_id will foreign key to this table
+- Until then group_id must remain nullable and unqueried
 
 ---
 
@@ -662,3 +674,9 @@ _Only populated when coupon applicable_to = specific_courses_
 - [ ] Is 2 year expiration consistent across all certifications
 - [ ] Confirmed: expired + recertified learner gets a NEW certificate number
 - [ ] Confirmed: credit hour threshold varies by course (stored on courses table)
+- [ ] salesforce_sync_log entity_type — confirm full
+      closed list before Phase 7 builds it. Known:
+      company, user, enrollment. Possible additions:
+      certificate, course
+- [ ] salesforce_sync_log — add retry_count column
+      when building retry logic in Phase 7

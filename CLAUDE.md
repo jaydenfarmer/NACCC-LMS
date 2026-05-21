@@ -238,3 +238,7 @@ _All UI data models must match this schema._
 - Offline mode
 - Discussion boards
 - Proctor mode
+
+NOTE: notification_preferences are tenant-controlled
+by admins, NOT per-user. This is intentional.
+Do not add user_id to this table without discussion.
