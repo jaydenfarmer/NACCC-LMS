@@ -28,6 +28,15 @@ designed to eventually serve multiple organizations.
 
 ---
 
+## Key Project Files
+
+- **CLAUDE.md** — this file, project rules and reference
+- **DATABASE_SCHEMA.md** — complete PostgreSQL schema for all 37 tables.
+  Read this before building any feature that touches data.
+  Every data model in the UI must match this schema exactly.
+
+---
+
 ## Current Project Status
 
 The project is currently a **UI prototype with mock data**.
