@@ -14,7 +14,7 @@ export interface NavItem {
 
 export interface SidebarFlyoutState {
   open: boolean;
-  item: any | null;
+  item: NavItem | null;
   position: { top: number; left: number };
 }
 
@@ -87,7 +87,7 @@ export class SidebarService {
   private _flyout = new BehaviorSubject<SidebarFlyoutState>({ open: false, item: null, position: { top: 0, left: 0 } });
   flyout$ = this._flyout.asObservable();
 
-  public openFlyout(item: any, position: { top: number; left: number }) {
+  public openFlyout(item: NavItem, position: { top: number; left: number }) {
     this._flyout.next({ open: true, item, position });
   }
 
@@ -112,7 +112,7 @@ export class SidebarService {
     }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
-    } catch {}
+    } catch { /* ignore */ }
   }
 
   private readInitial(): boolean {

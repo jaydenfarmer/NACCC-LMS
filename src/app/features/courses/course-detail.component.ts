@@ -1,9 +1,9 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CourseService } from '../../core/services/course.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Course, Module, Lesson } from '../../core/models/course.model';
+import { Module, Lesson } from '../../core/models/course.model';
 
 @Component({
   selector: 'app-course-detail',
@@ -13,6 +13,11 @@ import { Course, Module, Lesson } from '../../core/models/course.model';
   styleUrls: ['./course-detail.component.css']
 })
 export class CourseDetailComponent {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private courseService = inject(CourseService);
+  private authService = inject(AuthService);
+
   courseId = signal<string>('');
   
   course = computed(() => {
@@ -51,12 +56,7 @@ export class CourseDetailComponent {
 
   selectedLesson = signal<Lesson | null>(null);
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private courseService: CourseService,
-    private authService: AuthService
-  ) {
+  constructor() {
     this.route.params.subscribe(params => {
       this.courseId.set(params['id']);
       
@@ -154,7 +154,7 @@ export class CourseDetailComponent {
   }
 
   getLessonIcon(type: string): string {
-    const icons: { [key: string]: string } = {
+    const icons: Record<string, string> = {
       'video': '🎥',
       'pdf': '📄',
       'quiz': '✍️',

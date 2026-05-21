@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -12,16 +12,16 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
   email = signal('');
   password = signal('');
   errorMessage = signal('');
   returnUrl = signal('/dashboard');
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {
+  constructor() {
     this.returnUrl.set(this.route.snapshot.queryParams['returnUrl'] || '/dashboard');
   }
 
@@ -31,9 +31,9 @@ export class LoginComponent {
     if (this.authService.login(this.email(), this.password())) {
       const dest = this.returnUrl() || '/dashboard';
       try {
-        // eslint-disable-next-line no-console
+
         console.debug('[Login] successful, returning to:', dest);
-      } catch (e) {}
+      } catch { /* ignore */ }
       this.router.navigateByUrl(dest);
     } else {
       this.errorMessage.set('Invalid email or password');

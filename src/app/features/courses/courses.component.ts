@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,9 @@ import { Course } from '../../core/models/course.model';
   styleUrl: './courses.component.css'
 })
 export class CoursesComponent {
+  private courseService = inject(CourseService);
+  private authService = inject(AuthService);
+
   searchTerm = signal('');
   selectedCategory = signal('all');
   selectedDifficulty = signal('all');
@@ -23,10 +26,7 @@ export class CoursesComponent {
 
   filteredCourses = signal<Course[]>([]);
 
-  constructor(
-    private courseService: CourseService,
-    private authService: AuthService
-  ) {
+  constructor() {
     this.filterCourses();
   }
 
@@ -86,7 +86,7 @@ export class CoursesComponent {
   }
 
   getDifficultyBadgeClass(difficulty: string): string {
-    const classes: { [key: string]: string } = {
+    const classes: Record<string, string> = {
       'beginner': 'badge-green',
       'intermediate': 'badge-yellow',
       'advanced': 'badge-red'

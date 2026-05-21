@@ -1,9 +1,9 @@
 
 
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { SidebarService, SidebarFlyoutState } from './core/services/sidebar.service';
+import { SidebarService, SidebarFlyoutState, NavItem } from './core/services/sidebar.service';
 
 
 @Component({
@@ -13,11 +13,13 @@ import { SidebarService, SidebarFlyoutState } from './core/services/sidebar.serv
   styleUrl: './app.css'
 })
 export class App {
+  sidebarService = inject(SidebarService);
+
   protected readonly title = signal('credit-counseling-lms');
 
   flyoutState: SidebarFlyoutState = { open: false, item: null, position: { top: 0, left: 0 } };
 
-  constructor(public sidebarService: SidebarService) {
+  constructor() {
     this.sidebarService.flyout$.subscribe(state => {
       this.flyoutState = state;
     });
@@ -46,7 +48,7 @@ export class App {
     }
   }
 
-  trackByPath(_: number, item: any) {
+  trackByPath(_: number, item: NavItem): string {
     return item.path;
   }
 }

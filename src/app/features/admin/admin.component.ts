@@ -1,6 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CourseService } from '../../core/services/course.service';
 import { Course } from '../../core/models/course.model';
@@ -13,6 +12,8 @@ import { Course } from '../../core/models/course.model';
   styleUrl: './admin.component.css'
 })
 export class AdminComponent {
+  private courseService = inject(CourseService);
+
   activeTab = signal<'overview' | 'courses' | 'users'>('overview');
   
   showCourseForm = signal(false);
@@ -32,7 +33,6 @@ export class AdminComponent {
     tags: ''
   });
 
-  constructor(private courseService: CourseService) {}
 
   get courses() {
     return this.courseService.allCourses;

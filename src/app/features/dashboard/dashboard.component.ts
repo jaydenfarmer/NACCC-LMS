@@ -1,4 +1,4 @@
-import { Component, computed, signal, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, computed, signal, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
@@ -15,7 +15,10 @@ Chart.register(...registerables);
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
+  private authService = inject(AuthService);
+  private courseService = inject(CourseService);
+
   @ViewChild('portalActivityChart') portalActivityChartRef?: ElementRef<HTMLCanvasElement>;
   private chart?: Chart;
 
@@ -27,11 +30,6 @@ export class DashboardComponent implements OnInit {
     type: 'info',
     dismissible: true
   });
-
-  constructor(
-    private authService: AuthService,
-    private courseService: CourseService
-  ) {}
 
   ngOnInit() {
     // Initialize chart after view is ready

@@ -168,8 +168,18 @@
   }
 
   @if (showCourseForm()) {
-    <div class="modal-overlay" (click)="closeCourseForm()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-overlay"
+         role="button"
+         tabindex="0"
+         (click)="closeCourseForm()"
+         (keydown.enter)="closeCourseForm()"
+         (keydown.escape)="closeCourseForm()">
+      <div class="modal-content"
+           role="dialog"
+           aria-modal="true"
+           tabindex="-1"
+           (click)="$event.stopPropagation()"
+           (keydown)="$event.stopPropagation()">
         <div class="modal-header">
           <h2>{{ editingCourse() ? 'Edit Course' : 'Create New Course' }}</h2>
           <button class="btn-close" (click)="closeCourseForm()">✕</button>
@@ -177,8 +187,9 @@
 
         <div class="modal-body">
           <div class="form-group">
-            <label>Course Title *</label>
+            <label for="course-title">Course Title *</label>
             <input
+              id="course-title"
               type="text"
               [value]="courseForm().title"
               (input)="updateFormField('title', $any($event.target).value)"
@@ -188,8 +199,9 @@
           </div>
 
           <div class="form-group">
-            <label>Description *</label>
+            <label for="course-desc">Description *</label>
             <textarea
+              id="course-desc"
               [value]="courseForm().description"
               (input)="updateFormField('description', $any($event.target).value)"
               placeholder="Enter course description"
@@ -200,8 +212,9 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label>Category *</label>
+              <label for="course-cat">Category *</label>
               <select
+                id="course-cat"
                 [value]="courseForm().category"
                 (change)="updateFormField('category', $any($event.target).value)"
               >
@@ -212,8 +225,9 @@
             </div>
 
             <div class="form-group">
-              <label>Difficulty Level *</label>
+              <label for="course-diff">Difficulty Level *</label>
               <select
+                id="course-diff"
                 [value]="courseForm().difficulty"
                 (change)="updateFormField('difficulty', $any($event.target).value)"
               >
@@ -226,8 +240,9 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label>Duration (minutes) *</label>
+              <label for="course-dur">Duration (minutes) *</label>
               <input
+                id="course-dur"
                 type="number"
                 [value]="courseForm().duration"
                 (input)="updateFormField('duration', +$any($event.target).value)"
@@ -238,8 +253,9 @@
             </div>
 
             <div class="form-group">
-              <label>Total Lessons *</label>
+              <label for="course-lessons">Total Lessons *</label>
               <input
+                id="course-lessons"
                 type="number"
                 [value]="courseForm().totalLessons"
                 (input)="updateFormField('totalLessons', +$any($event.target).value)"
@@ -251,8 +267,9 @@
           </div>
 
           <div class="form-group">
-            <label>Thumbnail URL</label>
+            <label for="course-thumb">Thumbnail URL</label>
             <input
+              id="course-thumb"
               type="url"
               [value]="courseForm().thumbnail"
               (input)="updateFormField('thumbnail', $any($event.target).value)"
@@ -261,8 +278,9 @@
           </div>
 
           <div class="form-group">
-            <label>Tags (comma-separated)</label>
+            <label for="course-tags">Tags (comma-separated)</label>
             <input
+              id="course-tags"
               type="text"
               [value]="courseForm().tags"
               (input)="updateFormField('tags', $any($event.target).value)"

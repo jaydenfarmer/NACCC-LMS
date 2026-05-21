@@ -1,16 +1,9 @@
-import { Component, computed, HostListener, signal } from '@angular/core';
+import { Component, HostListener, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { SidebarService } from '../../core/services/sidebar.service';
-
-interface NavItem {
-  label: string;
-  path: string;
-  icon: string;
-  roles?: string[];
-}
 
 @Component({
   selector: 'app-header',
@@ -20,16 +13,14 @@ interface NavItem {
   styleUrl: './header.component.css',
 })
 export class HeaderComponent {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  sidebar = inject(SidebarService);
+
   logoPath = 'images/logos/NACCC_LOGO.png';
   searchQuery = signal('');
   notificationCount = signal(3); // Mock notification count
-  messageCount = signal(5); // Mock message count
-  
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    public sidebar: SidebarService
-  ) {}
+  messageCount = signal(5);
 
   get user() {
     return this.authService.user;
@@ -41,8 +32,8 @@ export class HeaderComponent {
     this.userMenuOpen = !this.userMenuOpen;
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(_ev?: Event) {
+  @HostListener('document:click')
+  onDocumentClick() {
     // close when clicking outside
     this.userMenuOpen = false;
   }

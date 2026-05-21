@@ -76,7 +76,8 @@
           </svg>
         </button>
 
-        <div class="user-dropdown" *ngIf="userMenuOpen" role="menu">
+        @if (userMenuOpen) {
+        <div class="user-dropdown" role="menu">
           <div class="user-profile">
             <img [src]="currentUser.avatar" [alt]="currentUser.firstName" class="avatar-lg" />
             <div class="profile-info">
@@ -161,6 +162,7 @@
             </button>
           </div>
         </div>
+        }
       </div>
       }
     </div>

@@ -77,7 +77,12 @@
           <div class="modules-list">
             @for (module of modules(); track module.id) {
               <div class="module-section" [class.expanded]="module.isExpanded">
-                <div class="module-header" (click)="toggleModule(module.id)">
+                <div class="module-header"
+                     role="button"
+                     tabindex="0"
+                     (click)="toggleModule(module.id)"
+                     (keydown.enter)="toggleModule(module.id)"
+                     (keydown.space)="toggleModule(module.id)">
                   <div class="module-left">
                     <span class="expand-icon">{{ module.isExpanded ? '▼' : '▶' }}</span>
                     <div class="module-info">
@@ -110,11 +115,15 @@
                 @if (module.isExpanded) {
                   <div class="lessons-list">
                     @for (lesson of module.lessons; track lesson.id) {
-                      <div 
+                      <div
                         class="lesson-item"
+                        role="button"
+                        tabindex="0"
                         [class.completed]="lesson.isCompleted"
                         [class.active]="selectedLesson()?.id === lesson.id"
                         (click)="selectLesson(lesson)"
+                        (keydown.enter)="selectLesson(lesson)"
+                        (keydown.space)="selectLesson(lesson)"
                       >
                         <span class="lesson-icon">{{ getLessonIcon(lesson.type) }}</span>
                         <div class="lesson-info">

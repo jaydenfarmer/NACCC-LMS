@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Course, Enrollment, Module, Lesson } from '../models/course.model';
+import { Course, Enrollment, Module } from '../models/course.model';
 
 @Injectable({
   providedIn: 'root'
@@ -428,8 +428,8 @@ export class CourseService {
       // Ensure lessons include courseId and moduleId for typing
       modules.forEach((mod) => {
         mod.lessons.forEach((l) => {
-          if (!l.courseId) (l as any).courseId = courseId;
-          if (!l.moduleId) (l as any).moduleId = mod.id;
+          if (!l.courseId) l.courseId = courseId;
+          if (!l.moduleId) l.moduleId = mod.id;
         });
       });
 
@@ -502,8 +502,8 @@ export class CourseService {
 
     defaultModules.forEach((mod) => {
       mod.lessons.forEach((l) => {
-        if (!l.courseId) (l as any).courseId = courseId;
-        if (!l.moduleId) (l as any).moduleId = mod.id;
+        if (!l.courseId) l.courseId = courseId;
+        if (!l.moduleId) l.moduleId = mod.id;
       });
     });
 

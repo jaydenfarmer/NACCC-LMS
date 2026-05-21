@@ -28,7 +28,7 @@ export class AuthService {
         const parsed = JSON.parse(raw) as User;
         this.user.set(parsed);
       }
-    } catch (e) {
+    } catch {
       // ignore parse errors
     }
   }
@@ -112,7 +112,7 @@ export class AuthService {
       this.user.set(user);
       try {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
-      } catch (e) {}
+      } catch { /* ignore */ }
       return true; // Login successful
     }
 
@@ -138,7 +138,7 @@ export class AuthService {
     this.user.set(updatedUser);
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updatedUser));
-    } catch (e) {}
+    } catch { /* ignore */ }
   }
 
   logout(): void {
@@ -146,6 +146,6 @@ export class AuthService {
     // Additional logout logic
     try {
       localStorage.removeItem(this.STORAGE_KEY);
-    } catch (e) {}
+    } catch { /* ignore */ }
   }
 }

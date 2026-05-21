@@ -56,6 +56,8 @@ export interface Lesson {
   duration?: number;
   isCompleted?: boolean;
   isLocked?: boolean; // Progress gating
+  passingScore?: number;
+  password?: string;
 }
 
 export interface Quiz {

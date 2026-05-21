@@ -1,9 +1,17 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CourseService } from '../../core/services/course.service';
 import { AuthService } from '../../core/services/auth.service';
+import { Course, Lesson, Module } from '../../core/models/course.model';
+
+interface ExamQuestion {
+  id: string;
+  text: string;
+  options: string[];
+  correctIndex: number;
+}
 
 @Component({
   selector: 'app-exam',
@@ -13,6 +21,11 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrls: ['./exam.component.css']
 })
 export class ExamComponent {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private courseService = inject(CourseService);
+  private authService = inject(AuthService);
+
   courseId = '';
   lessonId = '';
 
@@ -23,20 +36,15 @@ export class ExamComponent {
   started = signal(false);
   finished = signal(false);
 
-  course: any = null;
-  lesson: any = null;
-  questions: any[] = [];
-  answers: { [qId: string]: number | null } = {};
+  course: Course | null = null;
+  lesson: Lesson | null = null;
+  questions: ExamQuestion[] = [];
+  answers: Record<string, number | null> = {};
   timerSeconds = 0;
-  private timerHandle: any = null;
+  private timerHandle: ReturnType<typeof setInterval> | null = null;
   score: number | null = null;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private courseService: CourseService,
-    private authService: AuthService
-  ) {
+  constructor() {
     const params = this.route.snapshot.params;
     this.courseId = params['courseId'];
     this.lessonId = params['lessonId'];
@@ -46,12 +54,12 @@ export class ExamComponent {
 
   init(): void {
     const c = this.courseService.getCourseById(this.courseId);
-    this.course = c;
+    this.course = c ?? null;
     if (c && c.modules) {
       for (const mod of c.modules) {
-        const found = mod.lessons.find((l: any) => l.id === this.lessonId);
+        const found = mod.lessons.find(l => l.id === this.lessonId);
         if (found) {
-          this.lesson = found;
+          this.lesson = found ?? null;
           break;
         }
       }
@@ -75,7 +83,7 @@ export class ExamComponent {
       for (const q of this.questions) {
         this.answers[q.id] = null;
       }
-    } catch (e) {
+    } catch {
       this.questions = [];
     }
 
@@ -86,7 +94,7 @@ export class ExamComponent {
     this.passwordError.set('');
     const attempt = this.enteredPassword();
     // Mock password check: compare to lesson.password
-    if (this.lesson.password && attempt !== this.lesson.password) {
+    if (this.lesson?.password && attempt !== this.lesson.password) {
       this.passwordError.set('Incorrect password. Please try again.');
       return;
     }
@@ -149,9 +157,9 @@ export class ExamComponent {
     if (this.score >= passing) {
       // mark completed in course structure
       if (this.course && this.course.modules) {
-        this.course.modules = this.course.modules.map((mod: any) => ({
+        this.course.modules = this.course.modules.map((mod: Module) => ({
           ...mod,
-          lessons: mod.lessons.map((l: any) => (l.id === this.lesson.id ? { ...l, isCompleted: true } : l))
+          lessons: mod.lessons.map((l: Lesson) => (l.id === this.lesson?.id ? { ...l, isCompleted: true } : l))
         }));
       }
     }
@@ -160,9 +168,9 @@ export class ExamComponent {
     const user = this.authService.user();
     if (user) {
       const enrollment = this.courseService.getEnrollment(user.id, this.courseId);
-      if (enrollment) {
-        const completedCount = this.course.modules.reduce((s: number, m: any) => s + m.lessons.filter((ll: any) => ll.isCompleted).length, 0);
-        const totalLessons = this.course.modules.reduce((s: number, m: any) => s + m.lessons.length, 0);
+      if (enrollment && this.course?.modules) {
+        const completedCount = this.course.modules.reduce((s, m) => s + m.lessons.filter(ll => !!ll.isCompleted).length, 0);
+        const totalLessons = this.course.modules.reduce((s, m) => s + m.lessons.length, 0);
         const newProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
         this.courseService.updateProgress(enrollment.id, newProgress, completedCount);
       }
