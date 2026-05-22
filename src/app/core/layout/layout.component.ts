@@ -2,8 +2,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from './header.component';
-import { SidebarComponent } from './sidebar/sidebar';
+import { HeaderComponent } from '../../shared/components/header.component';
+import { SidebarComponent } from '../../shared/components/sidebar/sidebar';
 
 @Component({
   selector: 'app-layout',

@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx ng *)"
+      "Bash(npx ng *)",
+      "PowerShell(Move-Item -Path \"c:\\\\Users\\\\haiel\\\\OneDrive\\\\Documents\\\\Jayden\\\\Projects\\\\credit-counseling-lms\\\\src\\\\app\\\\core\\\\models\\\\user.model.ts\" -Destination \"c:\\\\Users\\\\haiel\\\\OneDrive\\\\Documents\\\\Jayden\\\\Projects\\\\credit-counseling-lms\\\\src\\\\app\\\\shared\\\\models\\\\user.model.ts\")"
     ]
   }
 }

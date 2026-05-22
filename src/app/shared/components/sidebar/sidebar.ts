@@ -1,7 +1,7 @@
 import { Component, signal, computed, inject, OnDestroy, OnInit, HostBinding } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
-import { SidebarService } from '../../../core/services/sidebar.service';
+import { AuthService } from '../../services/auth.service';
+import { SidebarService } from '../../services/sidebar.service';
 import { Subscription } from 'rxjs';
 
 interface NavItem {

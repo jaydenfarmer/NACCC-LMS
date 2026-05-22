@@ -1,8 +1,8 @@
 import { Component, computed, signal, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
-import { CourseService } from '../../core/services/course.service';
+import { AuthService } from '../../shared/services/auth.service';
+import { CourseService } from '../../shared/services/course.service';
 import { AnnouncementBannerComponent, Announcement } from '../../shared/components/announcement-banner/announcement-banner.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 

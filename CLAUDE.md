@@ -242,3 +242,9 @@ _All UI data models must match this schema._
 NOTE: notification_preferences are tenant-controlled
 by admins, NOT per-user. This is intentional.
 Do not add user_id to this table without discussion.
+
+NOTE: enrollments.group_id references enrollment_groups
+which does not exist yet. This column must stay nullable
+and must not be queried or joined until Phase 3.
+Do not design UI or services around group enrollment
+until that table is formally designed.

@@ -3,7 +3,7 @@
 import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { SidebarService, SidebarFlyoutState, NavItem } from './core/services/sidebar.service';
+import { SidebarService, SidebarFlyoutState, NavItem } from './shared/services/sidebar.service';
 
 
 @Component({

@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
-import { roleGuard } from './core/guards/role.guard';
+import { authGuard } from './shared/guards/auth.guard';
+import { roleGuard } from './shared/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -9,7 +9,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    loadComponent: () => import('./shared/components/layout.component').then(m => m.LayoutComponent),
+    loadComponent: () => import('./core/layout/layout.component').then(m => m.LayoutComponent),
     canActivate: [authGuard],
     children: [
       {
@@ -26,7 +26,7 @@ export const routes: Routes = [
       },
       {
         path: 'courses/:courseId/lesson/:lessonId/exam',
-        loadComponent: () => import('./features/courses/exam.component').then(m => m.ExamComponent)
+        loadComponent: () => import('./features/quizzes/exam.component').then(m => m.ExamComponent)
       },
       {
         path: 'my-learning',

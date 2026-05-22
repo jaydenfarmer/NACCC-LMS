@@ -1,8 +1,8 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CourseService } from '../../core/services/course.service';
-import { Course } from '../../core/models/course.model';
+import { CourseService } from '../../shared/services/course.service';
+import { Course } from '../../shared/models/course.model';
 
 @Component({
   selector: 'app-admin',

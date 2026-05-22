@@ -2,9 +2,9 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { CourseService } from '../../core/services/course.service';
-import { AuthService } from '../../core/services/auth.service';
-import { Course, Lesson, Module } from '../../core/models/course.model';
+import { CourseService } from '../../shared/services/course.service';
+import { AuthService } from '../../shared/services/auth.service';
+import { Course, Lesson, Module } from '../../shared/models/course.model';
 
 interface ExamQuestion {
   id: string;

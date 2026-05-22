@@ -1,9 +1,9 @@
 import { Component, computed, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { CourseService } from '../../core/services/course.service';
-import { AuthService } from '../../core/services/auth.service';
-import { Module, Lesson } from '../../core/models/course.model';
+import { CourseService } from '../../shared/services/course.service';
+import { AuthService } from '../../shared/services/auth.service';
+import { Module, Lesson } from '../../shared/models/course.model';
 
 @Component({
   selector: 'app-course-detail',

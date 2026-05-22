@@ -1,9 +1,9 @@
 import { Component, HostListener, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
-import { SidebarService } from '../../core/services/sidebar.service';
+import { SidebarService } from '../services/sidebar.service';
 
 @Component({
   selector: 'app-header',

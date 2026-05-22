@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Move-Item -Path \"c:\\\\Users\\\\haiel\\\\OneDrive\\\\Documents\\\\Jayden\\\\Projects\\\\credit-counseling-lms\\\\src\\\\app\\\\core\\\\services\\\\auth.service.ts\" -Destination \"c:\\\\Users\\\\haiel\\\\OneDrive\\\\Documents\\\\Jayden\\\\Projects\\\\credit-counseling-lms\\\\src\\\\app\\\\shared\\\\services\\\\auth.service.ts\")",
+      "PowerShell(Move-Item -Path \"c:\\\\Users\\\\haiel\\\\OneDrive\\\\Documents\\\\Jayden\\\\Projects\\\\credit-counseling-lms\\\\src\\\\app\\\\core\\\\models\\\\course.model.ts\" -Destination \"c:\\\\Users\\\\haiel\\\\OneDrive\\\\Documents\\\\Jayden\\\\Projects\\\\credit-counseling-lms\\\\src\\\\app\\\\shared\\\\models\\\\course.model.ts\")"
+    ]
+  }
+}
