@@ -177,7 +177,7 @@
                     <span class="quiz-icon">✍️</span>
                     <h3>Knowledge Check</h3>
                     <p>Test your understanding of the material</p>
-                    <button class="btn-start-quiz">Start Quiz</button>
+                    <button [routerLink]="['/courses', currentCourse.id, 'lesson', lesson.id, 'quiz']" class="btn-start-quiz">Start Quiz</button>
                   </div>
                 </div>
               } @else if (lesson.type === 'exam') {
