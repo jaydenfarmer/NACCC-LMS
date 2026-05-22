@@ -169,15 +169,16 @@ _All UI data models must match this schema._
 
 ## Phases Overview
 
-| Phase | Scope                                                                                 | Status      |
-| ----- | ------------------------------------------------------------------------------------- | ----------- |
-| 1     | Complete UI prototype, replace mock data with service layer, localStorage persistence | In Progress |
-| 2     | Branch management, certificates                                                       | Not Started |
-| 3     | Automations                                                                           | Not Started |
-| 4     | Reporting & analytics                                                                 | Not Started |
-| 5     | Integrations (Salesforce, API, SSO, Zoom)                                             | Not Started |
-| 6     | WCAG 2.1 AA compliance & QA                                                           | Not Started |
-| 7     | Backend, PostgreSQL, production launch                                                | Not Started |
+| Phase | Scope                                                                                           | Status      |
+| ----- | ----------------------------------------------------------------------------------------------- | ----------- | --- | ----------- |
+| 1A    | Learner experience — course catalog, course detail, quiz/exam engine, progress tracking         | In Progress |
+| 1B    | Admin/instructor tooling — course builder, quiz builder, user management, enrollment management | Not Started |
+| 2     | Branch Management & Certificates                                                                | Not Started |
+| 3     | Automations                                                                                     | Not Started |
+| 4     | Reporting & Analytics                                                                           | Not Started |
+| 5     | Integrations (Salesforce, Stripe, SSO, Zoom)                                                    | Not Started |
+| 6     | WCAG Accessibility & QA                                                                         | Not Started |
+| 7     | Backend & Production Launch                                                                     | Not Started |     | Not Started |
 
 ---
 
