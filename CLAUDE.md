@@ -220,6 +220,26 @@ _All UI data models must match this schema._
 - SSO (Microsoft or Google)
 - Bulk user import via CSV
 - Zoom integration
+- Public facing course catalog (no login required)
+- Combined registration and checkout flow (account created only on successful payment)
+- Guest users never become LMS accounts until they pay
+- "I'm Interested" lead capture form → Salesforce Lead → automated program information email (no LMS account created)
+- Post-purchase confirmation page with direct course link
+- Confirmation/receipt email to purchaser
+- Welcome email with auto-generated login credentials and course link
+- System generates password for ALL new accounts (individual and company)
+- Company purchase → system generates passwords for each employee → individual notification emails
+- Force password change on first login before accessing anything
+- "What's next" on dashboard defaults to first enrolled course for new learners
+- Opening a lesson automatically marks it complete
+- Password protected exam — cannot access without correct password
+- Course completion screen with congratulations
+- Immediate certificate generation and download on completion screen
+- Certificate downloadable anytime from My Certificates page
+- My Certificates page
+- Expiration alerts via email and in-app notification
+- Dashboard widget showing expiring certificates with links to relevant CEU courses
+- Full learner history page
 
 ---
 
@@ -239,6 +259,7 @@ _All UI data models must match this schema._
 - Offline mode
 - Discussion boards
 - Proctor mode
+- First login guided tour
 
 NOTE: notification_preferences are tenant-controlled
 by admins, NOT per-user. This is intentional.
@@ -255,3 +276,8 @@ from day one. Each section is a standalone component
 driven by a widget config array. Drag-and-drop
 customization UI comes later but structure must
 support it from the start.
+
+NOTE: LMS accounts are only created upon successful
+payment. No guest accounts. The interest/lead form
+creates a Salesforce Lead only — no LMS account.
+The public catalog is accessible without login.

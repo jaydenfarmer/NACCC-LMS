@@ -61,7 +61,6 @@
 | --------------------- | --------- | ------------------------------------------- |
 | id                    | integer   | Primary key                                 |
 | tenant_id             | integer   | Foreign key → tenants                       |
-| branch_id             | integer   | Foreign key → branches (nullable)           |
 | company_id            | integer   | Foreign key → companies (nullable)          |
 | active_role_id        | integer   | Foreign key → roles — currently active role |
 | first_name            | varchar   |                                             |
@@ -78,6 +77,19 @@
 | last_login_at         | timestamp | nullable                                    |
 | created_at            | timestamp |                                             |
 | updated_at            | timestamp |                                             |
+
+_Branch assignments are managed via the user_branches bridge table —
+a user can belong to multiple branches._
+
+---
+
+### user_branches
+
+| Column    | Type    | Notes                  |
+| --------- | ------- | ---------------------- |
+| id        | integer | Primary key            |
+| user_id   | integer | Foreign key → users    |
+| branch_id | integer | Foreign key → branches |
 
 ---
 
@@ -338,21 +350,21 @@ _One row per course/branch assignment. A course with no rows here is main domain
 
 ### enrollments
 
-| Column          | Type      | Notes                                               |
-| --------------- | --------- | --------------------------------------------------- |
-| id              | integer   | Primary key                                         |
-| tenant_id       | integer   | Foreign key → tenants                               |
-| user_id         | integer   | Foreign key → users                                 |
-| course_id       | integer   | Foreign key → courses                               |
-| branch_id       | integer   | Foreign key → branches                              |
-| enrolled_by     | integer   | Foreign key → users — who did the enrolling         |
-| enrollment_date | timestamp |                                                     |
-| due_date        | timestamp | nullable                                            |
-| status          | varchar   | enrolled, in_progress, completed, expired           |
-| payment_id      | integer   | Foreign key → payments (nullable — free courses)    |
-| group_id        | integer   | Foreign key → enrollment_groups (nullable — future) |
-| created_at      | timestamp |                                                     |
-| updated_at      | timestamp |                                                     |
+| Column          | Type      | Notes                                                |
+| --------------- | --------- | ---------------------------------------------------- |
+| id              | integer   | Primary key                                          |
+| tenant_id       | integer   | Foreign key → tenants                                |
+| user_id         | integer   | Foreign key → users                                  |
+| course_id       | integer   | Foreign key → courses                                |
+| branch_id       | integer   | Foreign key → branches                               |
+| enrolled_by     | integer   | Foreign key → users — who did the enrolling          |
+| enrollment_date | timestamp |                                                      |
+| due_date        | timestamp | nullable                                             |
+| status          | varchar   | enrolled, suspended, in_progress, completed, expired |
+| payment_id      | integer   | Foreign key → payments (nullable — free courses)     |
+| group_id        | integer   | Foreign key → enrollment_groups (nullable — future)  |
+| created_at      | timestamp |                                                      |
+| updated_at      | timestamp |                                                      |
 
 enrollment_groups: TO BE DESIGNED IN PHASE 3
 
@@ -516,7 +528,7 @@ _Only populated when coupon applicable_to = specific_courses_
 | ----------- | --------- | -------------------------------- |
 | id          | integer   | Primary key                      |
 | payment_id  | integer   | Foreign key → payments           |
-| item_type   | varchar   | course or bundle                 |
+| item_type   | varchar   | course, bundle, or exam_retake   |
 | course_id   | integer   | Foreign key → courses (nullable) |
 | bundle_id   | integer   | Foreign key → bundles (nullable) |
 | quantity    | integer   |                                  |
@@ -680,3 +692,5 @@ _Only populated when coupon applicable_to = specific_courses_
       certificate, course
 - [ ] salesforce_sync_log — add retry_count column
       when building retry logic in Phase 7
+- [ ] user_branches replaces branch_id on users table —
+      confirm this is correct before Phase 7 backend build
