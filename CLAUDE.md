@@ -249,3 +249,9 @@ which does not exist yet. This column must stay nullable
 and must not be queried or joined until Phase 3.
 Do not design UI or services around group enrollment
 until that table is formally designed.
+
+NOTE: Dashboard must be built with widget architecture
+from day one. Each section is a standalone component
+driven by a widget config array. Drag-and-drop
+customization UI comes later but structure must
+support it from the start.
