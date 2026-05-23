@@ -240,6 +240,12 @@ _All UI data models must match this schema._
 - Expiration alerts via email and in-app notification
 - Dashboard widget showing expiring certificates with links to relevant CEU courses
 - Full learner history page
+- Instructor dashboard — pending submissions, upcoming exams, recent activity
+- Instructor sees all courses and all learners across platform
+- In-LMS messaging to individual learners
+- Course-wide announcements per course
+- Instructor reporting — progress, assessment performance, completion rates
+- Exam day notification with Zoom link
 
 ---
 

@@ -65,8 +65,8 @@ export class ExamComponent {
       }
     }
 
-    // If no lesson or not an exam, navigate back
-    if (!this.lesson || this.lesson.type !== 'exam') {
+    // If no lesson or not an exam/quiz, navigate back
+    if (!this.lesson || (this.lesson.type !== 'exam' && this.lesson.type !== 'quiz')) {
       this.router.navigate(['/courses', this.courseId]);
       return;
     }
