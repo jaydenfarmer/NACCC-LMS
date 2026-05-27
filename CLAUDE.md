@@ -194,7 +194,7 @@ _All UI data models must match this schema._
 - In-app notifications center
 - Learner can message instructor directly
 - Prerequisites with hard gates
-- Retake policies with configurable limits
+- Exam retake fee — each retake is a separate Stripe purchase, unlimited retakes
 - Mandatory course enforcement
 - Course versioning
 - Mobile responsive design
@@ -240,12 +240,92 @@ _All UI data models must match this schema._
 - Expiration alerts via email and in-app notification
 - Dashboard widget showing expiring certificates with links to relevant CEU courses
 - Full learner history page
+- User profile with tabs: Courses, Branches, Payments, Info
+- Branch selector on user management page filters user list dynamically
+- Admin password reset — set new password directly
+- Admin can change user role from user profile
+- User can belong to multiple branches (user_branches bridge table needed)
+- Course builder — create, edit, publish courses (admin and instructor)
+- Courses start as draft by default
+- YouTube embed for video lessons
+- PDF upload and external URL link for PDF lessons
+- Quiz/exam question builder inside LMS
+- Instructor course preview as learner
+- Archive courses instead of hard delete
+- Enrollment count visible on course management page
+- Enroll from user profile → select course OR from course → select users
+- Bulk enrollment — select multiple users enroll into one course
+- Enrollment notification email to learner when admin enrolls them
+- Expiration date configurable at enrollment time
+- Complimentary enrollment — admin can enroll without payment
+- Unenrollment preserves progress for future re-enrollment
+- Per-course user list with: User, Role, Progress status, Enrollment date, Completion date, Expiration date
+- Refund and unenrollment handled as separate actions
+- Suspended enrollment status for check/manual payment learners
+- Suspended learners can see course but cannot access content
+- Admin can activate suspended enrollment when payment clears
+- Activation notification email to learner
+- Reports section with sub-navigation matching TalentLMS structure
+- Overview report — platform wide stats (active users, never logged in, assigned courses, completed courses, activity chart, course completion donut chart)
+- User report — completion rate, completed courses, in progress, not passed, not started, training time, per user table
+- Course report — completion rate, completed/in progress/not passed/not started learners, training time, per course table
+- Branch report — scoped to branch level
+- CSV export on all reports
+- Admins and instructors can access reports
+- 30-day and 60-day certificate expiration warnings (email + in-app)
+- Inactivity = expired course, internal flag only — learner can still login and purchase
+- Automatic reactivation when inactive learner makes a purchase
+- CEU completion → Salesforce sync
+- Exam score → Salesforce sync
+- Certificate earned → Salesforce sync
+- Deactivate inactive users automation (configurable window)
+- Branch manager notifications when learner completes course or earns certificate
+- Constant Contact integration — automatically sync new Leads and Contacts from Salesforce
+- Native exam scheduling flow — replaces Formstack exam request form and Calendly
+- Learner selects available time slot from inside LMS
+- Automatic Zoom link generation for scheduled exam
+- Proctor notification on new exam booking
+- Proctoring service API integration (vendor TBD — confirm with Heather)
+- Global passing score — 70% hardcoded default
+- Global certificate expiration — 2 years hardcoded default
+- Exam retake fee — each retake is a separate Stripe purchase
+- Retake purchase flow — fail exam → prompted to buy retake → payment → unlocked
+- Notification management page — event based, set recipients, active/inactive toggle
+- Admin can add custom notification rules
+- Platform name configurable in branding settings
+- Favicon upload in branding settings
+- CEU submission form — learner uploads external certificate proof (seminar, college credit, course completion)
+- Admin reviews and approves CEU submissions
+- Approved CEU submissions add credit hours to renewal tracker
+- CEU certificates never expire
+- Core course certificates expire after 2 years
+- Certificate number permanent — never changes after renewal
+- Global renewal threshold — 16 credit hours hardcoded
 - Instructor dashboard — pending submissions, upcoming exams, recent activity
 - Instructor sees all courses and all learners across platform
 - In-LMS messaging to individual learners
-- Course-wide announcements per course
+- Exam day notification with Zoom link for instructor
 - Instructor reporting — progress, assessment performance, completion rates
-- Exam day notification with Zoom link
+- Email template management page (admin and instructor access)
+- Branch creation and management UI
+- Platform branding settings — logo, colors, platform name, favicon
+- Stripe account connection in admin settings
+- Course versioning — update without wiping learner progress
+- Gradebook view per course
+- Assignment submission review and grading with written feedback
+- Grading Hub as dedicated section in instructor sidebar with pending count badge
+- Grading Hub has two tabs: Assignments and ILT Sessions (ILT tab shows empty state until ILT feature is built — confirm with Heather whether NACCC actively uses ILT)
+- Assignment queue table: User, Course, Unit, Submission date, Grade date, Grade, Status
+- Slide-in grading panel with three tabs: Assignment, Submission, Grade
+- Submission viewer shows file uploads with preview and download
+- Submission viewer shows text responses inline
+- Multiple submission history dropdown per assignment
+- Grading Hub badge updates in real time as items are graded
+- Grade tab: numeric grade input + comments text area
+- Assignment instructions support rich text formatting
+- Configurable pagination on grading queue (10, 25, 50 per page)
+- Terminology: use "Comments" not "Feedback" for instructor notes on assignments
+- Assignment instructions visible to both learner when submitting AND instructor when grading — same content, two contexts
 
 ---
 

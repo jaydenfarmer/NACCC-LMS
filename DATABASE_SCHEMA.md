@@ -184,19 +184,35 @@ _One row per course/branch assignment. A course with no rows here is main domain
 
 ### lessons
 
-| Column           | Type      | Notes                                       |
-| ---------------- | --------- | ------------------------------------------- |
-| id               | integer   | Primary key                                 |
-| module_id        | integer   | Foreign key → modules                       |
-| title            | varchar   |                                             |
-| type             | varchar   | video, pdf, quiz, exam, assignment, webinar |
-| content_url      | varchar   | nullable                                    |
-| order            | integer   | Display order within module                 |
-| duration_minutes | integer   | nullable                                    |
-| is_previewable   | boolean   | Viewable before enrollment                  |
-| is_mandatory     | boolean   |                                             |
-| created_at       | timestamp |                                             |
-| updated_at       | timestamp |                                             |
+| Column           | Type      | Notes                                                                                                       |
+| ---------------- | --------- | ----------------------------------------------------------------------------------------------------------- |
+| id               | integer   | Primary key                                                                                                 |
+| module_id        | integer   | Foreign key → modules                                                                                       |
+| title            | varchar   |                                                                                                             |
+| type             | varchar   | content_page, web_content, video, audio, presentation_document, iframe, test, survey, assignment ilt, scorm |
+| content_url      | varchar   | nullable                                                                                                    |
+| order            | integer   | Display order within module                                                                                 |
+| duration_minutes | integer   | nullable                                                                                                    |
+| is_previewable   | boolean   | Viewable before enrollment                                                                                  |
+| is_mandatory     | boolean   |                                                                                                             |
+| created_at       | timestamp |                                                                                                             |
+| updated_at       | timestamp |                                                                                                             |
+
+_Lessons can be shared across multiple courses via lesson_course_links.
+A lesson editing updates content everywhere it is linked._
+
+---
+
+### lesson_course_links
+
+| Column     | Type      | Notes                                                                       |
+| ---------- | --------- | --------------------------------------------------------------------------- |
+| id         | integer   | Primary key                                                                 |
+| lesson_id  | integer   | Foreign key → lessons                                                       |
+| course_id  | integer   | Foreign key → courses                                                       |
+| module_id  | integer   | Foreign key → modules — which module this lesson appears in for this course |
+| order      | integer   | Display order within the module for this specific course                    |
+| created_at | timestamp |                                                                             |
 
 ---
 
@@ -407,32 +423,25 @@ enrollment_groups: TO BE DESIGNED IN PHASE 3
 
 ---
 
-## CERTIFICATES
-
-_⚠️ Drafted but not finalized — pending answers from NACCC on:_
-
-- _Credit hour threshold per certification (varies by course)_
-- _Recertification after expiry — new certificate number confirmed_
-
 ### certificates
 
-| Column                | Type      | Notes                                |
-| --------------------- | --------- | ------------------------------------ |
-| id                    | integer   | Primary key                          |
-| tenant_id             | integer   | Foreign key → tenants                |
-| user_id               | integer   | Foreign key → users                  |
-| course_id             | integer   | Foreign key → courses                |
-| certificate_number    | varchar   | Unique across platform               |
-| issued_at             | timestamp |                                      |
-| expires_at            | timestamp |                                      |
-| status                | varchar   | active, expired, revoked             |
-| required_ceu_hours    | decimal   | Pulled from course at time of issue  |
-| accumulated_ceu_hours | decimal   | Resets to 0 after each renewal       |
-| template_url          | varchar   |                                      |
-| pdf_url               | varchar   | Generated PDF location               |
-| verification_url      | varchar   | Public URL for employer verification |
-| created_at            | timestamp |                                      |
-| updated_at            | timestamp |                                      |
+| Column                | Type      | Notes                                                               |
+| --------------------- | --------- | ------------------------------------------------------------------- |
+| id                    | integer   | Primary key                                                         |
+| tenant_id             | integer   | Foreign key → tenants                                               |
+| user_id               | integer   | Foreign key → users                                                 |
+| course_id             | integer   | Foreign key → courses                                               |
+| certificate_number    | varchar   | Unique — permanent, never changes even after renewal                |
+| expires_at            | timestamp | nullable — null for CEU certificates, 2 years for core courses      |
+| status                | varchar   | active, expired, revoked — CEU certificates never reach expired     |
+| issued_at             | timestamp |                                                                     |
+| accumulated_ceu_hours | decimal   | Tracks toward 16 hour renewal threshold — resets to 0 after renewal |
+| certificate_type      | varchar   | core or ceu — determines expiration behavior                        |
+| template_url          | varchar   |                                                                     |
+| pdf_url               | varchar   | Generated PDF location                                              |
+| verification_url      | varchar   | Public URL for employer verification                                |
+| created_at            | timestamp |                                                                     |
+| updated_at            | timestamp |                                                                     |
 
 ---
 
@@ -463,6 +472,26 @@ _⚠️ Drafted but not finalized — pending answers from NACCC on:_
 | total_ceu_hours_used | decimal   | Hours accumulated for this renewal cycle |
 | completed_at         | timestamp |                                          |
 | created_at           | timestamp |                                          |
+
+---
+
+### ceu_submissions
+
+| Column          | Type      | Notes                                             |
+| --------------- | --------- | ------------------------------------------------- |
+| id              | integer   | Primary key                                       |
+| tenant_id       | integer   | Foreign key → tenants                             |
+| user_id         | integer   | Foreign key → users                               |
+| certificate_id  | integer   | Foreign key → certificates                        |
+| submission_type | varchar   | seminar, college_credit, course_completion, other |
+| credit_hours    | decimal   | Hours claimed by learner                          |
+| proof_file_url  | varchar   | Uploaded certificate or document                  |
+| status          | varchar   | pending, approved, rejected                       |
+| reviewed_by     | integer   | Foreign key → users (admin) nullable              |
+| reviewed_at     | timestamp | nullable                                          |
+| notes           | text      | Admin notes on approval or rejection nullable     |
+| created_at      | timestamp |                                                   |
+| updated_at      | timestamp |                                                   |
 
 ---
 
@@ -680,10 +709,13 @@ _Only populated when coupon applicable_to = specific_courses_
 
 ## Open Questions
 
-- [ ] Credit hour threshold per certification — varies by course, need full list
-- [ ] Which specific courses issue certificates
+- [x] Credit hour threshold — confirmed 16 hours global
+- [x] Certificate number — confirmed permanent, never changes
+- [x] CEU certificates never expire
+- [x] Core certificates expire after 2 years
+- [x] Renewal threshold is global not per course
+- [x] Shared lessons confirmed — lesson_course_links bridge table added
 - [ ] Which specific courses are CEU courses
-- [ ] Is 2 year expiration consistent across all certifications
 - [ ] Confirmed: expired + recertified learner gets a NEW certificate number
 - [ ] Confirmed: credit hour threshold varies by course (stored on courses table)
 - [ ] salesforce_sync_log entity_type — confirm full
@@ -694,3 +726,5 @@ _Only populated when coupon applicable_to = specific_courses_
       when building retry logic in Phase 7
 - [ ] user_branches replaces branch_id on users table —
       confirm this is correct before Phase 7 backend build
+- [ ] PayGo — confirm what this is before designing payment flow
+      Could require installment payment support in Stripe
