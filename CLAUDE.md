@@ -190,7 +190,7 @@ _All UI data models must match this schema._
 - Custom user fields (employee ID, office location, hire date)
 - User deactivation and reactivation without data loss
 - Duplicate user detection and merging
-- Ability to leave feedback on submitted assignments
+- Assignment marked complete only when instructor accepts — not on submission
 - In-app notifications center
 - Learner can message instructor directly
 - Prerequisites with hard gates
@@ -224,19 +224,31 @@ _All UI data models must match this schema._
 - Combined registration and checkout flow (account created only on successful payment)
 - Guest users never become LMS accounts until they pay
 - "I'm Interested" lead capture form → Salesforce Lead → automated program information email (no LMS account created)
-- Post-purchase confirmation page with direct course link
+- Post-purchase success toast notification — stays on course page
+- Course page immediately updates to show enrolled state with Start course button
+- Separate confirmation and receipt emails sent automatically
 - Confirmation/receipt email to purchaser
 - Welcome email with auto-generated login credentials and course link
 - System generates password for ALL new accounts (individual and company)
 - Company purchase → system generates passwords for each employee → individual notification emails
 - Force password change on first login before accessing anything
 - "What's next" on dashboard defaults to first enrolled course for new learners
-- Opening a lesson automatically marks it complete
+- Lesson navigation: Prev button top left, Next/Skip button top right
+- Skip shows when lesson is not yet complete — learner can proceed without completing
+- Next shows when lesson is complete — clicking advances and marks lesson complete
+- Completion question embedded inline at bottom of lesson content
+- Answering completion question correctly changes Skip to Next and marks lesson complete
+- Lesson completion methods: with a question (primary for NACCC), with a button, after a period of time
 - Password protected exam — cannot access without correct password
 - Course completion screen with congratulations
 - Immediate certificate generation and download on completion screen
 - Certificate downloadable anytime from My Certificates page
-- My Certificates page
+- My Certificates page — learner can view all earned certificates
+- Certificate shows: course name, issue date, expiration date, certificate number
+- Download certificate PDF
+- CEU records displayed — credit hours earned per course
+- Certificate status: active, expiring soon, expired
+- Public verification URL per certificate
 - Expiration alerts via email and in-app notification
 - Dashboard widget showing expiring certificates with links to relevant CEU courses
 - Full learner history page
@@ -248,8 +260,8 @@ _All UI data models must match this schema._
 - Course builder — create, edit, publish courses (admin and instructor)
 - Courses start as draft by default
 - YouTube embed for video lessons
-- PDF upload and external URL link for PDF lessons
-- Quiz/exam question builder inside LMS
+- Presentation/document upload and external URL — PDF, PowerPoint, etc
+- Test builder inside LMS — used for both quizzes and exams, configured differently per use case
 - Instructor course preview as learner
 - Archive courses instead of hard delete
 - Enrollment count visible on course management page
@@ -270,7 +282,7 @@ _All UI data models must match this schema._
 - User report — completion rate, completed courses, in progress, not passed, not started, training time, per user table
 - Course report — completion rate, completed/in progress/not passed/not started learners, training time, per course table
 - Branch report — scoped to branch level
-- CSV export on all reports
+- CSV and Excel (XLSX) export on all reports
 - Admins and instructors can access reports
 - 30-day and 60-day certificate expiration warnings (email + in-app)
 - Inactivity = expired course, internal flag only — learner can still login and purchase
@@ -286,7 +298,7 @@ _All UI data models must match this schema._
 - Automatic Zoom link generation for scheduled exam
 - Proctor notification on new exam booking
 - Proctoring service API integration (vendor TBD — confirm with Heather)
-- Global passing score — 70% hardcoded default
+- Global passing score — 70% default, but configurable per test
 - Global certificate expiration — 2 years hardcoded default
 - Exam retake fee — each retake is a separate Stripe purchase
 - Retake purchase flow — fail exam → prompted to buy retake → payment → unlocked
@@ -326,6 +338,237 @@ _All UI data models must match this schema._
 - Configurable pagination on grading queue (10, 25, 50 per page)
 - Terminology: use "Comments" not "Feedback" for instructor notes on assignments
 - Assignment instructions visible to both learner when submitting AND instructor when grading — same content, two contexts
+- Course list columns: Name, Code, Category, Price, Last updated, Status badge
+- Inactive user badge visible inline in course user list
+- Progress bar visual display in course user list (not just percentage text)
+- Course code field (optional, can be blank)
+- Files tab on course — separate from content lessons
+- "Mandatory units must be completed" indicator on course landing page
+- "This course awards a certificate" badge on course landing page
+- Course intro video field separate from lesson content
+- Course activation toggle (draft/published) matches TalentLMS terminology
+- Course options panel with tabs: Info, Availability, Limits, Completion
+- Rich text content page as a primary lesson type
+- Lesson content supports: headings, images, bullet lists, formatted text (full rich text editor)
+- Live session link as a lesson type (embedded Zoom/conference link)
+- Publish changes workflow in course editor
+- Shared/linked lessons — one lesson reusable across multiple courses
+- Linked units indicator showing how many courses use a lesson
+- Linked units modal showing all courses using a specific lesson
+- Editing a shared lesson updates it across all linked courses
+- Complete lesson types: content page, web content, video, audio, presentation/document, iframe, test, survey, assignment, ILT, SCORM
+- Survey lesson type — no grading, just collects responses
+- Audio lesson type
+- iFrame lesson type — embed external URL
+- Clone lesson from another course — independent copy
+- Link lesson from another course — shared connected lesson
+- Dashboard widgets are role-aware — instructor and admin see different widget sets
+- Instructor widgets: Courses completion rate, Courses progress status, Don't miss, Recent course activity, Today
+- Admin widgets: above + Portal activity, Timeline, Users
+- Course options panel tabs: Info, Availability, Limits, Completion
+- PayGo payment plan — scope TBD pending Heather confirmation
+- SCORM/xAPI import
+- Course completion rule — configurable: all units completed OR specific test passed
+- When completion rule is "test passed" — select which specific test triggers completion
+- Content lock — prevent editing once course is finalized
+- Course intro video — YouTube URL or custom video upload
+- Course time limit — number of days (NACCC uses 185 days for CEU)
+- Access retention toggle — learner keeps access after completing (ON for CEU courses)
+- Certificate duration — Forever option for CEU certificates
+- Access retention toggle — learner keeps course access after completion
+- Enrollment request mode — instructor approval required before access granted
+- Sequential vs free unit ordering per course
+- Score calculation method configurable per course
+- Certificate assigned at course level in course options
+- Alternative prerequisite paths
+- Course time limit — number of days to complete after enrollment
+- Course timeframe — specific start and end date for access
+- Test question types: multiple choice, fill the gaps, ordering, match the pairs, free text, randomized
+- Import questions from file for bulk creation
+- Reuse existing questions across multiple tests
+- Survey question types: multiple choice, free text, Likert scale
+- ILT session types: online (integrated), in-person, online (external tools like Zoom)
+- Section headers as organizational dividers in course content
+- Delay availability per lesson/section — schedule when lesson/section becomes accessible
+- Unit options per lesson — individual lesson settings
+- Unpublish individual lesson without deleting
+- Clone lesson within same course
+- Lesson completion method configurable per lesson: with a button, after a period of time, with a question
+- Block-based rich text editor for content lessons
+- Supported blocks: text, image upload, table, ordered list, unordered list, horizontal line
+- Rich text editor supports hyperlinks with link toolbar (open, edit, remove)
+- Heading color support in rich text editor
+- Content autosaves automatically — publish available at any time
+- "You've made changes" indicator shows unsaved state
+- Sections used as organizational dividers between any lessons, not just modules
+- Rich text editor has inline formatting toolbar: bold, italic, underline, text color, font size, emoji, hyperlink, numbered list, bullet list, text alignment
+- Rich text editor has block menu for adding new content blocks
+- Test description field — shown to learner before starting
+- Practice test mode — same questions, configurable no timer and no proctor requirement
+- Questions collapsed by default in editor, expand to edit
+- All question types must be built: multiple choice, fill the gaps, ordering, match the pairs, free text, randomized
+- Remove from test vs Delete — remove unlinks question from test, delete permanently removes it
+- Per-question feedback text — shown to learner after answering
+- Question tags for organization and filtering
+- Multiple correct answers possible per question (checkboxes not radio buttons)
+- Test options panel with Configuration and Weight tabs
+- Per-test pass score configurable (not just global 70%)
+- Shuffle questions and shuffle answers toggles
+- Repetition rules — always, never, if not passed
+- Max attempts configurable per test
+- Show correct answers — always, never, when passed
+- Show given answers, correct/incorrect labels, score toggles
+- Show stats after completion toggle
+- Hide correctly answered questions toggle
+- Per-question feedback visibility — always, never, when passed
+- Allow next/previous question navigation toggle
+- Check answers before continuing toggle
+- Abandon test if cannot pass toggle
+- Learner snapshot/photo verification for security
+- Password protection per test
+- Custom pass and fail messages per test
+- Per-question weight configuration
+- Course file library — supplementary downloadable files separate from lesson content
+- Assignment completion triggered when instructor accepts the answer — not configurable
+- Assignment reply methods configurable per assignment: text, file upload, record video, record audio, record screen
+- Delay availability in hours or days — lesson hidden until delay passes
+- Training matrix report — grid view of all users vs all courses with completion status
+- Export in Excel (XLSX) in addition to CSV on all reports
+- Learning activities report — all tests and assignments across all courses with completion stats
+- Course detail report with tabs: Overview, Users, Learning activities, Unit matrix, Timeline
+- Platform-wide timeline — filterable by date, event type, course
+- Course-level timeline — all events on a specific course
+- Activity chart on course detail — course assignments vs completions over time
+- Average completion time chart per course
+- Training matrix report — grid of all users vs all course units with 4-state status: not_started, in_progress, completed, failed
+- Red X status for failed graded units (tests and assignments)
+- Diagonal column headers for dense unit lists
+- User search and filter within matrix
+- Excel export of full matrix
+- Pagination on matrix rows
+- User list filter by status and branch (not other fields — search handles name/email)
+- Scheduled deactivation — deactivate_at date field per user
+- User detail tabs: Courses, Groups, Branches, Payments, Files, Info
+- Username field separate from email for login
+- Files tab on user profile — admins and instructors can attach files to a user
+- Files tab on course — admins and instructors can attach files to a course
+- Supported file types for upload:
+  - TXT, SRT, VTT (2 MB max)
+  - GIF, JPEG, PNG (10 MB max)
+  - DOC, PDF, XLS, XLSX, DOCX, SQL, EPUB, CSV (200 MB max)
+  - PPT, PPTX, AAC, MP3, OGG, WAV, MP4, MOV, AVI, ZIP and others (600 MB max)
+- Upload from external URL in addition to direct upload
+- Branch subdomain — auto-generated unique URL per branch
+- Branch-level internal announcement (logged-in users) and external announcement (login page)
+- Default user type per branch — new users get assigned automatically
+- Default group per branch — new users join automatically
+- Domain restriction per branch — limit to specific email domain
+- Registration cap per branch
+- Disallow main domain login per branch
+- Terms of service per branch
+- Branch-level default course image
+- Branch files tab
+- Branch info tab
+- Automation rules engine with trigger → filter → action structure
+- User triggers: inactivity deactivation, no purchase deactivation, post-signup course assignment
+- Course triggers: completion, failure, score range, certificate expiration, course expiration
+- Actions: assign course, deactivate user, delete user, call external URL (webhook), give points
+- Score range conditions on automation triggers
+- Filter by conditions on automations (branch, user type, group)
+- Reset and reassign course on certificate expiration
+- Time-based triggers in hours
+- Notification rules with: Name, Event trigger, Filter by (courses/branches/user types), Recipient type, Message body, Active toggle
+- Smart tags in notification message body — learner name, course name, instructor name, etc
+- Send preview email before activating notification
+- Notification history log — all sent notifications with recipient, subject, date
+- Pending notifications queue with clear option
+- System notifications — fixed platform emails: reset password, create password, account confirmation, account activation, export reports, import data
+- Configurable global message footer on all emails
+- Recipient types: related user, specific recipients, admins, account owner
+- Filter notifications by specific courses
+- Notification active/inactive toggle
+- Configurable user types — not hardcoded roles, admins can create custom user types with permission combinations
+- Hierarchical course categories — parent and child categories
+- Category management — name, parent category, price per category
+- CAPTCHA on user registration
+- Invoice system — generated on purchase,
+- Lock account after X failed attempts for Y minutes (configurable)
+- Public homepage editor — custom nav, hero section, featured courses
+- External catalog toggle — show/hide course catalog to public
+- Show course summary on entering course toggle
+- LinkedIn certificate sharing toggle
+- API settings page
+- Import users via Excel
+- Export data as Excel
+- Invoice generation on purchase — PDF invoice per transaction
+- Coupon management page — create, edit, deactivate coupons with usage tracking
+- User type management — admins can create custom user types with configurable permissions
+- CAPTCHA on registration form
+- Two-factor authentication option
+- Custom public homepage editor — hero section, nav bar, featured courses
+- Hide branch courses from main catalog toggle per branch
+- Invoice auto-generated on every purchase with unique invoice number
+- Invoice PDF generation and download
+- Invoice management page — list all invoices, filter by status
+- Stripe settings page — connect account, configure keys
+- Learner sidebar navigation: Home, My training, Catalog, Calendar, Skills
+- Learner calendar — displays personal deadlines including:
+  - Course expiration dates
+  - Certificate expiration dates
+  - CEU renewal deadlines
+  - Scheduled exam sessions
+  - Assignment due dates
+- Learner dashboard widgets (fixed): Recent course activity, Overview stats, Today, My courses donut chart, Don't miss alerts
+- Overview stats: Completed assignments, Total training time, Passed tests, Completion rate
+- My training page with status filters: All, In progress, Completed, Expired, Not passed
+- My training category view and favorites view
+- Sort by date on My training
+- Course favorites — learners can favorite courses
+- Total training time tracked per learner
+- Not passed as a distinct enrollment status
+- Catalog left sidebar with hierarchical category filter checkboxes and course counts
+- Catalog view filters: status (All, Not enrolled, Access required) and type (All, Courses, Learning paths)
+- Course cards show: thumbnail, name, price badge, course type icon
+- Pre-purchase course detail page with: category label, title, thumbnail, price button, description, certificate callout, content tab
+- "This course awards a certificate" callout on pre-purchase page
+- "Mandatory units must be completed" label on course detail
+- Course content structure visible but locked until enrolled
+- "Access required" status for courses needing special approval
+- General/uncategorized bucket for courses with no category
+- Course card hover state — thumbnail dims, View overlay, + button appears
+- Get course modal — shows course name, thumbnail, coupon field, price, checkout button
+- Stripe Elements embedded checkout — stays inside LMS, not hosted Stripe page
+- Coupon code entry before checkout in modal
+- Payment methods: credit/debit card and bank transfer (ACH)
+- Email pre-filled from learner account on checkout
+- Stripe Link support for saved payment info
+- Success toast notification on enrollment — "You're now enrolled in [course name]"
+- Course detail page updates after enrollment: progress bar, expiry date badge, Start course button replaces price
+- Expiry date displays immediately on enrollment (2 years from purchase date)
+- "View more" expand link on long course descriptions
+- Course player layout: left panel with unit list, right content area
+- Next and Previous sticky navigation buttons in course player
+- Next > button top right of content area
+- Currently active unit highlighted in left panel sidebar
+- Section headers in course player left panel
+- Certificate icon quick access from within course player
+- Progress bar in course player left panel
+- Files tab accessible from course detail page after enrollment
+- Top navigation bar in course player: Prev, completion status message with lock icon, Skip
+- Lock icon message variants: "Complete the assignment to continue", "Pass the test to continue", "Answer the question to continue"
+- Assignment submission method tiles in course player: Text, Upload a file, Record video, Record audio, Record screen
+- Pre-test landing page — shows description and question count before starting
+- Question navigation within test — prev/next between questions, not just linear forward
+- Question counter showing current question and total (01/100)
+- Submit button on test (not Next — different action)
+- "Schedule Your Exam" as a content unit in course — instructions for proctored exam scheduling
+- Test results screen shows: score percentage, pass/fail status, custom message
+- Results screen configurable per test: show correct answers, show given answers, show correct/incorrect labels
+- Return to course button on results screen
+- If passed — Next button available to continue course
+- If failed — schedule retake option
+- Learner profile page — same fields as admin edit user but without role, active status, deactivate at, or branch assignment fields
+- Learner can edit their own: name, email, bio, profile photo, username, password, timezone, language, custom fields
 
 ---
 
@@ -339,13 +582,31 @@ _All UI data models must match this schema._
 - Instructor-led training with calendar scheduling
 - Groups and cohorts
 - Internal messaging
-- SCORM/xAPI import
 - Multilingual support (Spanish)
 - Course store
 - Offline mode
 - Discussion boards
 - Proctor mode
 - First login guided tour
+- Instructor calendar with month, week, day views and iCal export
+- Groups — bundle users and courses together with group pricing and auto-enrollment
+- Group key — self-service enrollment code for corporate clients
+- Branch-level Zendesk, Google Tag Manager, Intercom integrations
+- Branch-level gamification badge sets
+- Learning path automation triggers
+- Gamification points system (referenced in automations but not yet designed)
+- Level-based automation triggers
+- Skills and competency tracking system
+- Skill levels, self-assessment questions, related courses
+- Talent Pool — users organized by skill
+- Gamification system — points, badges, levels, rewards
+- Badge sets and level configuration
+- Leaderboards
+- Learning paths — named sequences of courses grouped into sections
+- Learning path builder with sections and ordered courses
+- Learning path options: activation, availability, limits, completion
+- Learning path reports (already captured from reports section)
+- Learner-facing skills page with self-assessment quiz
 
 NOTE: notification_preferences are tenant-controlled
 by admins, NOT per-user. This is intentional.
@@ -367,3 +628,119 @@ NOTE: LMS accounts are only created upon successful
 payment. No guest accounts. The interest/lead form
 creates a Salesforce Lead only — no LMS account.
 The public catalog is accessible without login.
+
+NOTE: Course content editor uses block-based rich text
+(similar to Notion). Recommended library: TipTap.
+Do not build a traditional toolbar-style editor.
+Do not install any editor library without flagging first.
+
+NOTE: File uploads use AWS S3 with multipart upload
+support. Max file sizes vary by type — up to 600MB
+for video and archive files. Do not use local storage
+for any file uploads.
+
+NOTE: User active/inactive status is enrollment-driven.
+Active = enrolled in at least one active course.
+Inactive = no active enrollments.
+Status updates automatically on enrollment
+and unenrollment. No time-based inactivity rules.
+Inactive users retain login access and can purchase.
+
+NOTE: Learner calendar is read-only — displays
+enrollment deadlines, certificate expirations,
+exam sessions, and assignment due dates pulled
+from existing tables. No separate calendar_events
+table needed for learner view.
+
+NOTE: Real NACCC course structure has these sections:
+
+- INTRODUCTION (community, intro lessons, grading info)
+- INSTRUCTOR INFORMATION (meet instructor, live chat)
+- MODULE 1 through MODULE N (content units per module)
+- EXAM REVIEW (practice test, schedule exam unit)
+- FINAL EXAM (proctored final exam)
+  This is the template for how NACCC courses are built.
+
+NOTE: Rich text editor must support:
+
+- Headings with color
+- Inline images
+- Hyperlinks with edit/remove toolbar
+- Bullet lists
+- Block-based editing
+  Recommended library: TipTap
+
+NOTE: Open questions for Heather:
+
+- Do you use ILT Sessions or Conferences in TalentLMS beyond proctored exams?
+- Do any NACCC courses currently use SCORM content?
+- Do any courses have audio lessons?
+- Do any courses use surveys?
+- What is PayGo exactly — payment plan or separate courses?
+- What goes in the Files tab on a course?
+- Do you use ILT Sessions or Conferences in TalentLMS beyond proctored exams?
+- What goes in the Files tab on a course?
+- Which of these report types does NACCC actually use regularly?
+- Are there any reports submitted to accreditation bodies?
+- Does anyone get scheduled reports emailed to them?
+- What does the custom report builder need to do?
+- What does NACCC use Constant Contact for specifically?
+- Is Constant Contact needed long term or can the LMS replace it?
+- How does the proctor exam scheduling work currently?
+- Does the proctor need any tools inside the LMS during an exam?
+- What notifications are learners currently getting from TalentLMS?
+- What notifications do learners complain about?
+- Which proctoring service is NACCC considering purchasing?
+- Does that service have an LMS integration API?
+- Should the LMS replace Calendly for exam scheduling or integrate with it?
+- Should exam scheduling be self-serve for learners or admin-controlled?
+- What exactly is PayGo? Is it a payment plan option for existing courses
+  or are there separate PayGo-specific courses?
+- If it's a payment plan — how does it work?
+  (e.g. deposit upfront, then monthly payments?)
+- Are PayGo courses the same content as the regular versions
+  or different courses entirely?
+- Who manages PayGo enrollments — does it happen automatically
+  or does someone at NACCC manually track payments?
+- Do any NACCC courses currently use SCORM content?
+- Do any courses have audio lessons?
+- Do any courses use surveys?
+- Do instructors ever record video or screen recordings directly in TalentLMS?
+- Do instructors ever record audio directly?
+- Does NACCC use Slideshare for any content?
+- Do any NACCC tests use fill the gaps, ordering, or match the pairs questions?
+- Does NACCC use surveys in any courses?
+- Does NACCC actively use the calendar in TalentLMS?
+- Is the calendar visible to learners or instructor/admin only?
+- Is iCal export needed at launch?
+- Does NACCC actively use Groups or is the Cohort group just a test?
+- Do any corporate clients need a self-service enrollment code?
+- What goes in the Files tab on a user profile?
+- Does NACCC use scheduled deactivation (deactivate at)?
+- Is "courses" an actual branch or a test branch?
+- What exactly is the PayGo branch? How does it differ from other branches?
+- Does NACCC use domain restriction on any branches?
+- Does NACCC use the disallow main domain login feature?
+- Do branches have their own payment processors or all use the same?
+- Does NACCC use the registration cap on any branches?
+- Which of these automation types does NACCC plan to use first?
+- Is the webhook/call URL feature needed for Salesforce integration or will we build native sync?
+- What filter conditions does the Filter by section offer?
+- 122 notifications have been pending since December 2025 — are you aware of this? They may never send
+- Which of the 4 active notifications are critical to replicate on day one?
+- Do you use smart tags in your notification messages?
+- What goes in the message footer?
+- What does the Simple Learner dashboard toggle do — does NACCC use it?
+- Is xAPI content different from SCORM at NACCC?
+- Does NACCC use BambooHR or any HR system?
+- Do NACCC learners use the Favorites feature in TalentLMS?
+- Is total training time important for NACCC's reporting?
+- Is there a search bar on the learner catalog page?
+- What does "Access required" mean — is it used for any NACCC courses?
+- What is the "General" category — is it auto-assigned to uncategorized courses?
+- Does NACCC want bank transfer (ACH) as a payment option?
+- Should checkout stay inside the LMS or is redirecting to Stripe hosted checkout acceptable?
+- Is the "+" quick add button needed or is clicking the card enough?
+- What is the third-party website used to display certificates and CEUs?
+- Will that website be retired once the new LMS has a My Certificates page?
+- Do learners currently log into that site separately or is it linked from somewhere?

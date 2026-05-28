@@ -34,15 +34,32 @@
 
 ### branches
 
-| Column       | Type      | Notes                          |
-| ------------ | --------- | ------------------------------ |
-| id           | integer   | Primary key                    |
-| tenant_id    | integer   | Foreign key → tenants          |
-| name         | varchar   |                                |
-| logo_url     | varchar   | Optional branch-level override |
-| accent_color | varchar   | Optional branch-level override |
-| created_at   | timestamp |                                |
-| updated_at   | timestamp |                                |
+| Column                       | Type      | Notes                                       |
+| ---------------------------- | --------- | ------------------------------------------- |
+| id                           | integer   | Primary key                                 |
+| tenant_id                    | integer   | Foreign key → tenants                       |
+| name                         | varchar   |                                             |
+| logo_url                     | varchar   | Optional branch-level override              |
+| accent_color                 | varchar   | Optional branch-level override              |
+| created_at                   | timestamp |                                             |
+| updated_at                   | timestamp |                                             |
+| title                        | varchar   | nullable — display title separate from name |
+| subdomain                    | varchar   | unique — auto-generated from name           |
+| language                     | varchar   | Default: en                                 |
+| timezone                     | varchar   | nullable                                    |
+| internal_announcement        | text      | nullable — shown to logged-in users         |
+| external_announcement        | text      | nullable — shown on login page              |
+| internal_announcement_active | boolean   | Default false                               |
+| external_announcement_active | boolean   | Default false                               |
+| default_user_type            | varchar   | nullable                                    |
+| default_group_id             | integer   | nullable — FK to groups                     |
+| sign_up_method               | varchar   | Default: direct                             |
+| domain_restriction           | varchar   | nullable — restrict to email domain         |
+| registration_cap             | integer   | nullable                                    |
+| disallow_main_domain_login   | boolean   | Default false                               |
+| terms_of_service             | text      | nullable                                    |
+| default_course_image_url     | varchar   | nullable                                    |
+| payment_processor            | varchar   | nullable                                    |
 
 ---
 
@@ -57,26 +74,28 @@
 
 ### users
 
-| Column                | Type      | Notes                                       |
-| --------------------- | --------- | ------------------------------------------- |
-| id                    | integer   | Primary key                                 |
-| tenant_id             | integer   | Foreign key → tenants                       |
-| company_id            | integer   | Foreign key → companies (nullable)          |
-| active_role_id        | integer   | Foreign key → roles — currently active role |
-| first_name            | varchar   |                                             |
-| last_name             | varchar   |                                             |
-| email                 | varchar   | Unique per tenant                           |
-| username              | varchar   | Unique per tenant                           |
-| password_hash         | varchar   | Never plain text                            |
-| bio                   | text      | nullable                                    |
-| timezone              | varchar   | e.g. America/New_York                       |
-| language              | varchar   | Default: en                                 |
-| is_active             | boolean   | Deactivated users retained for history      |
-| failed_login_attempts | integer   | Default: 0                                  |
-| locked_until          | timestamp | nullable — set on too many failed attempts  |
-| last_login_at         | timestamp | nullable                                    |
-| created_at            | timestamp |                                             |
-| updated_at            | timestamp |                                             |
+| Column                | Type      | Notes                                                                                                        |
+| --------------------- | --------- | ------------------------------------------------------------------------------------------------------------ |
+| id                    | integer   | Primary key                                                                                                  |
+| tenant_id             | integer   | Foreign key → tenants                                                                                        |
+| company_id            | integer   | Foreign key → companies (nullable)                                                                           |
+| active_role_id        | integer   | Foreign key → roles — currently active role                                                                  |
+| first_name            | varchar   |                                                                                                              |
+| last_name             | varchar   |                                                                                                              |
+| email                 | varchar   | Unique per tenant                                                                                            |
+| username              | varchar   | Unique per tenant                                                                                            |
+| password_hash         | varchar   | Never plain text                                                                                             |
+| bio                   | text      | nullable                                                                                                     |
+| timezone              | varchar   | e.g. America/New_York                                                                                        |
+| language              | varchar   | Default: en                                                                                                  |
+| is_active             | boolean   | Derived from enrollment status — true if any active enrollments exist, false if none. Updated automatically. |
+| failed_login_attempts | integer   | Default: 0                                                                                                   |
+| locked_until          | timestamp | nullable — set on too many failed attempts                                                                   |
+| last_login_at         | timestamp | nullable                                                                                                     |
+| created_at            | timestamp |                                                                                                              |
+| updated_at            | timestamp |                                                                                                              |
+| deactivate_at         | timestamp | nullable — scheduled deactivation date                                                                       |
+| user_type_id          | integer   | Foreign key → user_types                                                                                     |
 
 _Branch assignments are managed via the user_branches bridge table —
 a user can belong to multiple branches._
@@ -101,6 +120,38 @@ a user can belong to multiple branches._
 | user_id   | integer | Foreign key → users                                      |
 | role_id   | integer | Foreign key → roles                                      |
 | is_global | boolean | True = not scoped to one branch (e.g. global instructor) |
+
+---
+
+### user_files
+
+| Column          | Type      | Notes                                     |
+| --------------- | --------- | ----------------------------------------- |
+| id              | integer   | Primary key                               |
+| tenant_id       | integer   | Foreign key → tenants                     |
+| user_id         | integer   | Foreign key → users                       |
+| uploaded_by     | integer   | Foreign key → users — admin or instructor |
+| file_name       | varchar   |                                           |
+| file_url        | varchar   | S3 or external URL                        |
+| file_type       | varchar   | extension                                 |
+| file_size_bytes | integer   |                                           |
+| created_at      | timestamp |                                           |
+
+---
+
+### user_types
+
+| Column       | Type      | Notes                           |
+| ------------ | --------- | ------------------------------- |
+| id           | integer   | Primary key                     |
+| tenant_id    | integer   | Foreign key → tenants           |
+| name         | varchar   | e.g. Learner-Type, Trainer-Type |
+| can_admin    | boolean   | Default false                   |
+| can_instruct | boolean   | Default false                   |
+| can_learn    | boolean   | Default true                    |
+| is_default   | boolean   | Default false — one per tenant  |
+| created_at   | timestamp |                                 |
+| updated_at   | timestamp |                                 |
 
 ---
 
@@ -136,24 +187,42 @@ created_at
 
 ### courses
 
-| Column             | Type      | Notes                                      |
-| ------------------ | --------- | ------------------------------------------ |
-| id                 | integer   | Primary key                                |
-| tenant_id          | integer   | Foreign key → tenants                      |
-| title              | varchar   |                                            |
-| description        | text      |                                            |
-| thumbnail_url      | varchar   | nullable                                   |
-| price              | decimal   | 0.00 for free courses                      |
-| is_published       | boolean   | Draft vs live                              |
-| is_mandatory       | boolean   |                                            |
-| issues_certificate | boolean   |                                            |
-| ceu_credit_hours   | decimal   | nullable — only for CEU courses            |
-| required_ceu_hours | decimal   | nullable — hours needed to trigger renewal |
-| passing_score      | integer   | Minimum % to complete                      |
-| version            | integer   | Default: 1 — increments on update          |
-| created_by         | integer   | Foreign key → users                        |
-| created_at         | timestamp |                                            |
-| updated_at         | timestamp |                                            |
+| Column                       | Type      | Notes                                                                               |
+| ---------------------------- | --------- | ----------------------------------------------------------------------------------- |
+| id                           | integer   | Primary key                                                                         |
+| tenant_id                    | integer   | Foreign key → tenants                                                               |
+| title                        | varchar   |                                                                                     |
+| description                  | text      |                                                                                     |
+| thumbnail_url                | varchar   | nullable                                                                            |
+| price                        | decimal   | 0.00 for free courses                                                               |
+| is_published                 | boolean   | Draft vs live                                                                       |
+| is_mandatory                 | boolean   |                                                                                     |
+| issues_certificate           | boolean   |                                                                                     |
+| ceu_credit_hours             | decimal   | nullable — only for CEU courses                                                     |
+| required_ceu_hours           | decimal   | nullable — hours needed to trigger renewal                                          |
+| passing_score                | integer   | Minimum % to complete                                                               |
+| version                      | integer   | Default: 1 — increments on update                                                   |
+| created_by                   | integer   | Foreign key → users                                                                 |
+| created_at                   | timestamp |                                                                                     |
+| updated_at                   | timestamp |                                                                                     |
+| capacity                     | integer   | nullable — max self-enrollments                                                     |
+| has_access_retention         | boolean   | Default false                                                                       |
+| requires_enrollment_approval | boolean   | Default false                                                                       |
+| unit_ordering                | varchar   | sequential or free                                                                  |
+| score_calculation            | varchar   | all_tests_assignments, tests_only, assignments_only                                 |
+| time_limit_days              | integer   | nullable                                                                            |
+| timeframe_start              | timestamp | nullable                                                                            |
+| timeframe_end                | timestamp | nullable                                                                            |
+| completion_rule              | varchar   | all_units, specific_test_passed                                                     |
+| completion_test_id           | integer   | Foreign key → lessons (nullable — only when completion_rule = specific_test_passed) |
+| content_locked               | boolean   | Default false                                                                       |
+| intro_video_url              | varchar   | nullable                                                                            |
+| intro_video_type             | varchar   | youtube or custom (nullable)                                                        |
+| time_limit_days              | integer   | nullable — NACCC uses 185 for CEU                                                   |
+| has_access_retention         | boolean   | Default false                                                                       |
+| category_id                  | integer   | Foreign key → categories (nullable)                                                 |
+| show_summary_on_enter        | boolean   | Default true                                                                        |
+| allow_linkedin_share         | boolean   | Default false                                                                       |
 
 ---
 
@@ -166,6 +235,22 @@ created_at
 | branch_id | integer | Foreign key → branches |
 
 _One row per course/branch assignment. A course with no rows here is main domain only._
+
+---
+
+### course_files
+
+| Column          | Type      | Notes                 |
+| --------------- | --------- | --------------------- |
+| id              | integer   | Primary key           |
+| tenant_id       | integer   | Foreign key → tenants |
+| course_id       | integer   | Foreign key → courses |
+| uploaded_by     | integer   | Foreign key → users   |
+| file_name       | varchar   |                       |
+| file_url        | varchar   | S3 or external URL    |
+| file_type       | varchar   | extension             |
+| file_size_bytes | integer   |                       |
+| created_at      | timestamp |                       |
 
 ---
 
@@ -184,19 +269,25 @@ _One row per course/branch assignment. A course with no rows here is main domain
 
 ### lessons
 
-| Column           | Type      | Notes                                                                                                       |
-| ---------------- | --------- | ----------------------------------------------------------------------------------------------------------- |
-| id               | integer   | Primary key                                                                                                 |
-| module_id        | integer   | Foreign key → modules                                                                                       |
-| title            | varchar   |                                                                                                             |
-| type             | varchar   | content_page, web_content, video, audio, presentation_document, iframe, test, survey, assignment ilt, scorm |
-| content_url      | varchar   | nullable                                                                                                    |
-| order            | integer   | Display order within module                                                                                 |
-| duration_minutes | integer   | nullable                                                                                                    |
-| is_previewable   | boolean   | Viewable before enrollment                                                                                  |
-| is_mandatory     | boolean   |                                                                                                             |
-| created_at       | timestamp |                                                                                                             |
-| updated_at       | timestamp |                                                                                                             |
+| Column                  | Type      | Notes                                                                                                       |
+| ----------------------- | --------- | ----------------------------------------------------------------------------------------------------------- |
+| id                      | integer   | Primary key                                                                                                 |
+| module_id               | integer   | Foreign key → modules                                                                                       |
+| title                   | varchar   |                                                                                                             |
+| type                    | varchar   | content_page, web_content, video, audio, presentation_document, iframe, test, survey, assignment ilt, scorm |
+| content_url             | varchar   | nullable                                                                                                    |
+| order                   | integer   | Display order within module                                                                                 |
+| duration_minutes        | integer   | nullable                                                                                                    |
+| is_previewable          | boolean   | Viewable before enrollment                                                                                  |
+| is_mandatory            | boolean   |                                                                                                             |
+| created_at              | timestamp |                                                                                                             |
+| updated_at              | timestamp |                                                                                                             |
+| completion_method       | varchar   | button, time, question — Default: button                                                                    |
+| completion_time_seconds | integer   | nullable — only when completion_method = time                                                               |
+| completion_question     | text      | nullable — only when completion_method = question                                                           |
+| delay_hours             | integer   | nullable — hours before lesson becomes accessible                                                           |
+| delay_days              | integer   | nullable — days before lesson becomes accessible                                                            |
+| completion_method       | varchar   | question (NACCC primary), button, time — Default: question                                                  |
 
 _Lessons can be shared across multiple courses via lesson_course_links.
 A lesson editing updates content everywhere it is linked._
@@ -244,38 +335,76 @@ A lesson editing updates content everywhere it is linked._
 
 ---
 
+### categories
+
+| Column     | Type      | Notes                                                           |
+| ---------- | --------- | --------------------------------------------------------------- |
+| id         | integer   | Primary key                                                     |
+| tenant_id  | integer   | Foreign key → tenants                                           |
+| name       | varchar   |                                                                 |
+| parent_id  | integer   | nullable — FK to categories (self-referential for parent/child) |
+| price      | decimal   | nullable — category-level default pricing                       |
+| created_at | timestamp |                                                                 |
+| updated_at | timestamp |                                                                 |
+
+---
+
 ## ASSESSMENTS
 
 ### quizzes
 
-| Column             | Type      | Notes                 |
-| ------------------ | --------- | --------------------- |
-| id                 | integer   | Primary key           |
-| lesson_id          | integer   | Foreign key → lessons |
-| course_id          | integer   | Foreign key → courses |
-| tenant_id          | integer   | Foreign key → tenants |
-| title              | varchar   |                       |
-| type               | varchar   | quiz or exam          |
-| passing_score      | integer   | Minimum % to pass     |
-| max_attempts       | integer   | nullable = unlimited  |
-| time_limit_minutes | integer   | nullable = no limit   |
-| shuffle_questions  | boolean   |                       |
-| created_at         | timestamp |                       |
-| updated_at         | timestamp |                       |
+| Column                        | Type      | Notes                                            |
+| ----------------------------- | --------- | ------------------------------------------------ |
+| id                            | integer   | Primary key                                      |
+| lesson_id                     | integer   | Foreign key → lessons                            |
+| course_id                     | integer   | Foreign key → courses                            |
+| tenant_id                     | integer   | Foreign key → tenants                            |
+| title                         | varchar   |                                                  |
+| type                          | varchar   | quiz or exam                                     |
+| passing_score                 | integer   | Minimum % to pass                                |
+| max_attempts                  | integer   | nullable = unlimited                             |
+| time_limit_minutes            | integer   | nullable = no limit                              |
+| shuffle_questions             | boolean   |                                                  |
+| created_at                    | timestamp |                                                  |
+| updated_at                    | timestamp |                                                  |
+| description                   | text      | nullable — shown to learner before starting test |
+| is_practice                   | boolean   | Default false — practice mode, no timer enforced |
+| pass_score                    | integer   | Default 50 (percentage)                          |
+| shuffle_questions             | boolean   | Default false                                    |
+| shuffle_answers               | boolean   | Default false                                    |
+| allow_repetitions             | varchar   | always, never, if_not_passed                     |
+| max_attempts                  | integer   | nullable — null = unlimited                      |
+| show_correct_answers          | varchar   | always, never, when_passed                       |
+| show_given_answers            | boolean   | Default true                                     |
+| show_correct_incorrect_labels | boolean   | Default true                                     |
+| show_score                    | boolean   | Default true                                     |
+| show_stats_after_completion   | boolean   | Default false                                    |
+| hide_correct_questions        | boolean   | Default false                                    |
+| show_feedback                 | varchar   | always, never, when_passed                       |
+| allow_navigation              | boolean   | Default false                                    |
+| check_before_continue         | boolean   | Default false                                    |
+| abandon_if_cannot_pass        | boolean   | Default false                                    |
+| require_snapshot              | boolean   | Default false                                    |
+| require_password              | boolean   | Default false                                    |
+| password                      | varchar   | nullable                                         |
+| message_if_passed             | text      | nullable                                         |
+| message_if_not_passed         | text      | nullable                                         |
 
 ---
 
 ### quiz_questions
 
-| Column        | Type      | Notes                                      |
-| ------------- | --------- | ------------------------------------------ |
-| id            | integer   | Primary key                                |
-| quiz_id       | integer   | Foreign key → quizzes                      |
-| question_text | text      |                                            |
-| question_type | varchar   | multiple_choice, short_answer — extensible |
-| points        | integer   |                                            |
-| order         | integer   |                                            |
-| created_at    | timestamp |                                            |
+| Column        | Type      | Notes                                                                            |
+| ------------- | --------- | -------------------------------------------------------------------------------- |
+| id            | integer   | Primary key                                                                      |
+| quiz_id       | integer   | Foreign key → quizzes                                                            |
+| question_text | text      |                                                                                  |
+| question_type | varchar   | multiple_choice, fill_the_gaps, ordering, match_the_pairs, free_text, randomized |
+| points        | integer   |                                                                                  |
+| order         | integer   |                                                                                  |
+| created_at    | timestamp |                                                                                  |
+| is_deleted    | boolean   | Default false — soft delete, removed from test but kept in DB                    |
+| weight        | decimal   | Default 1 — affects score calculation                                            |
 
 ---
 
@@ -339,6 +468,14 @@ A lesson editing updates content everywhere it is linked._
 | max_file_size_mb   | integer   |                       |
 | created_at         | timestamp |                       |
 | updated_at         | timestamp |                       |
+| due_date           | timestamp | nullable              |
+| end_time           | timestamp | nullable              |
+| duration_minutes   | integer   | nullable              |
+| allow_text_reply   | boolean   | Default true          |
+| allow_file_upload  | boolean   | Default true          |
+| allow_video_reply  | boolean   | Default true          |
+| allow_audio_reply  | boolean   | Default true          |
+| allow_screen_reply | boolean   | Default true          |
 
 ---
 
@@ -362,25 +499,79 @@ A lesson editing updates content everywhere it is linked._
 
 ---
 
+### surveys
+
+| Column      | Type      | Notes                 |
+| ----------- | --------- | --------------------- |
+| id          | integer   | Primary key           |
+| lesson_id   | integer   | Foreign key → lessons |
+| course_id   | integer   | Foreign key → courses |
+| tenant_id   | integer   | Foreign key → tenants |
+| title       | varchar   |                       |
+| description | text      | nullable              |
+| created_at  | timestamp |                       |
+| updated_at  | timestamp |                       |
+
+---
+
+### survey_questions
+
+| Column        | Type      | Notes                                    |
+| ------------- | --------- | ---------------------------------------- |
+| id            | integer   | Primary key                              |
+| survey_id     | integer   | Foreign key → surveys                    |
+| question_text | text      |                                          |
+| question_type | varchar   | multiple_choice, free_text, likert_scale |
+| order         | integer   |                                          |
+| created_at    | timestamp |                                          |
+
+---
+
+### survey_answers
+
+| Column      | Type    | Notes                          |
+| ----------- | ------- | ------------------------------ |
+| id          | integer | Primary key                    |
+| question_id | integer | Foreign key → survey_questions |
+| answer_text | varchar | For multiple choice options    |
+| order       | integer |                                |
+
+---
+
+### survey_responses
+
+| Column        | Type      | Notes                                                         |
+| ------------- | --------- | ------------------------------------------------------------- |
+| id            | integer   | Primary key                                                   |
+| survey_id     | integer   | Foreign key → surveys                                         |
+| user_id       | integer   | Foreign key → users                                           |
+| tenant_id     | integer   | Foreign key → tenants                                         |
+| question_id   | integer   | Foreign key → survey_questions                                |
+| answer_id     | integer   | Foreign key → survey_answers (nullable — for multiple choice) |
+| response_text | text      | nullable — for free text and likert responses                 |
+| created_at    | timestamp |                                                               |
+
+---
+
 ## PROGRESS & ENROLLMENT
 
 ### enrollments
 
-| Column          | Type      | Notes                                                |
-| --------------- | --------- | ---------------------------------------------------- |
-| id              | integer   | Primary key                                          |
-| tenant_id       | integer   | Foreign key → tenants                                |
-| user_id         | integer   | Foreign key → users                                  |
-| course_id       | integer   | Foreign key → courses                                |
-| branch_id       | integer   | Foreign key → branches                               |
-| enrolled_by     | integer   | Foreign key → users — who did the enrolling          |
-| enrollment_date | timestamp |                                                      |
-| due_date        | timestamp | nullable                                             |
-| status          | varchar   | enrolled, suspended, in_progress, completed, expired |
-| payment_id      | integer   | Foreign key → payments (nullable — free courses)     |
-| group_id        | integer   | Foreign key → enrollment_groups (nullable — future)  |
-| created_at      | timestamp |                                                      |
-| updated_at      | timestamp |                                                      |
+| Column          | Type      | Notes                                                            |
+| --------------- | --------- | ---------------------------------------------------------------- |
+| id              | integer   | Primary key                                                      |
+| tenant_id       | integer   | Foreign key → tenants                                            |
+| user_id         | integer   | Foreign key → users                                              |
+| course_id       | integer   | Foreign key → courses                                            |
+| branch_id       | integer   | Foreign key → branches                                           |
+| enrolled_by     | integer   | Foreign key → users — who did the enrolling                      |
+| enrollment_date | timestamp |                                                                  |
+| due_date        | timestamp | nullable                                                         |
+| status          | varchar   | enrolled, suspended, in_progress, completed, expired, not_passed |
+| payment_id      | integer   | Foreign key → payments (nullable — free courses)                 |
+| group_id        | integer   | Foreign key → enrollment_groups (nullable — future)              |
+| created_at      | timestamp |                                                                  |
+| updated_at      | timestamp |                                                                  |
 
 enrollment_groups: TO BE DESIGNED IN PHASE 3
 
@@ -408,18 +599,19 @@ enrollment_groups: TO BE DESIGNED IN PHASE 3
 
 ### course_progress
 
-| Column                | Type      | Notes                               |
-| --------------------- | --------- | ----------------------------------- |
-| id                    | integer   | Primary key                         |
-| user_id               | integer   | Foreign key → users                 |
-| course_id             | integer   | Foreign key → courses               |
-| tenant_id             | integer   | Foreign key → tenants               |
-| branch_id             | integer   | Foreign key → branches              |
-| completion_percentage | decimal   | 0.00 to 100.00                      |
-| status                | varchar   | not_started, in_progress, completed |
-| started_at            | timestamp | nullable                            |
-| completed_at          | timestamp | nullable                            |
-| last_accessed_at      | timestamp | nullable                            |
+| Column                | Type      | Notes                                 |
+| --------------------- | --------- | ------------------------------------- |
+| id                    | integer   | Primary key                           |
+| user_id               | integer   | Foreign key → users                   |
+| course_id             | integer   | Foreign key → courses                 |
+| tenant_id             | integer   | Foreign key → tenants                 |
+| branch_id             | integer   | Foreign key → branches                |
+| completion_percentage | decimal   | 0.00 to 100.00                        |
+| status                | varchar   | not_started, in_progress, completed   |
+| started_at            | timestamp | nullable                              |
+| completed_at          | timestamp | nullable                              |
+| last_accessed_at      | timestamp | nullable                              |
+| time_spent_seconds    | integer   | Default 0 — cumulative time in course |
 
 ---
 
@@ -442,6 +634,7 @@ enrollment_groups: TO BE DESIGNED IN PHASE 3
 | verification_url      | varchar   | Public URL for employer verification                                |
 | created_at            | timestamp |                                                                     |
 | updated_at            | timestamp |                                                                     |
+| certificate_duration  | varchar   | forever or years — CEU = forever, core = 2 years                    |
 
 ---
 
@@ -492,6 +685,100 @@ enrollment_groups: TO BE DESIGNED IN PHASE 3
 | notes           | text      | Admin notes on approval or rejection nullable     |
 | created_at      | timestamp |                                                   |
 | updated_at      | timestamp |                                                   |
+
+---
+
+### learning_paths (FUTURE — not built until needed)
+
+| Column        | Type      | Notes                               |
+| ------------- | --------- | ----------------------------------- |
+| id            | integer   | Primary key                         |
+| tenant_id     | integer   | Foreign key → tenants               |
+| name          | varchar   |                                     |
+| description   | text      | nullable — up to 5000 chars         |
+| thumbnail_url | varchar   | nullable                            |
+| category_id   | integer   | Foreign key → categories (nullable) |
+| code          | varchar   | nullable                            |
+| is_active     | boolean   | Default false                       |
+| created_by    | integer   | Foreign key → users                 |
+| created_at    | timestamp |                                     |
+| updated_at    | timestamp |                                     |
+
+---
+
+### learning_path_sections (FUTURE)
+
+| Column           | Type    | Notes                        |
+| ---------------- | ------- | ---------------------------- |
+| id               | integer | Primary key                  |
+| learning_path_id | integer | Foreign key → learning_paths |
+| name             | varchar |                              |
+| order            | integer |                              |
+
+---
+
+### learning_path_courses (FUTURE)
+
+| Column           | Type    | Notes                                |
+| ---------------- | ------- | ------------------------------------ |
+| id               | integer | Primary key                          |
+| learning_path_id | integer | Foreign key → learning_paths         |
+| section_id       | integer | Foreign key → learning_path_sections |
+| course_id        | integer | Foreign key → courses                |
+| order            | integer |                                      |
+
+---
+
+## AUTOMATIONS
+
+### automation_rules
+
+| Column            | Type      | Notes                                                                                                   |
+| ----------------- | --------- | ------------------------------------------------------------------------------------------------------- |
+| id                | integer   | Primary key                                                                                             |
+| tenant_id         | integer   | Foreign key → tenants                                                                                   |
+| name              | varchar   |                                                                                                         |
+| trigger_type      | varchar   | See full list below                                                                                     |
+| trigger_hours     | integer   | nullable — for time-based triggers                                                                      |
+| trigger_course_id | integer   | nullable — FK to courses                                                                                |
+| trigger_score_min | integer   | nullable — for score-based triggers                                                                     |
+| trigger_score_max | integer   | nullable — for score-based triggers                                                                     |
+| action_type       | varchar   | assign_course, deactivate_user, delete_user, call_url, give_points, assign_learning_path, remove_course |
+| action_course_id  | integer   | nullable — FK to courses                                                                                |
+| action_url        | varchar   | nullable — for call URL action                                                                          |
+| action_points     | integer   | nullable — for give points action                                                                       |
+| is_active         | boolean   | Default true                                                                                            |
+| created_by        | integer   | Foreign key → users                                                                                     |
+| created_at        | timestamp |                                                                                                         |
+| updated_at        | timestamp |                                                                                                         |
+
+Full trigger_type values for automation_rules:
+user_inactive_hours
+user_no_purchase_hours  
+user_signup_hours
+course_assigned_hours
+course_completed_hours
+course_completed_score_range_hours
+course_failed_hours
+course_cert_expired_hours
+course_expiring_hours
+course_cert_expiring_hours
+course_completed_deactivate_hours
+course_completed
+course_completed_score_range
+course_cert_expired
+level_reached
+
+---
+
+### automation_filters
+
+| Column        | Type    | Notes                          |
+| ------------- | ------- | ------------------------------ |
+| id            | integer | Primary key                    |
+| automation_id | integer | Foreign key → automation_rules |
+| filter_type   | varchar | branch, user_type, group       |
+| filter_value  | varchar | The filter value               |
 
 ---
 
@@ -567,6 +854,43 @@ _Only populated when coupon applicable_to = specific_courses_
 
 ---
 
+### ecommerce_settings
+
+| Column                 | Type      | Notes                               |
+| ---------------------- | --------- | ----------------------------------- |
+| id                     | integer   | Primary key                         |
+| tenant_id              | integer   | Foreign key → tenants               |
+| stripe_account_id      | varchar   | nullable — connected Stripe account |
+| stripe_publishable_key | varchar   | nullable                            |
+| stripe_secret_key      | varchar   | nullable — encrypted                |
+| invoices_enabled       | boolean   | Default false                       |
+| invoice_prefix         | varchar   | nullable — e.g. "NACCC-"            |
+| coupons_enabled        | boolean   | Default true                        |
+| currency               | varchar   | Default: usd                        |
+| created_at             | timestamp |                                     |
+| updated_at             | timestamp |                                     |
+
+---
+
+### invoices
+
+| Column         | Type      | Notes                        |
+| -------------- | --------- | ---------------------------- |
+| id             | integer   | Primary key                  |
+| tenant_id      | integer   | Foreign key → tenants        |
+| payment_id     | integer   | Foreign key → payments       |
+| user_id        | integer   | Foreign key → users          |
+| invoice_number | varchar   | unique — auto-generated      |
+| amount         | decimal   |                              |
+| currency       | varchar   | Default: usd                 |
+| status         | varchar   | issued, paid, refunded, void |
+| issued_at      | timestamp |                              |
+| pdf_url        | varchar   | nullable — generated PDF     |
+| created_at     | timestamp |                              |
+| updated_at     | timestamp |                              |
+
+---
+
 ## COMMUNICATION
 
 ### notifications
@@ -587,17 +911,49 @@ _Only populated when coupon applicable_to = specific_courses_
 
 ---
 
-### notification_preferences
+### notification_rules
 
-| Column         | Type      | Notes                                                  |
-| -------------- | --------- | ------------------------------------------------------ |
-| id             | integer   | Primary key                                            |
-| tenant_id      | integer   | Foreign key → tenants — admin controlled, not per user |
-| type           | varchar   | Notification type                                      |
-| in_app_enabled | boolean   |                                                        |
-| email_enabled  | boolean   |                                                        |
-| created_at     | timestamp |                                                        |
-| updated_at     | timestamp |                                                        |
+| Column                 | Type      | Notes                                                                                                                  |
+| ---------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------- |
+| id                     | integer   | Primary key                                                                                                            |
+| tenant_id              | integer   | Foreign key → tenants                                                                                                  |
+| name                   | varchar   |                                                                                                                        |
+| event_type             | varchar   | user_registration, user_payment, course_assigned, course_completed, course_failed, course_cert_expired, course_expired |
+| recipient_type         | varchar   | related_user, specific_recipients, admins, account_owner                                                               |
+| specific_recipient_ids | jsonb     | nullable — array of user IDs when recipient_type = specific_recipients                                                 |
+| message_subject        | varchar   |                                                                                                                        |
+| message_body           | text      | Rich text with smart tags                                                                                              |
+| is_active              | boolean   | Default false                                                                                                          |
+| created_by             | integer   | Foreign key → users                                                                                                    |
+| created_at             | timestamp |                                                                                                                        |
+| updated_at             | timestamp |                                                                                                                        |
+
+---
+
+### notification_rule_filters
+
+| Column               | Type    | Notes                            |
+| -------------------- | ------- | -------------------------------- |
+| id                   | integer | Primary key                      |
+| notification_rule_id | integer | Foreign key → notification_rules |
+| filter_type          | varchar | course, branch, user_type        |
+| filter_id            | integer | FK to relevant table             |
+
+---
+
+### notification_log
+
+| Column               | Type      | Notes                                                                |
+| -------------------- | --------- | -------------------------------------------------------------------- |
+| id                   | integer   | Primary key                                                          |
+| tenant_id            | integer   | Foreign key → tenants                                                |
+| notification_rule_id | integer   | Foreign key → notification_rules (nullable for system notifications) |
+| recipient_id         | integer   | Foreign key → users                                                  |
+| subject              | varchar   |                                                                      |
+| body                 | text      |                                                                      |
+| status               | varchar   | sent, pending, failed                                                |
+| sent_at              | timestamp | nullable                                                             |
+| created_at           | timestamp |                                                                      |
 
 ---
 
@@ -728,3 +1084,4 @@ _Only populated when coupon applicable_to = specific_courses_
       confirm this is correct before Phase 7 backend build
 - [ ] PayGo — confirm what this is before designing payment flow
       Could require installment payment support in Stripe
+      It's not a payment plan or a separate course type — it's a branch of NACCC. Learners in the PayGo branch are on some kind of payment arrangement.
