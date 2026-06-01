@@ -784,49 +784,29 @@ NOTE: Rich text editor must support:
 
 NOTE: Open questions for Heather:
 
-- Who manages PayGo enrollments — automatic or manual?
-- Do any tests use fill the gaps, ordering, or match the pairs?
-- Which of the 4 active notifications are critical to replicate day one?
-- Do branches have their own payment processors?
-- Does the proctor need any tools inside the LMS during exam?
-- Do any courses have audio lessons?
-- Do any courses use surveys?
-- Do you use ILT Sessions or Conferences beyond proctored exams?
-- Which report types does NACCC use regularly?
-- Are any reports submitted to accreditation bodies?
-- Does anyone get scheduled reports emailed to them?
-- What does the custom report builder need to do?
-- What does NACCC use Constant Contact for specifically?
-- What notifications are learners currently getting?
-- What notifications do learners complain about?
-- Which proctoring service is NACCC considering?
-- Do instructors record video, audio, or screen directly in TalentLMS?
-- Does NACCC use Slideshare?
-- Does NACCC use Groups actively?
-- Does NACCC use registration cap on any branches?
-- Do they use smart tags in notifications?
-- Do learners use Favorites in TalentLMS?
-- Is total training time important for reporting?
-- Does NACCC want ACH bank transfer?
-- Is gamification wanted?
+## Questions for Heather
+
+### Urgent — Foundational
+
+- Does Integrity Advocate have an LMS integration API and what does the integration look like?
 - Does NACCC need invoice PDFs per purchase?
-- Is 2FA used by staff or learners?
-- PayGo — who manages the sequential payments, automatic or manual?
-- What goes in the Files tab on a user profile?
-- Ed2go learners moving to courses branch after certification —
-  should this be automatic or manual?
-- Should ed2go learners see ALL CEU courses or only specific ones?
-- Confirm course time limits: Core = 365 days, Ed2go = 185 days, CEU = none?
-- Are there other time limit variations beyond these three?
-- Who initiates recertification — learner self-serve or admin triggers it?
-- Do branches have their own payment processors or all use same Stripe?
-- What is the Certificate Check report — what does it show and who uses it?
-- Is it used instead of the public verification URL?
+- Does NACCC want ACH bank transfer as a payment option?
+- Do they use smart tags in notifications?
+
+### Important — Needed before Phase 2/3
+
+- What is the Certificate Check report — what does it show, who uses it, and is it used instead of the public verification URL?
 - Can you show me what the custom report builder looks like in TalentLMS?
-- What is the Certificate Check report exactly?
-- Can you show the custom report builder in TalentLMS?
-- Does Integrity Advocate have an LMS integration API?
-- Invoice PDFs — needed per purchase?
-- ACH bank transfer — confirmed yes or pending?
-- Smart tags — do you use them in notifications?
-- Ed2go learners moving to courses branch — automatic or manual?
+- Is gamification wanted — revisit from admin side?
+- Who initiates recertification — learner self-serve or does admin trigger it?
+
+### Ed2go Specific
+
+- Ed2go learners moving to courses branch after certification — should this be automatic or manual?
+- Should ed2go learners see ALL CEU courses or only specific ones after moving to courses branch?
+- Confirm course time limits: Core = 365 days, Ed2go = 185 days, CEU = none? Any other variations?
+
+### Low Priority
+
+- Is 2FA wanted for staff only or also some learners?
+- Do surveys need to be revisited from an admin side or is Google Forms via iFrame sufficient long term?
