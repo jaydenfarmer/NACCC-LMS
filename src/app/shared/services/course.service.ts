@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Course, Enrollment, Module } from '../models/course.model';
+import { Course, Enrollment, ExamQuestion } from '../models/course.model';
 
 @Injectable({
   providedIn: 'root'
@@ -16,14 +16,7 @@ export class CourseService {
   }
 
   getCourseById(id: string): Course | undefined {
-    const course = this.courses().find(c => c.id === id);
-    if (course) {
-      // Add modules data if not already present
-      if (!course.modules || course.modules.length === 0) {
-        course.modules = this.getMockModulesForCourse(id);
-      }
-    }
-    return course;
+    return this.courses().find(c => c.id === id);
   }
 
   getUserEnrollments(userId: string): Enrollment[] {
@@ -98,426 +91,8 @@ export class CourseService {
     this.courses.set(this.courses().filter(c => c.id !== id));
   }
 
-  private getMockCourses(): Course[] {
-    return [
-      {
-        id: 'course-1',
-        title: 'Introduction to Credit Counseling',
-        description: 'Learn the fundamentals of credit counseling, including assessment techniques, debt management plans, and client communication strategies.',
-        thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop',
-        category: 'Fundamentals',
-        duration: 180,
-        difficulty: 'beginner',
-        instructor: {
-          id: 'inst-1',
-          name: 'Sarah Johnson',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah'
-        },
-        enrolledCount: 245,
-        rating: 4.8,
-        totalLessons: 12,
-        tags: ['credit', 'counseling', 'basics'],
-        createdAt: new Date('2024-01-15'),
-        updatedAt: new Date('2024-11-01')
-      },
-      {
-        id: 'course-2',
-        title: 'Advanced Debt Management Strategies',
-        description: 'Master advanced techniques for creating effective debt management plans, negotiating with creditors, and handling complex financial situations.',
-        thumbnail: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400&h=250&fit=crop',
-        category: 'Advanced',
-        duration: 240,
-        difficulty: 'advanced',
-        instructor: {
-          id: 'inst-2',
-          name: 'Michael Chen',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael'
-        },
-        enrolledCount: 156,
-        rating: 4.9,
-        totalLessons: 15,
-        tags: ['debt', 'management', 'negotiation'],
-        createdAt: new Date('2024-02-10'),
-        updatedAt: new Date('2024-10-15')
-      },
-      {
-        id: 'course-3',
-        title: 'Financial Literacy for Counselors',
-        description: 'Comprehensive training on teaching financial literacy concepts to clients, including budgeting, saving, and credit score improvement.',
-        thumbnail: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400&h=250&fit=crop',
-        category: 'Professional Development',
-        duration: 150,
-        difficulty: 'intermediate',
-        instructor: {
-          id: 'inst-1',
-          name: 'Sarah Johnson',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah'
-        },
-        enrolledCount: 189,
-        rating: 4.7,
-        totalLessons: 10,
-        tags: ['financial literacy', 'teaching', 'budgeting'],
-        createdAt: new Date('2024-03-05'),
-        updatedAt: new Date('2024-09-20')
-      },
-      {
-        id: 'course-4',
-        title: 'Legal & Ethical Compliance',
-        description: 'Understanding legal requirements, ethical standards, and compliance regulations in credit counseling practice.',
-        thumbnail: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=250&fit=crop',
-        category: 'Compliance',
-        duration: 120,
-        difficulty: 'intermediate',
-        instructor: {
-          id: 'inst-3',
-          name: 'David Martinez',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=David'
-        },
-        enrolledCount: 198,
-        rating: 4.6,
-        totalLessons: 8,
-        tags: ['legal', 'ethics', 'compliance'],
-        createdAt: new Date('2024-04-12'),
-        updatedAt: new Date('2024-10-30')
-      },
-      {
-        id: 'course-5',
-        title: 'Client Communication Skills',
-        description: 'Develop effective communication techniques for counseling sessions, including active listening, empathy, and conflict resolution.',
-        thumbnail: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=250&fit=crop',
-        category: 'Soft Skills',
-        duration: 90,
-        difficulty: 'beginner',
-        instructor: {
-          id: 'inst-2',
-          name: 'Michael Chen',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael'
-        },
-        enrolledCount: 312,
-        rating: 4.9,
-        totalLessons: 6,
-        tags: ['communication', 'counseling', 'soft skills'],
-        createdAt: new Date('2024-05-08'),
-        updatedAt: new Date('2024-11-05')
-      },
-      {
-        id: 'course-6',
-        title: 'Credit Report Analysis',
-        description: 'Learn to read, interpret, and analyze credit reports from all three major bureaus. Identify errors and guide clients on dispute processes.',
-        thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
-        category: 'Technical Skills',
-        duration: 135,
-        difficulty: 'intermediate',
-        instructor: {
-          id: 'inst-1',
-          name: 'Sarah Johnson',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah'
-        },
-        enrolledCount: 223,
-        rating: 4.8,
-        totalLessons: 9,
-        tags: ['credit report', 'analysis', 'bureaus'],
-        createdAt: new Date('2024-06-20'),
-        updatedAt: new Date('2024-10-10')
-      }
-    ];
-  }
-
-  private getMockEnrollments(): Enrollment[] {
-    return [
-      {
-        id: 'enr-1',
-        userId: '1',
-        courseId: 'course-1',
-        enrolledAt: new Date('2024-10-01'),
-        progress: 75,
-        completedLessons: 9,
-        lastAccessedAt: new Date('2024-11-08'),
-        status: 'in-progress'
-      },
-      {
-        id: 'enr-2',
-        userId: '1',
-        courseId: 'course-3',
-        enrolledAt: new Date('2024-10-15'),
-        progress: 40,
-        completedLessons: 4,
-        lastAccessedAt: new Date('2024-11-05'),
-        status: 'in-progress'
-      },
-      {
-        id: 'enr-3',
-        userId: '1',
-        courseId: 'course-5',
-        enrolledAt: new Date('2024-09-20'),
-        progress: 100,
-        completedLessons: 6,
-        lastAccessedAt: new Date('2024-10-28'),
-        status: 'completed',
-        certificateIssued: true
-      }
-    ];
-  }
-
-  private getMockModulesForCourse(courseId: string): Module[] {
-    // Return modules based on courseId
-    if (courseId === 'course-1') {
-      const modules: Module[] = [
-        {
-          id: 'mod-1-1',
-          courseId,
-          title: 'Getting Started with Credit Counseling',
-          description: 'Introduction to the field of credit counseling and its importance',
-          order: 1,
-          isExpanded: false,
-          lessons: [
-            {
-              id: 'lesson-1',
-              title: 'What is Credit Counseling?',
-              description: 'Overview of credit counseling profession and services',
-              type: 'video',
-              duration: 15,
-              order: 1,
-              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-              isCompleted: true
-            },
-            {
-              id: 'lesson-2',
-              title: 'The Role of a Credit Counselor',
-              description: 'Understanding responsibilities and expectations',
-              type: 'video',
-              duration: 20,
-              order: 2,
-              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-              isCompleted: true
-            },
-            {
-              id: 'lesson-3',
-              title: 'Industry Standards & Regulations',
-              description: 'Key regulations governing credit counseling',
-              type: 'pdf',
-              duration: 10,
-              order: 3,
-              content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-              isCompleted: true
-            }
-          ]
-        },
-        {
-          id: 'mod-1-2',
-          courseId,
-          title: 'Client Assessment Techniques',
-          description: 'Learn how to assess client financial situations',
-          order: 2,
-          isExpanded: false,
-          lessons: [
-            {
-              id: 'lesson-4',
-              title: 'Initial Client Interview',
-              description: 'Conducting effective first meetings',
-              type: 'video',
-              duration: 25,
-              order: 1,
-              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-              isCompleted: true
-            },
-            {
-              id: 'lesson-5',
-              title: 'Financial Document Review',
-              description: 'Analyzing client financial documents',
-              type: 'video',
-              duration: 18,
-              order: 2,
-              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-              isCompleted: true
-            },
-            {
-              id: 'lesson-6',
-              title: 'Assessment Quiz',
-              description: 'Test your knowledge of client assessment',
-              type: 'quiz',
-              duration: 15,
-              order: 3,
-              content: '',
-              isCompleted: false
-            }
-          ]
-        },
-        {
-          id: 'mod-1-3',
-          courseId,
-          title: 'Creating Debt Management Plans',
-          description: 'Master the art of creating effective DMPs',
-          order: 3,
-          isExpanded: false,
-          lessons: [
-            {
-              id: 'lesson-7',
-              title: 'DMP Fundamentals',
-              description: 'Understanding debt management plan basics',
-              type: 'video',
-              duration: 22,
-              order: 1,
-              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-              isCompleted: true
-            },
-            {
-              id: 'lesson-8',
-              title: 'Calculating Monthly Payments',
-              description: 'How to determine affordable payment amounts',
-              type: 'video',
-              duration: 20,
-              order: 2,
-              content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-              isCompleted: true
-            },
-            {
-              id: 'lesson-9',
-              title: 'DMP Case Studies',
-              description: 'Review real-world DMP scenarios',
-              type: 'pdf',
-              duration: 12,
-              order: 3,
-              content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-              isCompleted: true
-            }
-          ]
-        },
-        {
-          id: 'mod-1-4',
-          courseId,
-          title: 'Final Assessment',
-          description: 'Complete the course final exam',
-          order: 4,
-          isExpanded: false,
-          lessons: [
-            {
-              id: 'lesson-10',
-              title: 'Course Review',
-              description: 'Summary of key concepts',
-              type: 'pdf',
-              duration: 8,
-              order: 1,
-              content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-              isCompleted: false
-            },
-            {
-              id: 'lesson-11',
-              title: 'Practice Quiz',
-              description: 'Prepare for the final exam',
-              type: 'quiz',
-              duration: 20,
-              order: 2,
-              content: '',
-              isCompleted: false
-            },
-            {
-              id: 'lesson-12',
-              title: 'Final Exam',
-              description: 'Complete to earn your certificate',
-              type: 'exam',
-              duration: 45,
-              order: 3,
-              content: '',
-              isCompleted: false
-            }
-          ]
-        }
-      ];
-
-      // Ensure lessons include courseId and moduleId for typing
-      modules.forEach((mod) => {
-        mod.lessons.forEach((l) => {
-          if (!l.courseId) l.courseId = courseId;
-          if (!l.moduleId) l.moduleId = mod.id;
-        });
-      });
-
-      return modules;
-    }
-
-    // Default modules for other courses
-    const defaultModules: Module[] = [
-      {
-        id: `mod-${courseId}-1`,
-        courseId,
-        title: 'Introduction',
-        description: 'Getting started with this course',
-        order: 1,
-        isExpanded: false,
-        lessons: [
-          {
-            id: `lesson-${courseId}-1`,
-            title: 'Course Overview',
-            description: 'What you will learn in this course',
-            type: 'video',
-            duration: 15,
-            order: 1,
-            content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            isCompleted: false
-          },
-          {
-            id: `lesson-${courseId}-2`,
-            title: 'Course Materials',
-            description: 'Download course resources',
-            type: 'pdf',
-            duration: 5,
-            order: 2,
-            content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-            isCompleted: false
-          }
-        ]
-      },
-      {
-        id: `mod-${courseId}-2`,
-        courseId,
-        title: 'Core Concepts',
-        description: 'Main course content',
-        order: 2,
-        isExpanded: false,
-        lessons: [
-          {
-            id: `lesson-${courseId}-3`,
-            title: 'Key Topics',
-            description: 'Essential knowledge for this course',
-            type: 'video',
-            duration: 30,
-            order: 1,
-            content: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-            isCompleted: false
-          },
-          {
-            id: `lesson-${courseId}-4`,
-            title: 'Knowledge Check',
-            description: 'Test your understanding',
-            type: 'quiz',
-            duration: 15,
-            order: 2,
-            content: '',
-            isCompleted: false
-          }
-        ]
-      }
-    ];
-
-    defaultModules.forEach((mod) => {
-      mod.lessons.forEach((l) => {
-        if (!l.courseId) l.courseId = courseId;
-        if (!l.moduleId) l.moduleId = mod.id;
-      });
-    });
-
-    return defaultModules;
-  }
-
-  // Return mock questions for an exam lesson. In a real app this would come from the backend.
-  getQuestionsForLesson(courseId: string, lessonId: string) {
-    return this.getMockQuestionsForLesson(courseId, lessonId);
-  }
-
-  private getMockQuestionsForLesson(courseId: string, lessonId: string) {
-    // Provide a predictable set of mock multiple-choice questions for course-1 / lesson-12
-    if (courseId === 'course-1' && lessonId === 'lesson-12') {
+  getQuestionsForLesson(courseId: string, lessonId: string): ExamQuestion[] {
+    if (courseId === 'course-1' && lessonId === 'c1-16') {
       return [
         {
           id: 'q1',
@@ -566,13 +141,264 @@ export class CourseService {
       ];
     }
 
-    // Default small question set for other lessons
     return [
       {
         id: 'q1',
-        text: 'This is a placeholder question for the lesson.',
+        text: 'This is a placeholder question for this exam.',
         options: ['Option A', 'Option B', 'Option C', 'Option D'],
         correctIndex: 0
+      }
+    ];
+  }
+
+  private getMockCourses(): Course[] {
+    return [
+      {
+        id: 'course-1',
+        title: 'Introduction to Credit Counseling',
+        description: 'Learn the fundamentals of credit counseling, including assessment techniques, debt management plans, and client communication strategies.',
+        thumbnail: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&h=250&fit=crop',
+        category: 'Fundamentals',
+        duration: 180,
+        difficulty: 'beginner',
+        instructor: { id: 'inst-1', name: 'Sarah Johnson', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah' },
+        enrolledCount: 245,
+        rating: 4.8,
+        totalLessons: 16,
+        tags: ['credit', 'counseling', 'basics'],
+        createdAt: new Date('2024-01-15'),
+        updatedAt: new Date('2024-11-01'),
+        lessons: [
+          { id: 'c1-s0', type: 'section', title: 'INTRODUCTION', order: 1 },
+          { id: 'c1-01', type: 'content_page', title: 'Join the Community', order: 2, duration: 5, isCompleted: true },
+          { id: 'c1-02', type: 'content_page', title: 'Keys to Success', order: 3, duration: 10, isCompleted: true },
+          { id: 'c1-03', type: 'content_page', title: 'Grading Information', order: 4, duration: 5, isCompleted: true },
+          { id: 'c1-s1', type: 'section', title: 'INSTRUCTOR INFORMATION', order: 5 },
+          { id: 'c1-04', type: 'content_page', title: 'Meet Your Instructor', order: 6, duration: 5, isCompleted: true },
+          { id: 'c1-05', type: 'iframe', title: 'Live Chat Session', order: 7, duration: 60 },
+          { id: 'c1-s2', type: 'section', title: 'MODULE 1 — Credit Counseling Fundamentals', order: 8 },
+          { id: 'c1-06', type: 'video', title: 'What is Credit Counseling?', order: 9, duration: 15, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ', isCompleted: true },
+          { id: 'c1-07', type: 'video', title: 'The Role of a Credit Counselor', order: 10, duration: 20, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ', isCompleted: true },
+          { id: 'c1-08', type: 'presentation_document', title: 'Industry Standards & Regulations', order: 11, duration: 10, isCompleted: true },
+          { id: 'c1-09', type: 'test', title: 'Module 1 Quiz', order: 12, passingScore: 70, isCompleted: true },
+          { id: 'c1-s3', type: 'section', title: 'MODULE 2 — Client Assessment', order: 13 },
+          { id: 'c1-10', type: 'video', title: 'Initial Client Interview', order: 14, duration: 25, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ', isCompleted: true },
+          { id: 'c1-11', type: 'video', title: 'Financial Document Review', order: 15, duration: 18, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c1-12', type: 'content_page', title: 'Creating Debt Management Plans', order: 16, duration: 12 },
+          { id: 'c1-13', type: 'test', title: 'Module 2 Quiz', order: 17, passingScore: 70 },
+          { id: 'c1-s4', type: 'section', title: 'EXAM REVIEW', order: 18 },
+          { id: 'c1-14', type: 'test', title: 'Practice Test', order: 19, isPractice: true, passingScore: 70 },
+          { id: 'c1-15', type: 'content_page', title: 'Schedule Your Exam', order: 20, duration: 5 },
+          { id: 'c1-s5', type: 'section', title: 'FINAL EXAM', order: 21 },
+          { id: 'c1-16', type: 'test', title: 'Final Exam', order: 22, passingScore: 70, password: 'exam2024' }
+        ]
+      },
+      {
+        id: 'course-2',
+        title: 'Advanced Debt Management Strategies',
+        description: 'Master advanced techniques for creating effective debt management plans, negotiating with creditors, and handling complex financial situations.',
+        thumbnail: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400&h=250&fit=crop',
+        category: 'Advanced',
+        duration: 240,
+        difficulty: 'advanced',
+        instructor: { id: 'inst-2', name: 'Michael Chen', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael' },
+        enrolledCount: 156,
+        rating: 4.9,
+        totalLessons: 13,
+        tags: ['debt', 'management', 'negotiation'],
+        createdAt: new Date('2024-02-10'),
+        updatedAt: new Date('2024-10-15'),
+        lessons: [
+          { id: 'c2-s0', type: 'section', title: 'INTRODUCTION', order: 1 },
+          { id: 'c2-01', type: 'content_page', title: 'Course Overview', order: 2, duration: 5 },
+          { id: 'c2-02', type: 'content_page', title: 'Prerequisites & Expectations', order: 3, duration: 5 },
+          { id: 'c2-s1', type: 'section', title: 'INSTRUCTOR INFORMATION', order: 4 },
+          { id: 'c2-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration: 5 },
+          { id: 'c2-s2', type: 'section', title: 'MODULE 1 — Advanced DMP Construction', order: 6 },
+          { id: 'c2-04', type: 'video', title: 'Complex Debt Scenarios', order: 7, duration: 30, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c2-05', type: 'video', title: 'Creditor Negotiation Techniques', order: 8, duration: 25, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c2-06', type: 'presentation_document', title: 'DMP Templates & Tools', order: 9, duration: 15 },
+          { id: 'c2-07', type: 'test', title: 'Module 1 Quiz', order: 10, passingScore: 75 },
+          { id: 'c2-s3', type: 'section', title: 'MODULE 2 — Creditor Relations', order: 11 },
+          { id: 'c2-08', type: 'video', title: 'Building Creditor Partnerships', order: 12, duration: 22, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c2-09', type: 'video', title: 'Handling Creditor Disputes', order: 13, duration: 20, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c2-10', type: 'test', title: 'Module 2 Quiz', order: 14, passingScore: 75 },
+          { id: 'c2-s4', type: 'section', title: 'EXAM REVIEW', order: 15 },
+          { id: 'c2-11', type: 'test', title: 'Practice Test', order: 16, isPractice: true, passingScore: 75 },
+          { id: 'c2-12', type: 'content_page', title: 'Schedule Your Exam', order: 17, duration: 5 },
+          { id: 'c2-s5', type: 'section', title: 'FINAL EXAM', order: 18 },
+          { id: 'c2-13', type: 'test', title: 'Final Exam', order: 19, passingScore: 75, password: 'adv2024' }
+        ]
+      },
+      {
+        id: 'course-3',
+        title: 'Financial Literacy for Counselors',
+        description: 'Comprehensive training on teaching financial literacy concepts to clients, including budgeting, saving, and credit score improvement.',
+        thumbnail: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400&h=250&fit=crop',
+        category: 'Professional Development',
+        duration: 150,
+        difficulty: 'intermediate',
+        instructor: { id: 'inst-1', name: 'Sarah Johnson', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah' },
+        enrolledCount: 189,
+        rating: 4.7,
+        totalLessons: 11,
+        tags: ['financial literacy', 'teaching', 'budgeting'],
+        createdAt: new Date('2024-03-05'),
+        updatedAt: new Date('2024-09-20'),
+        lessons: [
+          { id: 'c3-s0', type: 'section', title: 'INTRODUCTION', order: 1 },
+          { id: 'c3-01', type: 'content_page', title: 'Course Overview', order: 2, duration: 5, isCompleted: true },
+          { id: 'c3-02', type: 'content_page', title: 'Why Financial Literacy Matters', order: 3, duration: 8, isCompleted: true },
+          { id: 'c3-s1', type: 'section', title: 'INSTRUCTOR INFORMATION', order: 4 },
+          { id: 'c3-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration: 5, isCompleted: true },
+          { id: 'c3-s2', type: 'section', title: 'MODULE 1 — Teaching Budgeting Skills', order: 6 },
+          { id: 'c3-04', type: 'video', title: 'Budgeting Frameworks for Clients', order: 7, duration: 20, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ', isCompleted: true },
+          { id: 'c3-05', type: 'video', title: 'Income vs. Expense Analysis', order: 8, duration: 18, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c3-06', type: 'test', title: 'Module 1 Quiz', order: 9, passingScore: 70 },
+          { id: 'c3-s3', type: 'section', title: 'MODULE 2 — Credit Score Education', order: 10 },
+          { id: 'c3-07', type: 'video', title: 'How Credit Scores Work', order: 11, duration: 22, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c3-08', type: 'presentation_document', title: 'Credit Score Improvement Strategies', order: 12, duration: 12 },
+          { id: 'c3-09', type: 'test', title: 'Module 2 Quiz', order: 13, passingScore: 70 },
+          { id: 'c3-s4', type: 'section', title: 'EXAM REVIEW', order: 14 },
+          { id: 'c3-10', type: 'test', title: 'Practice Test', order: 15, isPractice: true, passingScore: 70 },
+          { id: 'c3-s5', type: 'section', title: 'FINAL EXAM', order: 16 },
+          { id: 'c3-11', type: 'test', title: 'Final Exam', order: 17, passingScore: 70, password: 'finlit2024' }
+        ]
+      },
+      {
+        id: 'course-4',
+        title: 'Legal & Ethical Compliance',
+        description: 'Understanding legal requirements, ethical standards, and compliance regulations in credit counseling practice.',
+        thumbnail: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=250&fit=crop',
+        category: 'Compliance',
+        duration: 120,
+        difficulty: 'intermediate',
+        instructor: { id: 'inst-3', name: 'David Martinez', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=David' },
+        enrolledCount: 198,
+        rating: 4.6,
+        totalLessons: 9,
+        tags: ['legal', 'ethics', 'compliance'],
+        createdAt: new Date('2024-04-12'),
+        updatedAt: new Date('2024-10-30'),
+        lessons: [
+          { id: 'c4-s0', type: 'section', title: 'INTRODUCTION', order: 1 },
+          { id: 'c4-01', type: 'content_page', title: 'Course Overview', order: 2, duration: 5 },
+          { id: 'c4-02', type: 'content_page', title: 'Regulatory Landscape Overview', order: 3, duration: 10 },
+          { id: 'c4-s1', type: 'section', title: 'INSTRUCTOR INFORMATION', order: 4 },
+          { id: 'c4-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration: 5 },
+          { id: 'c4-s2', type: 'section', title: 'MODULE 1 — Federal Compliance', order: 6 },
+          { id: 'c4-04', type: 'video', title: 'CFPB Regulations & Requirements', order: 7, duration: 25, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c4-05', type: 'video', title: 'FCRA and Consumer Rights', order: 8, duration: 20, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c4-06', type: 'test', title: 'Module 1 Quiz', order: 9, passingScore: 80 },
+          { id: 'c4-s3', type: 'section', title: 'MODULE 2 — Ethical Standards', order: 10 },
+          { id: 'c4-07', type: 'video', title: 'NFCC Code of Ethics', order: 11, duration: 18, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c4-08', type: 'test', title: 'Module 2 Quiz', order: 12, passingScore: 80 },
+          { id: 'c4-s4', type: 'section', title: 'EXAM REVIEW', order: 13 },
+          { id: 'c4-09', type: 'test', title: 'Practice Test', order: 14, isPractice: true, passingScore: 80 },
+          { id: 'c4-s5', type: 'section', title: 'FINAL EXAM', order: 15 },
+          { id: 'c4-10', type: 'test', title: 'Final Exam', order: 16, passingScore: 80, password: 'legal2024' }
+        ]
+      },
+      {
+        id: 'course-5',
+        title: 'Client Communication Skills',
+        description: 'Develop effective communication techniques for counseling sessions, including active listening, empathy, and conflict resolution.',
+        thumbnail: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=250&fit=crop',
+        category: 'Soft Skills',
+        duration: 90,
+        difficulty: 'beginner',
+        instructor: { id: 'inst-2', name: 'Michael Chen', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael' },
+        enrolledCount: 312,
+        rating: 4.9,
+        totalLessons: 7,
+        tags: ['communication', 'counseling', 'soft skills'],
+        createdAt: new Date('2024-05-08'),
+        updatedAt: new Date('2024-11-05'),
+        lessons: [
+          { id: 'c5-s0', type: 'section', title: 'INTRODUCTION', order: 1 },
+          { id: 'c5-01', type: 'content_page', title: 'Course Overview', order: 2, duration: 5, isCompleted: true },
+          { id: 'c5-02', type: 'content_page', title: 'The Power of Communication', order: 3, duration: 8, isCompleted: true },
+          { id: 'c5-s1', type: 'section', title: 'INSTRUCTOR INFORMATION', order: 4 },
+          { id: 'c5-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration: 5, isCompleted: true },
+          { id: 'c5-s2', type: 'section', title: 'MODULE 1 — Active Listening', order: 6 },
+          { id: 'c5-04', type: 'video', title: 'Active Listening Techniques', order: 7, duration: 20, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ', isCompleted: true },
+          { id: 'c5-05', type: 'video', title: 'Empathy in Practice', order: 8, duration: 15, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ', isCompleted: true },
+          { id: 'c5-06', type: 'test', title: 'Module 1 Quiz', order: 9, passingScore: 70, isCompleted: true },
+          { id: 'c5-s3', type: 'section', title: 'EXAM REVIEW', order: 10 },
+          { id: 'c5-s4', type: 'section', title: 'FINAL EXAM', order: 11 },
+          { id: 'c5-07', type: 'test', title: 'Final Exam', order: 12, passingScore: 70, password: 'comm2024', isCompleted: true }
+        ]
+      },
+      {
+        id: 'course-6',
+        title: 'Credit Report Analysis',
+        description: 'Learn to read, interpret, and analyze credit reports from all three major bureaus. Identify errors and guide clients on dispute processes.',
+        thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=250&fit=crop',
+        category: 'Technical Skills',
+        duration: 135,
+        difficulty: 'intermediate',
+        instructor: { id: 'inst-1', name: 'Sarah Johnson', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah' },
+        enrolledCount: 223,
+        rating: 4.8,
+        totalLessons: 10,
+        tags: ['credit report', 'analysis', 'bureaus'],
+        createdAt: new Date('2024-06-20'),
+        updatedAt: new Date('2024-10-10'),
+        lessons: [
+          { id: 'c6-s0', type: 'section', title: 'INTRODUCTION', order: 1 },
+          { id: 'c6-01', type: 'content_page', title: 'Course Overview', order: 2, duration: 5 },
+          { id: 'c6-02', type: 'content_page', title: 'Understanding the Three Bureaus', order: 3, duration: 10 },
+          { id: 'c6-s1', type: 'section', title: 'INSTRUCTOR INFORMATION', order: 4 },
+          { id: 'c6-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration: 5 },
+          { id: 'c6-s2', type: 'section', title: 'MODULE 1 — Reading Credit Reports', order: 6 },
+          { id: 'c6-04', type: 'video', title: 'Anatomy of a Credit Report', order: 7, duration: 22, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c6-05', type: 'video', title: 'Identifying Derogatory Marks', order: 8, duration: 18, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c6-06', type: 'test', title: 'Module 1 Quiz', order: 9, passingScore: 70 },
+          { id: 'c6-s3', type: 'section', title: 'MODULE 2 — Dispute Process', order: 10 },
+          { id: 'c6-07', type: 'video', title: 'Filing a Dispute — Step by Step', order: 11, duration: 20, content: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+          { id: 'c6-08', type: 'presentation_document', title: 'Dispute Letter Templates', order: 12, duration: 10 },
+          { id: 'c6-09', type: 'test', title: 'Module 2 Quiz', order: 13, passingScore: 70 },
+          { id: 'c6-s4', type: 'section', title: 'EXAM REVIEW', order: 14 },
+          { id: 'c6-10', type: 'test', title: 'Practice Test', order: 15, isPractice: true, passingScore: 70 },
+          { id: 'c6-s5', type: 'section', title: 'FINAL EXAM', order: 16 },
+          { id: 'c6-11', type: 'test', title: 'Final Exam', order: 17, passingScore: 70, password: 'credit2024' }
+        ]
+      }
+    ];
+  }
+
+  private getMockEnrollments(): Enrollment[] {
+    return [
+      {
+        id: 'enr-1',
+        userId: '1',
+        courseId: 'course-1',
+        enrolledAt: new Date('2024-10-01'),
+        progress: 56,
+        completedLessons: 9,
+        lastAccessedAt: new Date('2024-11-08'),
+        status: 'in-progress'
+      },
+      {
+        id: 'enr-2',
+        userId: '1',
+        courseId: 'course-3',
+        enrolledAt: new Date('2024-10-15'),
+        progress: 36,
+        completedLessons: 4,
+        lastAccessedAt: new Date('2024-11-05'),
+        status: 'in-progress'
+      },
+      {
+        id: 'enr-3',
+        userId: '1',
+        courseId: 'course-5',
+        enrolledAt: new Date('2024-09-20'),
+        progress: 100,
+        completedLessons: 7,
+        lastAccessedAt: new Date('2024-10-28'),
+        status: 'completed',
+        certificateIssued: true
       }
     ];
   }

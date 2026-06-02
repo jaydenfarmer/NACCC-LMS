@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CourseService } from '../../shared/services/course.service';
 import { AuthService } from '../../shared/services/auth.service';
-import { Module, Lesson } from '../../shared/models/course.model';
+import { Lesson, LessonType } from '../../shared/models/course.model';
 
 @Component({
   selector: 'app-course-detail',
@@ -19,15 +19,13 @@ export class CourseDetailComponent {
   private authService = inject(AuthService);
 
   courseId = signal<string>('');
-  
+
   course = computed(() => {
     const id = this.courseId();
     return id ? this.courseService.getCourseById(id) : undefined;
   });
 
-  modules = computed(() => {
-    return this.course()?.modules || [];
-  });
+  lessons = computed(() => this.course()?.lessons ?? []);
 
   enrollment = computed(() => {
     const user = this.authService.user();
@@ -38,15 +36,13 @@ export class CourseDetailComponent {
 
   isEnrolled = computed(() => !!this.enrollment());
 
-  totalLessons = computed(() => {
-    return this.modules().reduce((sum, mod) => sum + mod.lessons.length, 0);
-  });
+  totalLessons = computed(() =>
+    this.lessons().filter(l => l.type !== 'section').length
+  );
 
-  completedLessonsCount = computed(() => {
-    return this.modules().reduce((sum, mod) => 
-      sum + mod.lessons.filter(l => l.isCompleted).length, 0
-    );
-  });
+  completedLessonsCount = computed(() =>
+    this.lessons().filter(l => l.type !== 'section' && !!l.isCompleted).length
+  );
 
   progressPercentage = computed(() => {
     const total = this.totalLessons();
@@ -56,39 +52,60 @@ export class CourseDetailComponent {
 
   selectedLesson = signal<Lesson | null>(null);
 
+  // Tracks which section IDs are collapsed; all expanded by default
+  collapsedSections = signal<Set<string>>(new Set());
+
+  // Lessons visible in the sidebar — hides content rows under collapsed sections
+  visibleLessons = computed(() => {
+    const allLessons = this.lessons();
+    const collapsed = this.collapsedSections();
+    let currentSectionId = '';
+    return allLessons.filter(lesson => {
+      if (lesson.type === 'section') {
+        currentSectionId = lesson.id;
+        return true;
+      }
+      return !collapsed.has(currentSectionId);
+    });
+  });
+
   constructor() {
     this.route.params.subscribe(params => {
       this.courseId.set(params['id']);
-      
-      // Auto-select first incomplete lesson when course loads
       setTimeout(() => {
         const firstIncomplete = this.findFirstIncompleteLesson();
         if (firstIncomplete) {
           this.selectLesson(firstIncomplete);
-        } else if (this.modules().length > 0 && this.modules()[0].lessons.length > 0) {
-          this.selectLesson(this.modules()[0].lessons[0]);
+        } else {
+          const first = this.lessons().find(l => l.type !== 'section');
+          if (first) this.selectLesson(first);
         }
       }, 0);
     });
   }
 
-  findFirstIncompleteLesson(): Lesson | null {
-    for (const module of this.modules()) {
-      const incompleteLesson = module.lessons.find(l => !l.isCompleted);
-      if (incompleteLesson) {
-        return incompleteLesson;
-      }
-    }
-    return null;
+  isSectionCollapsed(sectionId: string): boolean {
+    return this.collapsedSections().has(sectionId);
   }
 
-  toggleModule(moduleId: string): void {
-    const course = this.course();
-    if (!course || !course.modules) return;
+  toggleSection(sectionId: string): void {
+    this.collapsedSections.update(set => {
+      const next = new Set(set);
+      if (next.has(sectionId)) {
+        next.delete(sectionId);
+      } else {
+        next.add(sectionId);
+      }
+      return next;
+    });
+  }
 
-    course.modules = course.modules.map(mod => 
-      mod.id === moduleId ? { ...mod, isExpanded: !mod.isExpanded } : mod
-    );
+  findFirstIncompleteLesson(): Lesson | null {
+    return this.lessons().find(l => l.type !== 'section' && !l.isCompleted) ?? null;
+  }
+
+  selectLesson(lesson: Lesson): void {
+    this.selectedLesson.set(lesson);
   }
 
   enroll(): void {
@@ -99,74 +116,60 @@ export class CourseDetailComponent {
     }
   }
 
-  selectLesson(lesson: Lesson): void {
-    this.selectedLesson.set(lesson);
-  }
-
   completeLesson(): void {
     const lesson = this.selectedLesson();
     if (!lesson || lesson.isCompleted) return;
 
     const course = this.course();
-    if (!course || !course.modules) return;
+    if (!course || !course.lessons) return;
 
-    // Mark lesson as completed
-    course.modules = course.modules.map(mod => ({
-      ...mod,
-      lessons: mod.lessons.map(l => 
-        l.id === lesson.id ? { ...l, isCompleted: true } : l
-      )
-    }));
+    course.lessons = course.lessons.map(l =>
+      l.id === lesson.id ? { ...l, isCompleted: true } : l
+    );
 
-    // Update enrollment progress
     const enrollmentData = this.enrollment();
     if (enrollmentData) {
-      const newProgress = this.progressPercentage();
-      const newCompletedCount = this.completedLessonsCount();
-      this.courseService.updateProgress(enrollmentData.id, newProgress, newCompletedCount);
+      this.courseService.updateProgress(
+        enrollmentData.id,
+        this.progressPercentage(),
+        this.completedLessonsCount()
+      );
     }
 
-    // Auto-advance to next lesson
-    const nextLesson = this.findNextLesson(lesson);
-    if (nextLesson) {
-      this.selectLesson(nextLesson);
-    }
+    const next = this.findNextLesson(lesson);
+    if (next) this.selectLesson(next);
   }
 
   findNextLesson(currentLesson: Lesson): Lesson | null {
-    const modules = this.modules();
-    for (let i = 0; i < modules.length; i++) {
-      const lessons = modules[i].lessons;
-      const currentIndex = lessons.findIndex(l => l.id === currentLesson.id);
-      
-      if (currentIndex !== -1) {
-        // Check if there's a next lesson in current module
-        if (currentIndex + 1 < lessons.length) {
-          return lessons[currentIndex + 1];
-        }
-        // Check if there's a next module
-        if (i + 1 < modules.length && modules[i + 1].lessons.length > 0) {
-          return modules[i + 1].lessons[0];
-        }
-      }
+    const flat = this.lessons();
+    const idx = flat.findIndex(l => l.id === currentLesson.id);
+    if (idx === -1) return null;
+    for (let i = idx + 1; i < flat.length; i++) {
+      if (flat[i].type !== 'section') return flat[i];
     }
     return null;
   }
 
-  getLessonIcon(type: string): string {
-    const icons: Record<string, string> = {
-      'video': '🎥',
-      'pdf': '📄',
-      'quiz': '✍️',
-      'exam': '📝',
-      'assignment': '📋'
-    };
-    return icons[type] || '📚';
+  navigateToExam(lesson: Lesson): void {
+    const id = this.courseId();
+    this.router.navigate(['/courses', id, 'lesson', lesson.id, 'exam']);
   }
 
-  getModuleProgress(module: Module): number {
-    const completed = module.lessons.filter(l => l.isCompleted).length;
-    const total = module.lessons.length;
-    return total > 0 ? Math.round((completed / total) * 100) : 0;
+  getLessonIcon(type: LessonType): string {
+    const icons: Record<LessonType, string> = {
+      section: '📂',
+      content_page: '📄',
+      web_content: '🌐',
+      video: '🎥',
+      audio: '🎵',
+      presentation_document: '📊',
+      iframe: '🔗',
+      test: '✍️',
+      survey: '📋',
+      assignment: '📝',
+      ilt: '🎓',
+      scorm: '📦'
+    };
+    return icons[type] ?? '📚';
   }
 }

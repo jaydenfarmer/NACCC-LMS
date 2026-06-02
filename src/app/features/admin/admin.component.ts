@@ -114,7 +114,8 @@ export class AdminComponent {
           name: 'Sarah Johnson',
           avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah'
         },
-        tags: form.tags.split(',').map(t => t.trim()).filter(t => t)
+        tags: form.tags.split(',').map(t => t.trim()).filter(t => t),
+        lessons: []
       });
     }
 

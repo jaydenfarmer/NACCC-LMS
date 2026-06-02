@@ -4,14 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CourseService } from '../../shared/services/course.service';
 import { AuthService } from '../../shared/services/auth.service';
-import { Course, Lesson, Module } from '../../shared/models/course.model';
+import { Course, Lesson, ExamQuestion } from '../../shared/models/course.model';
 
-interface ExamQuestion {
-  id: string;
-  text: string;
-  options: string[];
-  correctIndex: number;
-}
 
 @Component({
   selector: 'app-exam',
@@ -55,18 +49,12 @@ export class ExamComponent {
   init(): void {
     const c = this.courseService.getCourseById(this.courseId);
     this.course = c ?? null;
-    if (c && c.modules) {
-      for (const mod of c.modules) {
-        const found = mod.lessons.find(l => l.id === this.lessonId);
-        if (found) {
-          this.lesson = found ?? null;
-          break;
-        }
-      }
+    if (c && c.lessons) {
+      this.lesson = c.lessons.find(l => l.id === this.lessonId) ?? null;
     }
 
-    // If no lesson or not an exam/quiz, navigate back
-    if (!this.lesson || (this.lesson.type !== 'exam' && this.lesson.type !== 'quiz')) {
+    // If no lesson or not a test, navigate back
+    if (!this.lesson || this.lesson.type !== 'test') {
       this.router.navigate(['/courses', this.courseId]);
       return;
     }
@@ -155,22 +143,21 @@ export class ExamComponent {
     // Mark lesson complete if passing threshold met (default 70)
     const passing = this.lesson?.passingScore ?? 70;
     if (this.score >= passing) {
-      // mark completed in course structure
-      if (this.course && this.course.modules) {
-        this.course.modules = this.course.modules.map((mod: Module) => ({
-          ...mod,
-          lessons: mod.lessons.map((l: Lesson) => (l.id === this.lesson?.id ? { ...l, isCompleted: true } : l))
-        }));
+      if (this.course && this.course.lessons) {
+        this.course.lessons = this.course.lessons.map((l: Lesson) =>
+          l.id === this.lesson?.id ? { ...l, isCompleted: true } : l
+        );
       }
     }
 
-    // Optionally: update enrollment progress if present
+    // Update enrollment progress
     const user = this.authService.user();
     if (user) {
       const enrollment = this.courseService.getEnrollment(user.id, this.courseId);
-      if (enrollment && this.course?.modules) {
-        const completedCount = this.course.modules.reduce((s, m) => s + m.lessons.filter(ll => !!ll.isCompleted).length, 0);
-        const totalLessons = this.course.modules.reduce((s, m) => s + m.lessons.length, 0);
+      if (enrollment && this.course?.lessons) {
+        const nonSectionLessons = this.course.lessons.filter((l: Lesson) => l.type !== 'section');
+        const completedCount = nonSectionLessons.filter((l: Lesson) => !!l.isCompleted).length;
+        const totalLessons = nonSectionLessons.length;
         const newProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
         this.courseService.updateProgress(enrollment.id, newProgress, completedCount);
       }

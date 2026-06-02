@@ -1,10 +1,41 @@
+export type LessonType =
+  | 'section'
+  | 'content_page'
+  | 'web_content'
+  | 'video'
+  | 'audio'
+  | 'presentation_document'
+  | 'iframe'
+  | 'test'
+  | 'survey'
+  | 'assignment'
+  | 'ilt'
+  | 'scorm';
+
+export interface Lesson {
+  id: string;
+  courseId?: string;
+  title: string;
+  description?: string;
+  order: number;
+  type: LessonType;
+  content?: string;
+  contentUrl?: string;
+  duration?: number;
+  isCompleted?: boolean;
+  isLocked?: boolean;
+  passingScore?: number;
+  password?: string;
+  isPractice?: boolean;
+}
+
 export interface Course {
   id: string;
   title: string;
   description: string;
   thumbnail: string;
   category: string;
-  duration: number; // in minutes
+  duration: number;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   instructor: {
     id: string;
@@ -17,17 +48,7 @@ export interface Course {
   tags: string[];
   createdAt: Date;
   updatedAt: Date;
-  modules?: Module[]; // New: hierarchical structure
-}
-
-export interface Module {
-  id: string;
-  courseId: string;
-  title: string;
-  description?: string;
-  order: number;
   lessons: Lesson[];
-  isExpanded?: boolean; // UI state for collapsible
 }
 
 export interface Enrollment {
@@ -35,29 +56,11 @@ export interface Enrollment {
   userId: string;
   courseId: string;
   enrolledAt: Date;
-  progress: number; // 0-100
+  progress: number;
   completedLessons: number;
   lastAccessedAt: Date;
   status: 'in-progress' | 'completed' | 'not-started';
   certificateIssued?: boolean;
-}
-
-export interface Lesson {
-  id: string;
-  courseId?: string;
-  moduleId?: string; // Parent module reference
-  title: string;
-  description: string;
-  order: number;
-  type: 'video' | 'pdf' | 'quiz' | 'assignment' | 'exam' | 'webinar' | 'case-study' | 'keywords';
-  contentUrl?: string;
-  // Friendly alias used across mock data and templates
-  content?: string;
-  duration?: number;
-  isCompleted?: boolean;
-  isLocked?: boolean; // Progress gating
-  passingScore?: number;
-  password?: string;
 }
 
 export interface Quiz {
@@ -65,25 +68,20 @@ export interface Quiz {
   lessonId: string;
   title: string;
   description?: string;
-  passingScore: number; // Percentage (0-100)
-  timeLimit?: number; // in minutes
+  passingScore: number;
+  timeLimit?: number;
   questionCount: number;
   shuffleQuestions?: boolean;
   allowReview?: boolean;
   maxAttempts?: number;
-  questions: Question[];
+  questions: ExamQuestion[];
 }
 
-export interface Question {
+export interface ExamQuestion {
   id: string;
-  quizId: string;
-  type: 'multiple-choice' | 'true-false' | 'short-answer' | 'essay';
-  question: string;
-  order: number;
-  points: number;
-  options?: QuestionOption[]; // For multiple-choice
-  correctAnswer?: string | string[]; // For auto-grading
-  explanation?: string; // Shown after answering
+  text: string;
+  options: string[];
+  correctIndex: number;
 }
 
 export interface QuestionOption {
@@ -101,7 +99,7 @@ export interface QuizAttempt {
   score?: number;
   passed?: boolean;
   answers: QuizAnswer[];
-  timeSpent?: number; // in seconds
+  timeSpent?: number;
 }
 
 export interface QuizAnswer {
@@ -129,31 +127,14 @@ export interface AssignmentSubmission {
   userId: string;
   submittedAt: Date;
   submissionType: 'text' | 'file' | 'video' | 'audio' | 'screen';
-  content?: string; // For text submissions
-  fileUrl?: string; // For file/media submissions
+  content?: string;
+  fileUrl?: string;
   fileName?: string;
   status: 'submitted' | 'graded' | 'returned';
   grade?: number;
   feedback?: string;
   gradedBy?: string;
   gradedAt?: Date;
-}
-
-export interface Exam {
-  id: string;
-  lessonId: string;
-  title: string;
-  description: string;
-  password?: string;
-  isProctored: boolean;
-  questionCount: number;
-  timeLimit: number; // in minutes
-  passingScore: number; // Percentage
-  shuffleQuestions: boolean;
-  showResultsImmediately: boolean;
-  allowReview: boolean;
-  maxAttempts: number;
-  questions: Question[];
 }
 
 export interface Certificate {
