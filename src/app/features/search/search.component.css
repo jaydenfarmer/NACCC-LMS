@@ -1,0 +1,161 @@
+.search-page {
+  padding: 32px;
+  max-width: 900px;
+}
+
+.search-header {
+  margin-bottom: 32px;
+}
+
+.search-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #4a5568;
+  line-height: 1.5;
+}
+
+.result-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.search-term {
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.results-section {
+  margin-bottom: 40px;
+}
+
+.section-heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* User results — horizontal list */
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Course results — grid */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.course-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.course-card .card-info {
+  padding: 12px 16px;
+}
+
+.course-thumbnail {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Shared card styles */
+.result-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #1a202c;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.result-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #c3cfe2;
+}
+
+.card-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1a202c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-subtitle {
+  font-size: 0.8125rem;
+  color: #718096;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-view-more {
+  margin-top: 12px;
+  padding: 8px 20px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #667eea;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-view-more:hover {
+  background: #eef2ff;
+  border-color: #667eea;
+}
+
+.empty-state,
+.no-results {
+  color: #718096;
+  font-size: 0.9375rem;
+  padding: 40px 0;
+}
+
+/* Highlight mark — scoped via ::ng-deep in dropdown, here we style globally within this page */
+:host ::ng-deep .search-highlight {
+  background: #fef08a;
+  color: #1a202c;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-style: normal;
+}

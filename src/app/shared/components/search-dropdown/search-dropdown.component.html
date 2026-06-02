@@ -1,0 +1,62 @@
+@if (results && (results.users.length > 0 || results.courses.length > 0)) {
+  <div class="search-dropdown">
+
+    @if (results.users.length > 0) {
+      <div class="dropdown-section">
+        <div class="section-label">Users</div>
+        @for (user of results.users; track user.id) {
+          <a
+            class="result-item"
+            [routerLink]="['/users', user.id]"
+            (click)="resultSelected.emit()"
+          >
+            <img class="result-avatar" [src]="user.avatarUrl" [alt]="user.firstName" />
+            <div class="result-info">
+              <div
+                class="result-title"
+                [innerHTML]="user.firstName + ' ' + user.lastName | highlight: term"
+              ></div>
+              <div
+                class="result-subtitle"
+                [innerHTML]="user.email | highlight: term"
+              ></div>
+            </div>
+          </a>
+        }
+      </div>
+    }
+
+    @if (results.courses.length > 0) {
+      <div class="dropdown-section">
+        <div class="section-label">Courses</div>
+        @for (course of results.courses; track course.id) {
+          <a
+            class="result-item"
+            [routerLink]="['/courses', course.id]"
+            (click)="resultSelected.emit()"
+          >
+            <img class="result-thumbnail" [src]="course.thumbnailUrl" [alt]="course.title" />
+            <div class="result-info">
+              <div
+                class="result-title"
+                [innerHTML]="course.title | highlight: term"
+              ></div>
+            </div>
+          </a>
+        }
+      </div>
+    }
+
+    <div class="dropdown-footer">
+      <a
+        class="view-all"
+        [routerLink]="['/search']"
+        [queryParams]="{ q: term }"
+        (click)="resultSelected.emit()"
+      >
+        View detailed results
+      </a>
+    </div>
+
+  </div>
+}

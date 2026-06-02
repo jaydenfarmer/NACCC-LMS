@@ -4,22 +4,26 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { SidebarService } from '../services/sidebar.service';
+import { SearchService, SearchResults } from '../services/search.service';
+import { SearchDropdownComponent } from './search-dropdown/search-dropdown.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SearchDropdownComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
 })
 export class HeaderComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private searchService = inject(SearchService);
   sidebar = inject(SidebarService);
 
   logoPath = 'images/logos/NACCC_LOGO.png';
   searchQuery = signal('');
-  notificationCount = signal(3); // Mock notification count
+  dropdownResults = signal<SearchResults | null>(null);
+  notificationCount = signal(3);
   messageCount = signal(5);
 
   get user() {
@@ -32,17 +36,39 @@ export class HeaderComponent {
     this.userMenuOpen = !this.userMenuOpen;
   }
 
-  @HostListener('document:click')
-  onDocumentClick() {
-    // close when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
     this.userMenuOpen = false;
+    const target = event.target as HTMLElement;
+    if (!target.closest('.search-bar')) {
+      this.dropdownResults.set(null);
+    }
   }
 
-  onSearch() {
-    const query = this.searchQuery();
-    if (query.trim()) {
-      this.router.navigate(['/courses'], { queryParams: { search: query } });
+  onSearchInput(value: string): void {
+    this.searchQuery.set(value);
+    const trimmed = value.trim();
+    if (trimmed) {
+      const results = this.searchService.search(trimmed);
+      this.dropdownResults.set(
+        results.users.length > 0 || results.courses.length > 0 ? results : null
+      );
+    } else {
+      this.dropdownResults.set(null);
     }
+  }
+
+  onSearch(): void {
+    const term = this.searchQuery().trim();
+    this.dropdownResults.set(null);
+    if (term) {
+      this.router.navigate(['/search'], { queryParams: { q: term } });
+    }
+  }
+
+  onResultSelected(): void {
+    this.dropdownResults.set(null);
+    this.searchQuery.set('');
   }
 
   openNotifications() {

@@ -1,0 +1,86 @@
+<div class="search-page">
+
+  @if (term()) {
+    <div class="search-header">
+      <h1 class="search-title">
+        @if (totalResults() > 0) {
+          <span class="result-count">{{ totalResults() }}</span>
+          results containing the term
+          <span class="search-term">&ldquo;{{ term() }}&rdquo;</span>
+        } @else {
+          No results found for
+          <span class="search-term">&ldquo;{{ term() }}&rdquo;</span>
+        }
+      </h1>
+    </div>
+  }
+
+  @if (!term()) {
+    <div class="empty-state">
+      <p>Enter a search term in the header to find users and courses.</p>
+    </div>
+  }
+
+  @if (results()) {
+
+    @if (totalUsers() > 0) {
+      <section class="results-section">
+        <h2 class="section-heading">Users</h2>
+        <div class="results-list">
+          @for (user of visibleUsers(); track user.id) {
+            <a class="result-card user-card" [routerLink]="['/users', user.id]">
+              <img class="user-avatar" [src]="user.avatarUrl" [alt]="user.firstName" />
+              <div class="card-info">
+                <div
+                  class="card-title"
+                  [innerHTML]="user.firstName + ' ' + user.lastName | highlight: term()"
+                ></div>
+                <div
+                  class="card-subtitle"
+                  [innerHTML]="user.email | highlight: term()"
+                ></div>
+              </div>
+            </a>
+          }
+        </div>
+        @if (hasMoreUsers()) {
+          <button type="button" class="btn-view-more" (click)="loadMoreUsers()">
+            View more
+          </button>
+        }
+      </section>
+    }
+
+    @if (totalCourses() > 0) {
+      <section class="results-section">
+        <h2 class="section-heading">Courses</h2>
+        <div class="results-grid">
+          @for (course of visibleCourses(); track course.id) {
+            <a class="result-card course-card" [routerLink]="['/courses', course.id]">
+              <img class="course-thumbnail" [src]="course.thumbnailUrl" [alt]="course.title" />
+              <div class="card-info">
+                <div
+                  class="card-title"
+                  [innerHTML]="course.title | highlight: term()"
+                ></div>
+              </div>
+            </a>
+          }
+        </div>
+        @if (hasMoreCourses()) {
+          <button type="button" class="btn-view-more" (click)="loadMoreCourses()">
+            View more
+          </button>
+        }
+      </section>
+    }
+
+    @if (totalResults() === 0) {
+      <div class="no-results">
+        <p>Try searching for a user name, email address, or course title.</p>
+      </div>
+    }
+
+  }
+
+</div>

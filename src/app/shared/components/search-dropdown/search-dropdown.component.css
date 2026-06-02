@@ -1,0 +1,119 @@
+:host {
+  display: contents;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  min-width: 320px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(11, 22, 39, 0.10);
+  z-index: 1300;
+  overflow: hidden;
+}
+
+.dropdown-section {
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.dropdown-section:last-of-type {
+  border-bottom: none;
+}
+
+.section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94a3b8;
+  padding: 4px 14px 6px;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  text-decoration: none;
+  color: #1a202c;
+  transition: background 0.15s;
+  cursor: pointer;
+}
+
+.result-item:hover {
+  background: #f7fafc;
+}
+
+.result-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.result-thumbnail {
+  width: 44px;
+  height: 32px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+}
+
+.result-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.result-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a202c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-subtitle {
+  font-size: 0.75rem;
+  color: #718096;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.dropdown-footer {
+  padding: 8px 14px;
+  background: #f7fafc;
+}
+
+.view-all {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #667eea;
+  text-decoration: none;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.view-all:hover {
+  text-decoration: underline;
+}
+
+/* Highlight mark styling — applies globally wherever [innerHTML] renders it */
+:host ::ng-deep .search-highlight {
+  background: #fef08a;
+  color: #1a202c;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-style: normal;
+}

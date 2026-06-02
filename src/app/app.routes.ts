@@ -33,6 +33,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/quizzes/exam.component').then(m => m.ExamComponent)
       },
       {
+        path: 'search',
+        loadComponent: () => import('./features/search/search.component').then(m => m.SearchComponent)
+      },
+      {
         path: 'my-learning',
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
         canActivate: [roleGuard(['learner'])]

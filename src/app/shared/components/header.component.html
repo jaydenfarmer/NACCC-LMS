@@ -26,9 +26,10 @@
             type="text"
             placeholder="Search"
             [value]="searchQuery()"
-            (input)="searchQuery.set($any($event.target).value)"
+            (input)="onSearchInput($any($event.target).value)"
             name="search"
             class="search-input"
+            autocomplete="off"
           />
           <button type="submit" class="search-button" aria-label="Search">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -37,6 +38,11 @@
             </svg>
           </button>
         </form>
+        <app-search-dropdown
+          [results]="dropdownResults()"
+          [term]="searchQuery()"
+          (resultSelected)="onResultSelected()"
+        ></app-search-dropdown>
       </div>
     </div>
 
