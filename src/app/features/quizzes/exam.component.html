@@ -10,7 +10,7 @@
       @if (locked()) {
         <div class="password-box">
           <p>This exam requires a password to begin. Enter the password provided by your instructor.</p>
-          <input type="password" [(ngModel)]="enteredPassword" placeholder="Exam password" />
+          <input type="password" [value]="enteredPassword()" (input)="enteredPassword.set($any($event.target).value)" placeholder="Exam password" />
           <div class="actions">
             <button (click)="submitPassword()" class="btn">Unlock</button>
             <button (click)="cancel()" class="btn btn-muted">Cancel</button>

@@ -25,7 +25,8 @@
           <input
             type="text"
             placeholder="Search"
-            [(ngModel)]="searchQuery"
+            [value]="searchQuery()"
+            (input)="searchQuery.set($any($event.target).value)"
             name="search"
             class="search-input"
           />
