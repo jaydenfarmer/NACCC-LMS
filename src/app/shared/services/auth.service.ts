@@ -1,15 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-
-export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: string; // 'admin', 'instructor', 'learner'
-  profile_photo_url?: string;
-  permissions?: string[];
-  availableRoles?: string[]; // Roles this user can switch between
-}
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root',

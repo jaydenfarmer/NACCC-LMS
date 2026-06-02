@@ -13,6 +13,10 @@ export interface User {
   role: UserRole;
   profile_photo_url?: string;
 
+  // Frontend-only — not in schema
+  permissions?: string[];
+  availableRoles?: string[];
+
   // Schema fields
   tenant_id?: number;
   username?: string;

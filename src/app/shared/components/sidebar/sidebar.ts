@@ -1,19 +1,8 @@
 import { Component, signal, computed, inject, OnDestroy, OnInit, HostBinding } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { SidebarService } from '../../services/sidebar.service';
+import { SidebarService, NavItem } from '../../services/sidebar.service';
 import { Subscription } from 'rxjs';
-
-interface NavItem {
-  path: string;
-  label: string;
-  icon: string;
-  roles?: string[];
-  permissions?: string[];
-  requireAll?: boolean; // If true, user must have ALL permissions, not just one
-  children?: NavItem[]; // For expandable submenus
-  expanded?: boolean; // For tracking expanded state
-}
 
 @Component({
   selector: 'app-sidebar',
