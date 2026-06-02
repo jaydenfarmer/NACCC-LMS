@@ -62,6 +62,21 @@ export class CourseService {
     }
   }
 
+  completeLesson(courseId: string, lessonId: string): void {
+    const courses = this.courses();
+    const index = courses.findIndex(c => c.id === courseId);
+    if (index === -1) return;
+    const updated: Course = {
+      ...courses[index],
+      lessons: courses[index].lessons.map(l =>
+        l.id === lessonId ? { ...l, isCompleted: true } : l
+      )
+    };
+    const next = [...courses];
+    next[index] = updated;
+    this.courses.set(next);
+  }
+
   addCourse(course: Omit<Course, 'id' | 'createdAt' | 'updatedAt' | 'enrolledCount' | 'rating'>): void {
     const newCourse: Course = {
       ...course,

@@ -120,12 +120,7 @@ export class CourseDetailComponent {
     const lesson = this.selectedLesson();
     if (!lesson || lesson.isCompleted) return;
 
-    const course = this.course();
-    if (!course || !course.lessons) return;
-
-    course.lessons = course.lessons.map(l =>
-      l.id === lesson.id ? { ...l, isCompleted: true } : l
-    );
+    this.courseService.completeLesson(this.courseId(), lesson.id);
 
     const enrollmentData = this.enrollment();
     if (enrollmentData) {

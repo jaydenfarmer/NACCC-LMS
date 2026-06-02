@@ -142,20 +142,17 @@ export class ExamComponent {
 
     // Mark lesson complete if passing threshold met (default 70)
     const passing = this.lesson?.passingScore ?? 70;
-    if (this.score >= passing) {
-      if (this.course && this.course.lessons) {
-        this.course.lessons = this.course.lessons.map((l: Lesson) =>
-          l.id === this.lesson?.id ? { ...l, isCompleted: true } : l
-        );
-      }
+    if (this.score >= passing && this.lesson) {
+      this.courseService.completeLesson(this.courseId, this.lesson.id);
     }
 
-    // Update enrollment progress
+    // Update enrollment progress from the now-updated service signal
     const user = this.authService.user();
     if (user) {
       const enrollment = this.courseService.getEnrollment(user.id, this.courseId);
-      if (enrollment && this.course?.lessons) {
-        const nonSectionLessons = this.course.lessons.filter((l: Lesson) => l.type !== 'section');
+      const updatedCourse = this.courseService.getCourseById(this.courseId);
+      if (enrollment && updatedCourse) {
+        const nonSectionLessons = updatedCourse.lessons.filter((l: Lesson) => l.type !== 'section');
         const completedCount = nonSectionLessons.filter((l: Lesson) => !!l.isCompleted).length;
         const totalLessons = nonSectionLessons.length;
         const newProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
