@@ -17,7 +17,8 @@
         <input
           type="email"
           id="email"
-          [(ngModel)]="email"
+          [value]="email()"
+          (input)="email.set($any($event.target).value)"
           name="email"
           placeholder="Enter your email"
           required
@@ -29,7 +30,8 @@
         <input
           type="password"
           id="password"
-          [(ngModel)]="password"
+          [value]="password()"
+          (input)="password.set($any($event.target).value)"
           name="password"
           placeholder="Enter your password"
           required
@@ -45,21 +47,21 @@
         <button
           type="button"
           class="btn-demo"
-          (click)="setDemoUser('learner@example.com', 'password')"
+          (click)="setDemoUser('learner@naccc.com', 'password')"
         >
           Learner
         </button>
         <button
           type="button"
           class="btn-demo"
-          (click)="setDemoUser('instructor@example.com', 'password')"
+          (click)="setDemoUser('instructor@naccc.com', 'password')"
         >
           Instructor
         </button>
         <button
           type="button"
           class="btn-demo"
-          (click)="setDemoUser('admin@example.com', 'password')"
+          (click)="setDemoUser('admin@naccc.com', 'password')"
         >
           Admin
         </button>

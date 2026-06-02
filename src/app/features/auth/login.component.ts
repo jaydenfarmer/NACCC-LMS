@@ -19,21 +19,17 @@ export class LoginComponent {
   email = signal('');
   password = signal('');
   errorMessage = signal('');
-  returnUrl = signal('/dashboard');
-
-  constructor() {
-    this.returnUrl.set(this.route.snapshot.queryParams['returnUrl'] || '/dashboard');
-  }
 
   onSubmit(): void {
     this.errorMessage.set('');
-    
     if (this.authService.login(this.email(), this.password())) {
-      const dest = this.returnUrl() || '/dashboard';
-      try {
-
-        console.debug('[Login] successful, returning to:', dest);
-      } catch { /* ignore */ }
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] as string | undefined;
+      if (returnUrl) {
+        this.router.navigateByUrl(returnUrl);
+        return;
+      }
+      const role = this.authService.user()?.role;
+      const dest = role === 'admin' ? '/admin' : role === 'learner' ? '/my-learning' : '/dashboard';
       this.router.navigateByUrl(dest);
     } else {
       this.errorMessage.set('Invalid email or password');

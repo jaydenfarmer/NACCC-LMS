@@ -20,6 +20,48 @@ export class AuthService {
 
   private STORAGE_KEY = 'lms.user';
 
+  private readonly MOCK_CREDENTIALS: { email: string; password: string; user: User }[] = [
+    {
+      email: 'learner@naccc.com',
+      password: 'password',
+      user: {
+        id: '1',
+        firstName: 'Alex',
+        lastName: 'Learner',
+        email: 'learner@naccc.com',
+        role: 'learner',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=learner',
+        availableRoles: ['learner'],
+      },
+    },
+    {
+      email: 'instructor@naccc.com',
+      password: 'password',
+      user: {
+        id: '2',
+        firstName: 'Jane',
+        lastName: 'Instructor',
+        email: 'instructor@naccc.com',
+        role: 'instructor',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor',
+        availableRoles: ['instructor', 'learner'],
+      },
+    },
+    {
+      email: 'admin@naccc.com',
+      password: 'password',
+      user: {
+        id: '3',
+        firstName: 'Jayden',
+        lastName: 'Farmer',
+        email: 'admin@naccc.com',
+        role: 'admin',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
+        availableRoles: ['admin', 'instructor', 'learner'],
+      },
+    },
+  ];
+
   constructor() {
     // Restore user from localStorage if present
     try {
@@ -93,30 +135,18 @@ export class AuthService {
     return this.user() !== null;
   }
 
-  // Login method - MUST return boolean for compatibility with LoginComponent
   login(email: string, password: string): boolean {
-    // Your login validation logic here
-    // For demo purposes, accepting any credentials
-    if (email && password) {
-      // Default demo account with all roles (super user)
-      const user = this.setDefaultPermissions({
-        id: '1',
-        firstName: 'Jayden',
-        lastName: 'Farmer',
-        email: email,
-        role: 'admin', // Start as admin
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + email,
-        availableRoles: ['admin', 'instructor', 'learner'], // Can switch between all roles
-      });
+    const match = this.MOCK_CREDENTIALS.find(
+      (c) => c.email === email.trim().toLowerCase() && c.password === password
+    );
+    if (!match) return false;
 
-      this.user.set(user);
-      try {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
-      } catch { /* ignore */ }
-      return true; // Login successful
-    }
-
-    return false; // Login failed
+    const user = this.setDefaultPermissions({ ...match.user });
+    this.user.set(user);
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
+    } catch { /* ignore */ }
+    return true;
   }
 
   switchRole(role: 'admin' | 'instructor' | 'learner'): void {
