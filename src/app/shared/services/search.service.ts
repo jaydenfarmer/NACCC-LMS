@@ -69,7 +69,7 @@ export class SearchService {
         (c): CourseSearchResult => ({
           id: c.id,
           title: c.title,
-          thumbnailUrl: c.thumbnail,
+          thumbnailUrl: c.thumbnail_url ?? '',
         })
       );
 

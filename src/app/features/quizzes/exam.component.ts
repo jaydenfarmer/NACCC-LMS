@@ -97,7 +97,7 @@ export class ExamComponent {
     this.score = null;
 
     // Start timer (lesson.duration is minutes)
-    const minutes = this.lesson?.duration || 0;
+    const minutes = this.lesson?.duration_minutes || 0;
     this.timerSeconds = Math.max(0, Math.floor(minutes * 60));
 
     // Start countdown
@@ -156,7 +156,7 @@ export class ExamComponent {
         const completedCount = nonSectionLessons.filter((l: Lesson) => !!l.isCompleted).length;
         const totalLessons = nonSectionLessons.length;
         const newProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-        this.courseService.updateProgress(enrollment.id, newProgress, completedCount);
+        this.courseService.updateProgress(enrollment.id, newProgress);
       }
     }
   }

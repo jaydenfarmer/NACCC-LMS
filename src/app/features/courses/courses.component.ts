@@ -42,7 +42,7 @@ export class CoursesComponent {
       result = result.filter(c =>
         c.title.toLowerCase().includes(search) ||
         c.description.toLowerCase().includes(search) ||
-        c.tags.some(t => t.toLowerCase().includes(search))
+        (c.tags ?? []).some(t => t.toLowerCase().includes(search))
       );
     }
 

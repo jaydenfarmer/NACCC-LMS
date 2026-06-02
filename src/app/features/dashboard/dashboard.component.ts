@@ -64,16 +64,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   stats = computed(() => {
     const enrollments = this.userEnrollments();
     const completed = enrollments.filter(e => e.status === 'completed').length;
-    const inProgress = enrollments.filter(e => e.status === 'in-progress').length;
-    const avgProgress = enrollments.length > 0
-      ? enrollments.reduce((sum, e) => sum + e.progress, 0) / enrollments.length
-      : 0;
+    const inProgress = enrollments.filter(e => e.status === 'in_progress').length;
 
     return {
       totalCourses: enrollments.length,
       completed,
       inProgress,
-      avgProgress: Math.round(avgProgress)
+      avgProgress: 0 // sourced from course_progress in Phase 1A persistence task
     };
   });
 

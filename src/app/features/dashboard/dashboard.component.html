@@ -68,7 +68,7 @@
         <div class="courses-grid">
           @for (course of recentCourses(); track course.id) {
             <div class="course-card">
-              <img [src]="course.thumbnail" [alt]="course.title" class="course-thumbnail" />
+              <img [src]="course.thumbnail_url" [alt]="course.title" class="course-thumbnail" />
               <div class="course-content">
                 <h3 class="course-title">{{ course.title }}</h3>
                 

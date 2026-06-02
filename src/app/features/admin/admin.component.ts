@@ -29,7 +29,7 @@ export class AdminComponent {
     difficulty: 'beginner' as 'beginner' | 'intermediate' | 'advanced',
     duration: 0,
     totalLessons: 0,
-    thumbnail: '',
+    thumbnail_url: '',
     tags: ''
   });
 
@@ -55,12 +55,12 @@ export class AdminComponent {
       this.courseForm.set({
         title: course.title,
         description: course.description,
-        category: course.category,
-        difficulty: course.difficulty,
-        duration: course.duration,
-        totalLessons: course.totalLessons,
-        thumbnail: course.thumbnail,
-        tags: course.tags.join(', ')
+        category: course.category ?? '',
+        difficulty: course.difficulty ?? 'beginner',
+        duration: course.duration ?? 0,
+        totalLessons: course.totalLessons ?? 0,
+        thumbnail_url: course.thumbnail_url ?? '',
+        tags: (course.tags ?? []).join(', ')
       });
     } else {
       this.editingCourse.set(null);
@@ -71,7 +71,7 @@ export class AdminComponent {
         difficulty: 'beginner',
         duration: 0,
         totalLessons: 0,
-        thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop',
+        thumbnail_url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=250&fit=crop',
         tags: ''
       });
     }
@@ -96,7 +96,7 @@ export class AdminComponent {
         difficulty: form.difficulty,
         duration: form.duration,
         totalLessons: form.totalLessons,
-        thumbnail: form.thumbnail,
+        thumbnail_url: form.thumbnail_url,
         tags: form.tags.split(',').map(t => t.trim()).filter(t => t)
       });
     } else {
@@ -108,7 +108,7 @@ export class AdminComponent {
         difficulty: form.difficulty,
         duration: form.duration,
         totalLessons: form.totalLessons,
-        thumbnail: form.thumbnail,
+        thumbnail_url: form.thumbnail_url,
         instructor: {
           id: 'inst-1',
           name: 'Sarah Johnson',

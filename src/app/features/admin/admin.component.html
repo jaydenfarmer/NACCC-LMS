@@ -119,10 +119,10 @@
               <tr>
                 <td>
                   <div class="course-cell">
-                    <img [src]="course.thumbnail" [alt]="course.title" class="course-thumb" />
+                    <img [src]="course.thumbnail_url" [alt]="course.title" class="course-thumb" />
                     <div>
                       <div class="course-name">{{ course.title }}</div>
-                      <div class="course-instructor">{{ course.instructor.name }}</div>
+                      <div class="course-instructor">{{ course.instructor?.name }}</div>
                     </div>
                   </div>
                 </td>
@@ -271,8 +271,8 @@
             <input
               id="course-thumb"
               type="url"
-              [value]="courseForm().thumbnail"
-              (input)="updateFormField('thumbnail', $any($event.target).value)"
+              [value]="courseForm().thumbnail_url"
+              (input)="updateFormField('thumbnail_url', $any($event.target).value)"
               placeholder="https://..."
             />
           </div>

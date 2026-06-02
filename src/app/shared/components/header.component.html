@@ -77,7 +77,7 @@
           [attr.aria-expanded]="userMenuOpen"
           (click)="toggleUserMenu($event)"
         >
-          <img [src]="currentUser.avatar" [alt]="currentUser.firstName" class="avatar" />
+          <img [src]="currentUser.profile_photo_url" [alt]="currentUser.firstName" class="avatar" />
           <svg class="caret" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -86,7 +86,7 @@
         @if (userMenuOpen) {
         <div class="user-dropdown" role="menu">
           <div class="user-profile">
-            <img [src]="currentUser.avatar" [alt]="currentUser.firstName" class="avatar-lg" />
+            <img [src]="currentUser.profile_photo_url" [alt]="currentUser.firstName" class="avatar-lg" />
             <div class="profile-info">
               <div class="user-name">{{ currentUser.firstName }} {{ currentUser.lastName }}</div>
               <div class="user-role">{{ currentUser.role }}</div>

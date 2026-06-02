@@ -6,7 +6,7 @@ export interface User {
   lastName: string;
   email: string;
   role: string; // 'admin', 'instructor', 'learner'
-  avatar?: string;
+  profile_photo_url?: string;
   permissions?: string[];
   availableRoles?: string[]; // Roles this user can switch between
 }
@@ -30,7 +30,7 @@ export class AuthService {
         lastName: 'Learner',
         email: 'learner@naccc.com',
         role: 'learner',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=learner',
+        profile_photo_url:'https://api.dicebear.com/7.x/avataaars/svg?seed=learner',
         availableRoles: ['learner'],
       },
     },
@@ -43,7 +43,7 @@ export class AuthService {
         lastName: 'Instructor',
         email: 'instructor@naccc.com',
         role: 'instructor',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor',
+        profile_photo_url:'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor',
         availableRoles: ['instructor', 'learner'],
       },
     },
@@ -56,7 +56,7 @@ export class AuthService {
         lastName: 'Farmer',
         email: 'admin@naccc.com',
         role: 'admin',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
+        profile_photo_url:'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
         availableRoles: ['admin', 'instructor', 'learner'],
       },
     },

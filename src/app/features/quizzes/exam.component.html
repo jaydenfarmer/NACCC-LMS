@@ -23,7 +23,7 @@
 
       @if (!locked() && !started()) {
         <div class="exam-info">
-          <p>Duration: {{ lesson?.duration || 0 }} minutes</p>
+          <p>Duration: {{ lesson?.duration_minutes || 0 }} minutes</p>
           <p>Passing Score: {{ lesson?.passingScore || 'N/A' }}</p>
           <div class="actions">
             <button (click)="startExam()" class="btn btn-primary">Start Exam</button>

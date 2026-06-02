@@ -19,48 +19,78 @@ export interface Lesson {
   description?: string;
   order: number;
   type: LessonType;
-  content?: string;
+  content_body?: string;
   contentUrl?: string;
-  duration?: number;
-  isCompleted?: boolean;
-  isLocked?: boolean;
-  passingScore?: number;
+  duration_minutes?: number;
   password?: string;
   isPractice?: boolean;
+  passingScore?: number;
+
+  // Schema fields
+  is_mandatory?: boolean;
+  completion_method?: 'button' | 'time' | 'question';
+  completion_question?: string;
+  delay_hours?: number;
+  delay_days?: number;
+  is_shared?: boolean;
+
+  // UI state only — maps to lesson_progress.status in DB.
+  // Replace with progress service in Phase 1A localStorage persistence task.
+  isCompleted?: boolean;
 }
 
 export interface Course {
   id: string;
   title: string;
   description: string;
-  thumbnail: string;
-  category: string;
-  duration: number;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  instructor: {
-    id: string;
-    name: string;
-    avatar: string;
-  };
-  enrolledCount: number;
-  rating: number;
-  totalLessons: number;
-  tags: string[];
   createdAt: Date;
   updatedAt: Date;
   lessons: Lesson[];
+
+  // Schema fields
+  tenant_id?: number;
+  thumbnail_url?: string;
+  category_id?: number;
+  price?: number;
+  is_published?: boolean;
+  is_active?: boolean;
+  issues_certificate?: boolean;
+  created_by?: string;
+  completion_rule?: 'all_units' | 'specific_test_passed';
+  completion_test_id?: string;
+  is_ceu?: boolean;
+  ceu_credit_hours?: number;
+  certificate_type?: 'core' | 'ceu';
+  is_paygo?: boolean;
+  paygo_parent_course_id?: string;
+  paygo_part_number?: number;
+  paygo_total_parts?: number;
+  default_time_limit_days?: number;
+
+  // UI display helpers — not in schema
+  category?: string;
+  duration?: number;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  instructor?: { id: string; name: string; avatar: string };
+  enrolledCount?: number;
+  rating?: number;
+  totalLessons?: number;
+  tags?: string[];
 }
 
 export interface Enrollment {
   id: string;
   userId: string;
   courseId: string;
-  enrolledAt: Date;
-  progress: number;
-  completedLessons: number;
-  lastAccessedAt: Date;
-  status: 'in-progress' | 'completed' | 'not-started';
-  certificateIssued?: boolean;
+  enrollment_date: Date;
+  status: 'enrolled' | 'suspended' | 'in_progress' | 'completed' | 'expired' | 'not_passed';
+
+  // Schema fields
+  tenant_id?: number;
+  branch_id?: number;
+  enrolled_by?: string;
+  expiration_date?: Date;
+  payment_id?: string;
 }
 
 export interface Quiz {

@@ -53,13 +53,13 @@
     @for (course of filteredCourses(); track course.id) {
       <div class="course-card">
         <a [routerLink]="['/courses', course.id]" class="course-link">
-          <img [src]="course.thumbnail" [alt]="course.title" class="course-thumbnail" />
+          <img [src]="course.thumbnail_url" [alt]="course.title" class="course-thumbnail" />
         </a>
         
         <div class="course-content">
           <div class="course-header">
             <span class="course-category">{{ course.category }}</span>
-            <span class="badge" [ngClass]="getDifficultyBadgeClass(course.difficulty)">
+            <span class="badge" [ngClass]="getDifficultyBadgeClass(course.difficulty ?? '')">
               {{ course.difficulty }}
             </span>
           </div>
@@ -71,8 +71,8 @@
           <p class="course-description">{{ course.description }}</p>
 
           <div class="course-instructor">
-            <img [src]="course.instructor.avatar" [alt]="course.instructor.name" class="instructor-avatar" />
-            <span class="instructor-name">{{ course.instructor.name }}</span>
+            <img [src]="course.instructor?.avatar" [alt]="course.instructor?.name" class="instructor-avatar" />
+            <span class="instructor-name">{{ course.instructor?.name }}</span>
           </div>
 
           <div class="course-stats">

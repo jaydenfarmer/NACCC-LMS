@@ -13,10 +13,10 @@
 
           <div class="course-meta">
             <div class="meta-item">
-              <img [src]="currentCourse.instructor.avatar" [alt]="currentCourse.instructor.name" class="instructor-avatar" />
+              <img [src]="currentCourse.instructor?.avatar" [alt]="currentCourse.instructor?.name" class="instructor-avatar" />
               <div>
                 <div class="meta-label">Instructor</div>
-                <div class="meta-value">{{ currentCourse.instructor.name }}</div>
+                <div class="meta-value">{{ currentCourse.instructor?.name }}</div>
               </div>
             </div>
             <div class="meta-item">
@@ -61,7 +61,7 @@
         </div>
 
         <div class="header-right">
-          <img [src]="currentCourse.thumbnail" [alt]="currentCourse.title" class="course-image" />
+          <img [src]="currentCourse.thumbnail_url" [alt]="currentCourse.title" class="course-image" />
         </div>
       </div>
     </div>
@@ -103,8 +103,8 @@
                   <div class="lesson-info">
                     <div class="lesson-title">{{ lesson.title }}</div>
                     <div class="lesson-meta">
-                      @if (lesson.duration) {
-                        <span>{{ lesson.duration }} min</span>
+                      @if (lesson.duration_minutes) {
+                        <span>{{ lesson.duration_minutes }} min</span>
                       }
                       <span class="lesson-type">{{ lesson.type }}</span>
                     </div>
@@ -129,7 +129,7 @@
               @if (lesson.type === 'video') {
                 <div class="video-container">
                   <iframe
-                    [src]="lesson.content"
+                    [src]="lesson.content_body"
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen
@@ -215,7 +215,7 @@
                 <div class="preview-info">
                   <div class="preview-title">{{ lesson.title }}</div>
                   <div class="preview-meta">
-                    {{ lesson.type }}@if (lesson.duration) { · {{ lesson.duration }} min }
+                    {{ lesson.type }}@if (lesson.duration_minutes) { · {{ lesson.duration_minutes }} min }
                   </div>
                 </div>
                 <span class="lock-icon">🔒</span>

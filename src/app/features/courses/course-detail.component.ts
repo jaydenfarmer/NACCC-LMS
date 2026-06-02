@@ -126,8 +126,7 @@ export class CourseDetailComponent {
     if (enrollmentData) {
       this.courseService.updateProgress(
         enrollmentData.id,
-        this.progressPercentage(),
-        this.completedLessonsCount()
+        this.progressPercentage()
       );
     }
 
