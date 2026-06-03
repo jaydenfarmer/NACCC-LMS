@@ -23,6 +23,7 @@ export class SidebarComponent {
     // Learner Navigation
     { path: '/dashboard', label: 'Home', icon: '🏠', roles: ['learner'] },
     { path: '/my-learning', label: 'My training', icon: '📖', roles: ['learner'] },
+    { path: '/my-certificates', label: 'My Certificates', icon: '🏅', roles: ['learner'] },
     { path: '/courses', label: 'Catalog', icon: '📚', roles: ['learner'] },
     { path: '/calendar', label: 'Calendar', icon: '📅', roles: ['learner'] },
     { path: '/skills', label: 'Skills', icon: '🎯', roles: ['learner'] },

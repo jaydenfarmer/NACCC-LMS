@@ -42,6 +42,11 @@ export const routes: Routes = [
         canActivate: [roleGuard(['learner'])]
       },
       {
+        path: 'my-certificates',
+        loadComponent: () => import('./features/certificates/my-certificates.component').then(m => m.MyCertificatesComponent),
+        canActivate: [roleGuard(['learner'])]
+      },
+      {
         path: 'teaching',
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
         canActivate: [roleGuard(['instructor'])]

@@ -1,0 +1,125 @@
+<div class="my-certificates-page">
+  <div class="page-header">
+    <h1>My Certificates</h1>
+  </div>
+
+  <!-- Certifications (core) -->
+  <section class="cert-section">
+    <h2 class="section-title">Certifications</h2>
+
+    @if (coreCertificates().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">🎓</div>
+        <h3>No certifications yet</h3>
+        <p>Complete a core certification course to earn your first certificate.</p>
+        <a routerLink="/courses" class="btn-browse">Browse Courses</a>
+      </div>
+    } @else {
+      <div class="certs-grid">
+        @for (cert of coreCertificates(); track cert.id) {
+          <div class="cert-card" [class]="'status-' + getCertStatus(cert)">
+            <div class="cert-card-header">
+              <div class="cert-icon">🏅</div>
+              <span class="status-badge" [class]="'badge-' + getCertStatus(cert)">
+                {{ getStatusLabel(cert) }}
+              </span>
+            </div>
+            <div class="cert-body">
+              <h3 class="cert-course-name">{{ cert.courseName }}</h3>
+              <div class="cert-meta">
+                <div class="cert-meta-row">
+                  <span class="meta-label">Certificate #</span>
+                  <span class="meta-value cert-number">{{ cert.certificateNumber }}</span>
+                </div>
+                <div class="cert-meta-row">
+                  <span class="meta-label">Issued</span>
+                  <span class="meta-value">{{ formatDate(cert.issuedAt) }}</span>
+                </div>
+                <div class="cert-meta-row">
+                  <span class="meta-label">Expires</span>
+                  <span class="meta-value">{{ cert.expiresAt ? formatDate(cert.expiresAt) : 'Never' }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="cert-card-footer">
+              <button class="btn-action btn-download" (click)="downloadCertificate()" type="button">
+                ⬇ Download PDF
+              </button>
+              <button class="btn-action btn-verify" (click)="viewVerification()" type="button">
+                🔗 Verify
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- CEU Certificates -->
+  <section class="cert-section">
+    <h2 class="section-title">CEU Certificates</h2>
+
+    @if (ceuCertificates().length > 0) {
+      <div class="ceu-progress-card">
+        <div class="ceu-progress-header">
+          <span class="ceu-progress-label">CEU Hours Toward Renewal</span>
+          <span class="ceu-progress-value">{{ totalCeuHours().toFixed(1) }} / {{ ceuRenewalThreshold }} hours completed</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="ceuProgressPercent()"></div>
+        </div>
+        <p class="ceu-progress-note">
+          {{ (ceuRenewalThreshold - totalCeuHours()) > 0
+            ? ((ceuRenewalThreshold - totalCeuHours()).toFixed(1) + ' hours remaining to complete renewal')
+            : 'Renewal threshold reached — all certificates eligible for renewal' }}
+        </p>
+      </div>
+    }
+
+    @if (ceuCertificates().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📜</div>
+        <h3>No CEU certificates yet</h3>
+        <p>Complete CEU courses to earn continuing education credits toward your renewal.</p>
+        <a routerLink="/courses" class="btn-browse">Browse Courses</a>
+      </div>
+    } @else {
+      <div class="certs-grid">
+        @for (cert of ceuCertificates(); track cert.id) {
+          <div class="cert-card status-active">
+            <div class="cert-card-header">
+              <div class="cert-icon">📜</div>
+              <span class="status-badge badge-active">Active</span>
+            </div>
+            <div class="cert-body">
+              <h3 class="cert-course-name">{{ cert.courseName }}</h3>
+              <div class="ceu-hours-pill">{{ cert.ceu_credit_hours?.toFixed(1) }} CEU Hours</div>
+              <div class="cert-meta">
+                <div class="cert-meta-row">
+                  <span class="meta-label">Certificate #</span>
+                  <span class="meta-value cert-number">{{ cert.certificateNumber }}</span>
+                </div>
+                <div class="cert-meta-row">
+                  <span class="meta-label">Issued</span>
+                  <span class="meta-value">{{ formatDate(cert.issuedAt) }}</span>
+                </div>
+                <div class="cert-meta-row">
+                  <span class="meta-label">Expires</span>
+                  <span class="meta-value">Never expires</span>
+                </div>
+              </div>
+            </div>
+            <div class="cert-card-footer">
+              <button class="btn-action btn-download" (click)="downloadCertificate()" type="button">
+                ⬇ Download PDF
+              </button>
+              <button class="btn-action btn-verify" (click)="viewVerification()" type="button">
+                🔗 Verify
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

@@ -171,8 +171,11 @@ export interface Certificate {
   id: string;
   userId: string;
   courseId: string;
+  courseName: string;
+  certificate_type: 'core' | 'ceu';
   issuedAt: Date;
   certificateNumber: string;
   expiresAt?: Date;
+  ceu_credit_hours?: number;
   pdfUrl?: string;
 }
