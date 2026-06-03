@@ -47,6 +47,10 @@ export const routes: Routes = [
         canActivate: [roleGuard(['learner'])]
       },
       {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      {
         path: 'teaching',
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
         canActivate: [roleGuard(['instructor'])]

@@ -161,6 +161,16 @@ export class AuthService {
     } catch { /* ignore */ }
   }
 
+  updateProfile(updates: Partial<User>): void {
+    const current = this.user();
+    if (!current) return;
+    const updated = { ...current, ...updates };
+    this.user.set(updated);
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(updated));
+    } catch { /* ignore */ }
+  }
+
   logout(): void {
     this.user.set(null);
     // Additional logout logic

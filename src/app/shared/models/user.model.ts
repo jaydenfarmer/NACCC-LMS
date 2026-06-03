@@ -25,6 +25,7 @@ export interface User {
   language?: string;
   is_active?: boolean;
   user_type_id?: number;
+  custom_fields?: Record<string, string>;
 }
 
 export interface AuthState {

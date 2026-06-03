@@ -1,0 +1,193 @@
+<div class="profile-page">
+  <div class="page-header">
+    <h1>My Profile</h1>
+  </div>
+
+  @if (toastVisible()) {
+    <div class="toast toast-success" role="status" aria-live="polite">
+      Profile saved successfully.
+    </div>
+  }
+
+  @if (user(); as currentUser) {
+    <div class="profile-layout">
+
+      <!-- Left column: avatar card -->
+      <aside class="profile-sidebar">
+        <div class="avatar-card">
+          <div class="avatar-wrap">
+            <img
+              [src]="avatarUrl()"
+              [alt]="fullName()"
+              class="avatar-img"
+            />
+          </div>
+          <div class="avatar-name">{{ fullName() }}</div>
+          <div class="role-badge">{{ currentUser.role | titlecase }}</div>
+          <button type="button" class="btn-change-photo">
+            Change Photo
+          </button>
+        </div>
+      </aside>
+
+      <!-- Right column: form -->
+      <div class="profile-main">
+        <form class="profile-form" (ngSubmit)="save()">
+
+          <section class="form-section">
+            <h2 class="section-title">Personal Information</h2>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="profile-first-name">First Name <span class="required">*</span></label>
+                <input
+                  id="profile-first-name"
+                  type="text"
+                  class="form-input"
+                  [value]="form().firstName"
+                  (input)="updateForm('firstName', $any($event.target).value)"
+                  required
+                  autocomplete="given-name"
+                />
+              </div>
+              <div class="form-group">
+                <label for="profile-last-name">Last Name <span class="required">*</span></label>
+                <input
+                  id="profile-last-name"
+                  type="text"
+                  class="form-input"
+                  [value]="form().lastName"
+                  (input)="updateForm('lastName', $any($event.target).value)"
+                  required
+                  autocomplete="family-name"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profile-email">Email <span class="required">*</span></label>
+              <input
+                id="profile-email"
+                type="email"
+                class="form-input"
+                [value]="form().email"
+                (input)="updateForm('email', $any($event.target).value)"
+                required
+                autocomplete="email"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="profile-username">Username <span class="required">*</span></label>
+              <input
+                id="profile-username"
+                type="text"
+                class="form-input"
+                [value]="form().username"
+                (input)="updateForm('username', $any($event.target).value)"
+                required
+                autocomplete="username"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="profile-bio">Bio</label>
+              <textarea
+                id="profile-bio"
+                class="form-input form-textarea"
+                rows="4"
+                [value]="form().bio"
+                (input)="updateForm('bio', $any($event.target).value)"
+                placeholder="Tell us a little about yourself"
+              ></textarea>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h2 class="section-title">Preferences</h2>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="profile-timezone">Timezone</label>
+                <select
+                  id="profile-timezone"
+                  class="form-input form-select"
+                  [value]="form().timezone"
+                  (change)="updateForm('timezone', $any($event.target).value)"
+                >
+                  @for (tz of timezones; track tz.value) {
+                    <option [value]="tz.value">{{ tz.label }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="profile-language">Language</label>
+                <select
+                  id="profile-language"
+                  class="form-input form-select"
+                  [value]="form().language"
+                  (change)="updateForm('language', $any($event.target).value)"
+                >
+                  @for (lang of languages; track lang.value) {
+                    <option [value]="lang.value">{{ lang.label }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h2 class="section-title">Additional Information</h2>
+
+            <div class="form-group">
+              <label for="profile-plan-to-enroll">Do you plan to enroll today?</label>
+              <select
+                id="profile-plan-to-enroll"
+                class="form-input form-select"
+                [value]="customFields().planToEnroll"
+                (change)="updateCustomField('planToEnroll', $any($event.target).value)"
+              >
+                <option value="">Select an option</option>
+                @for (opt of planToEnrollOptions; track opt) {
+                  <option [value]="opt">{{ opt }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="profile-new-client">Are you a new client?</label>
+              <select
+                id="profile-new-client"
+                class="form-input form-select"
+                [value]="customFields().newClient"
+                (change)="updateCustomField('newClient', $any($event.target).value)"
+              >
+                <option value="">Select an option</option>
+                @for (opt of newClientOptions; track opt) {
+                  <option [value]="opt">{{ opt }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="profile-company">Company Name</label>
+              <input
+                id="profile-company"
+                type="text"
+                class="form-input"
+                [value]="customFields().companyName"
+                (input)="updateCustomField('companyName', $any($event.target).value)"
+                placeholder="Your organization or company"
+              />
+            </div>
+          </section>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-save">Save Changes</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  }
+</div>
