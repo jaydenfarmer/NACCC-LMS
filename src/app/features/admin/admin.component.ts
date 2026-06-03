@@ -1,7 +1,8 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CourseService } from '../../shared/services/course.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { Course } from '../../shared/models/course.model';
 
 @Component({
@@ -13,6 +14,7 @@ import { Course } from '../../shared/models/course.model';
 })
 export class AdminComponent {
   private courseService = inject(CourseService);
+  private authService = inject(AuthService);
 
   activeTab = signal<'overview' | 'courses' | 'users'>('overview');
   
@@ -38,12 +40,7 @@ export class AdminComponent {
     return this.courseService.allCourses;
   }
   
-  stats = signal({
-    totalCourses: this.courses().length,
-    totalStudents: 245,
-    activeEnrollments: 487,
-    completionRate: 68
-  });
+  stats = computed(() => this.courseService.getAdminStats());
 
   setTab(tab: 'overview' | 'courses' | 'users'): void {
     this.activeTab.set(tab);
@@ -101,6 +98,7 @@ export class AdminComponent {
       });
     } else {
       // Create new course
+      const currentUser = this.authService.user();
       this.courseService.addCourse({
         title: form.title,
         description: form.description,
@@ -109,11 +107,13 @@ export class AdminComponent {
         duration: form.duration,
         totalLessons: form.totalLessons,
         thumbnail_url: form.thumbnail_url,
-        instructor: {
-          id: 'inst-1',
-          name: 'Sarah Johnson',
-          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah'
-        },
+        instructor: currentUser
+          ? {
+              id: currentUser.id,
+              name: `${currentUser.firstName} ${currentUser.lastName}`,
+              avatar: currentUser.profile_photo_url ?? ''
+            }
+          : { id: '', name: '', avatar: '' },
         tags: form.tags.split(',').map(t => t.trim()).filter(t => t),
         lessons: []
       });

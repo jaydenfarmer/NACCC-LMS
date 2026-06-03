@@ -101,6 +101,16 @@ export class CourseService {
     this.courses.set(this.courses().filter(c => c.id !== id));
   }
 
+  getAdminStats(): { totalCourses: number; totalStudents: number; activeEnrollments: number; completionRate: number } {
+    const allEnrollments = this.enrollments();
+    const totalCourses = this.courses().length;
+    const totalStudents = new Set(allEnrollments.map(e => e.userId)).size;
+    const activeEnrollments = allEnrollments.filter(e => e.status === 'enrolled' || e.status === 'in_progress').length;
+    const completed = allEnrollments.filter(e => e.status === 'completed').length;
+    const completionRate = allEnrollments.length > 0 ? Math.round((completed / allEnrollments.length) * 100) : 0;
+    return { totalCourses, totalStudents, activeEnrollments, completionRate };
+  }
+
   getQuestionsForLesson(courseId: string, lessonId: string): ExamQuestion[] {
     if (courseId === 'course-1' && lessonId === 'c1-16') {
       return [

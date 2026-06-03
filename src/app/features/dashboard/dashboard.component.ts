@@ -1,9 +1,10 @@
-import { Component, computed, signal, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
+import { Component, computed, OnInit, ViewChild, ElementRef, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../shared/services/auth.service';
 import { CourseService } from '../../shared/services/course.service';
-import { AnnouncementBannerComponent, Announcement } from '../../shared/components/announcement-banner/announcement-banner.component';
+import { AnnouncementService } from '../../shared/services/announcement.service';
+import { AnnouncementBannerComponent } from '../../shared/components/announcement-banner/announcement-banner.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -18,18 +19,12 @@ Chart.register(...registerables);
 export class DashboardComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private courseService = inject(CourseService);
+  private announcementService = inject(AnnouncementService);
 
   @ViewChild('portalActivityChart') portalActivityChartRef?: ElementRef<HTMLCanvasElement>;
   private chart?: Chart;
 
-  announcement = signal<Announcement>({
-    id: '1',
-    message: 'Join us for our monthly Instructor Chat on November 17th at 5PM EST! Current students can join directly through their course or by using this link:',
-    link: 'https://us06web.zoom.us/j/86162263892',
-    linkText: 'https://us06web.zoom.us/j/86162263892',
-    type: 'info',
-    dismissible: true
-  });
+  readonly announcement = this.announcementService.activeAnnouncement;
 
   ngOnInit() {
     // Initialize chart after view is ready
