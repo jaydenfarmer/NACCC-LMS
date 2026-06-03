@@ -58,14 +58,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   stats = computed(() => {
     const enrollments = this.userEnrollments();
+    const total = enrollments.length;
     const completed = enrollments.filter(e => e.status === 'completed').length;
-    const inProgress = enrollments.filter(e => e.status === 'in_progress').length;
+    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    // TODO: Phase 1A — source from quiz attempt records once tracking is implemented
+    const passedTests = 0;
+
+    // TODO: Phase 1A — source from assignment submissions once tracking is implemented
+    const completedAssignments = 0;
 
     return {
-      totalCourses: enrollments.length,
-      completed,
-      inProgress,
-      avgProgress: 0 // sourced from course_progress in Phase 1A persistence task
+      completedCourses: completed,
+      passedTests,
+      completedAssignments,
+      completionRate
     };
   });
 
@@ -73,10 +80,66 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.userCourses().slice(0, 3);
   });
 
+  whatsNext = computed(() => {
+    const enrollments = this.userEnrollments();
+    if (enrollments.length === 0) return { state: 'none' as const };
+
+    const active = enrollments.find(
+      e => e.status === 'in_progress' || e.status === 'enrolled'
+    );
+    if (!active) return { state: 'all_done' as const };
+
+    const course = this.courseService.getCourseById(active.courseId);
+    if (!course) return { state: 'all_done' as const };
+
+    return {
+      state: 'active' as const,
+      course,
+      enrollment: active
+    };
+  });
+
   getEnrollmentForCourse(courseId: string) {
     const currentUser = this.user();
     if (!currentUser) return null;
     return this.courseService.getEnrollment(currentUser.id, courseId);
+  }
+
+  readonly todayStr = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+  });
+
+  expiringCertificates = computed(() => {
+    const user = this.user();
+    if (!user) return [];
+    const now = new Date();
+    const cutoff = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
+    return this.courseService.getUserCertificates(user.id).filter(
+      c => c.expiresAt && c.expiresAt > now && c.expiresAt <= cutoff
+    );
+  });
+
+  daysUntil(date: Date): number {
+    return Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  }
+
+  getCourseProgress(courseId: string): number {
+    const course = this.courseService.getCourseById(courseId);
+    if (!course) return 0;
+    const countable = course.lessons.filter(l => l.type !== 'section');
+    if (countable.length === 0) return 0;
+    const completed = countable.filter(l => l.isCompleted).length;
+    return Math.round((completed / countable.length) * 100);
+  }
+
+  getContinueLabel(status: string): string {
+    if (status === 'completed') return 'View Course';
+    if (status === 'in_progress') return 'Continue';
+    return 'Start';
+  }
+
+  formatExpiryDate(date: Date): string {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
   // Portal activity data (mock data for demo)

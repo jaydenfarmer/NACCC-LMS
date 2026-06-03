@@ -25,77 +25,181 @@
 
   <!-- LEARNER DASHBOARD -->
   @if (user()?.role === 'learner') {
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">📚</div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats().totalCourses }}</div>
-          <div class="stat-label">Enrolled Courses</div>
+
+    <!-- What's next -->
+    @if (whatsNext().state === 'active') {
+      <div class="whats-next-card">
+        <div class="whats-next-label">What's next</div>
+        <div class="whats-next-body">
+          <img
+            [src]="whatsNext().course!.thumbnail_url"
+            [alt]="whatsNext().course!.title"
+            class="whats-next-thumb"
+          />
+          <div class="whats-next-info">
+            <div class="whats-next-title">{{ whatsNext().course!.title }}</div>
+            <div class="whats-next-progress">
+              <div class="progress-track">
+                <div class="progress-fill" [style.width.%]="getCourseProgress(whatsNext().course!.id)"></div>
+              </div>
+              <span class="whats-next-pct">{{ getCourseProgress(whatsNext().course!.id) }}% complete</span>
+            </div>
+          </div>
+          <a [routerLink]="['/courses', whatsNext().course!.id]" class="btn-continue-learning">
+            Continue Learning
+          </a>
         </div>
       </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">✅</div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats().completed }}</div>
-          <div class="stat-label">Completed</div>
+    } @else if (whatsNext().state === 'all_done') {
+      <div class="whats-next-card whats-next-done">
+        <span class="whats-next-done-icon">🎉</span>
+        <div class="whats-next-done-text">
+          <strong>Great work!</strong> You've completed all your courses.
         </div>
+        <a routerLink="/courses" class="btn-browse-more">Browse More Courses</a>
       </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">⏳</div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats().inProgress }}</div>
-          <div class="stat-label">In Progress</div>
+    } @else {
+      <div class="whats-next-card whats-next-done">
+        <span class="whats-next-done-icon">👋</span>
+        <div class="whats-next-done-text">
+          <strong>Get started</strong> — browse our catalog to find your first course.
         </div>
+        <a routerLink="/courses" class="btn-browse-more">Browse Catalog</a>
       </div>
+    }
 
-      <div class="stat-card">
-        <div class="stat-icon">📊</div>
-        <div class="stat-content">
-          <div class="stat-value">{{ stats().avgProgress }}%</div>
-          <div class="stat-label">Avg. Progress</div>
+    <div class="learner-body">
+      <div class="learner-main">
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🎓</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats().completedCourses }}</div>
+              <div class="stat-label">Completed Courses</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats().passedTests }}</div>
+              <div class="stat-label">Passed Tests</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats().completedAssignments }}</div>
+              <div class="stat-label">Completed Assignments</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ stats().completionRate }}%</div>
+              <div class="stat-label">Completion Rate</div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="section">
-      <div class="section-header">
-        <h2>Recent course activity →</h2>
-      </div>
+        <div class="section">
+          <div class="section-header">
+            <h2>Recent course activity →</h2>
+          </div>
 
-      @if (recentCourses().length > 0) {
-        <div class="courses-grid">
-          @for (course of recentCourses(); track course.id) {
-            <div class="course-card">
-              <img [src]="course.thumbnail_url" [alt]="course.title" class="course-thumbnail" />
-              <div class="course-content">
-                <h3 class="course-title">{{ course.title }}</h3>
-                
+          @if (recentCourses().length > 0) {
+            <div class="courses-grid">
+              @for (course of recentCourses(); track course.id) {
                 @if (getEnrollmentForCourse(course.id); as enrollment) {
-                  <div class="course-footer">
-                    <a [routerLink]="['/courses', course.id]" class="btn-start">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <circle cx="8" cy="8" r="8"/>
-                        <path d="M6 5l5 3-5 3z" fill="white"/>
-                      </svg>
-                      Start
-                    </a>
+                  <div class="course-card">
+                    <img [src]="course.thumbnail_url" [alt]="course.title" class="course-thumbnail" />
+                    <div class="course-content">
+                      <h3 class="course-title">{{ course.title }}</h3>
+
+                      <div class="course-progress">
+                        <div class="progress-header">
+                          <span class="progress-label">Progress</span>
+                          <span class="progress-pct">{{ getCourseProgress(course.id) }}%</span>
+                        </div>
+                        <div class="progress-track">
+                          <div class="progress-fill" [style.width.%]="getCourseProgress(course.id)"></div>
+                        </div>
+                      </div>
+
+                      @if (enrollment.expiration_date) {
+                        <div class="expiry-label">Expires {{ formatExpiryDate(enrollment.expiration_date) }}</div>
+                      }
+
+                      <div class="course-footer">
+                        <a [routerLink]="['/courses', course.id]" class="btn-start">
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <circle cx="8" cy="8" r="8"/>
+                            <path d="M6 5l5 3-5 3z" fill="white"/>
+                          </svg>
+                          {{ getContinueLabel(enrollment.status) }}
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 }
-              </div>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <div class="empty-icon">📚</div>
+              <h3>No courses yet</h3>
+              <p>Explore our course catalog and start learning!</p>
+              <a routerLink="/courses" class="btn-primary">Browse Courses</a>
             </div>
           }
+        </div><!-- /.section -->
+      </div><!-- /.learner-main -->
+
+      <!-- Sidebar: Today + Don't miss -->
+      <aside class="learner-sidebar">
+
+        <!-- Today widget -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <h3 class="widget-title">Today</h3>
+          </div>
+          <div class="today-date">{{ todayStr }}</div>
+          <div class="today-empty">
+            <span class="today-empty-icon">📅</span>
+            <span>Nothing scheduled today</span>
+          </div>
         </div>
-      } @else {
-        <div class="empty-state">
-          <div class="empty-icon">📚</div>
-          <h3>No courses yet</h3>
-          <p>Explore our course catalog and start learning!</p>
-          <a routerLink="/courses" class="btn-primary">Browse Courses</a>
+
+        <!-- Don't miss widget -->
+        <div class="widget-card">
+          <div class="widget-header">
+            <h3 class="widget-title">Don't miss</h3>
+          </div>
+
+          @if (expiringCertificates().length === 0) {
+            <div class="dont-miss-empty">
+              <span>✅</span>
+              <span>You are all caught up!</span>
+            </div>
+          } @else {
+            <ul class="dont-miss-list">
+              @for (cert of expiringCertificates(); track cert.id) {
+                <li class="dont-miss-item">
+                  <div class="dont-miss-name">{{ cert.courseName }}</div>
+                  <div class="dont-miss-days" [class.urgent]="daysUntil(cert.expiresAt!) <= 30">
+                    {{ daysUntil(cert.expiresAt!) }} days left
+                  </div>
+                </li>
+              }
+            </ul>
+          }
         </div>
-      }
-    </div>
+
+      </aside>
+    </div><!-- /.learner-body -->
   }
 
   <!-- INSTRUCTOR/ADMIN DASHBOARD -->
