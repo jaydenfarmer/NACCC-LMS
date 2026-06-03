@@ -1,8 +1,7 @@
-import { Component, signal, computed, inject, OnDestroy, OnInit, HostBinding } from '@angular/core';
+import { Component, signal, computed, inject, HostBinding } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SidebarService, NavItem } from '../../services/sidebar.service';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,312 +10,105 @@ import { Subscription } from 'rxjs';
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.css'],
 })
-export class SidebarComponent implements OnInit, OnDestroy {
-  private sub = new Subscription();
-  // Use only the injected sidebarService
+export class SidebarComponent {
   private sidebarService = inject(SidebarService);
   private authService = inject(AuthService);
 
-  collapsed = signal(false);
-
   @HostBinding('class.collapsed')
-  get isCollapsed() {
-    return this.collapsed();
-  }
-
-  ngOnInit(): void {
-    // Initialize with current value from service
-    this.collapsed.set(this.sidebarService.value);
-
-    // Subscribe to service changes and update our signal
-    this.sub.add(
-      this.sidebarService.collapsed$.subscribe((value) => {
-        console.log('Service collapsed changed to:', value); // Debug
-        this.collapsed.set(value);
-      })
-    );
-  }
-
-  ngOnDestroy(): void {
-    this.sub.unsubscribe();
+  get isCollapsed(): boolean {
+    return this.sidebarService.collapsed();
   }
 
   private allNavItems = signal<NavItem[]>([
     // Learner Navigation
-    {
-      path: '/dashboard',
-      label: 'Home',
-      icon: '🏠',
-      roles: ['learner'],
-    },
-    {
-      path: '/my-training',
-      label: 'My training',
-      icon: '📖',
-      roles: ['learner'],
-    },
-    {
-      path: '/courses',
-      label: 'Catalog',
-      icon: '📚',
-      roles: ['learner'],
-    },
-    {
-      path: '/calendar',
-      label: 'Calendar',
-      icon: '📅',
-      roles: ['learner'],
-    },
-    {
-      path: '/skills',
-      label: 'Skills',
-      icon: '🎯',
-      roles: ['learner'],
-    },
+    { path: '/dashboard', label: 'Home', icon: '🏠', roles: ['learner'] },
+    { path: '/my-training', label: 'My training', icon: '📖', roles: ['learner'] },
+    { path: '/courses', label: 'Catalog', icon: '📚', roles: ['learner'] },
+    { path: '/calendar', label: 'Calendar', icon: '📅', roles: ['learner'] },
+    { path: '/skills', label: 'Skills', icon: '🎯', roles: ['learner'] },
 
     // Instructor Navigation
-    {
-      path: '/dashboard',
-      label: 'Home',
-      icon: '🏠',
-      roles: ['instructor'],
-    },
-    {
-      path: '/courses',
-      label: 'Courses',
-      icon: '📚',
-      roles: ['instructor'],
-    },
-    {
-      path: '/learning-paths',
-      label: 'Learning paths',
-      icon: '🛤️',
-      roles: ['instructor'],
-    },
-    {
-      path: '/groups',
-      label: 'Groups',
-      icon: '👥',
-      roles: ['instructor'],
-    },
-    {
-      path: '/grading-hub',
-      label: 'Grading Hub',
-      icon: '📝',
-      roles: ['instructor'],
-    },
-    {
-      path: '/conferences',
-      label: 'Conferences',
-      icon: '🎥',
-      roles: ['instructor'],
-    },
+    { path: '/dashboard', label: 'Home', icon: '🏠', roles: ['instructor'] },
+    { path: '/courses', label: 'Courses', icon: '📚', roles: ['instructor'] },
+    { path: '/learning-paths', label: 'Learning paths', icon: '🛤️', roles: ['instructor'] },
+    { path: '/groups', label: 'Groups', icon: '👥', roles: ['instructor'] },
+    { path: '/grading-hub', label: 'Grading Hub', icon: '📝', roles: ['instructor'] },
+    { path: '/conferences', label: 'Conferences', icon: '🎥', roles: ['instructor'] },
     {
       path: '/reports',
       label: 'Reports',
       icon: '📊',
       roles: ['instructor'],
       children: [
-        {
-          path: '/reports/overview',
-          label: 'Overview',
-          icon: '📈',
-          roles: ['instructor'],
-        },
-        {
-          path: '/reports/students',
-          label: 'Student Progress',
-          icon: '👤',
-          roles: ['instructor'],
-        },
-        {
-          path: '/reports/courses',
-          label: 'Course Analytics',
-          icon: '📚',
-          roles: ['instructor'],
-        },
+        { path: '/reports/overview', label: 'Overview', icon: '📈', roles: ['instructor'] },
+        { path: '/reports/students', label: 'Student Progress', icon: '👤', roles: ['instructor'] },
+        { path: '/reports/courses', label: 'Course Analytics', icon: '📚', roles: ['instructor'] },
       ],
     },
-    {
-      path: '/calendar',
-      label: 'Calendar',
-      icon: '📅',
-      roles: ['instructor'],
-    },
-    {
-      path: '/skills',
-      label: 'Skills',
-      icon: '🎯',
-      roles: ['instructor'],
-    },
+    { path: '/calendar', label: 'Calendar', icon: '📅', roles: ['instructor'] },
+    { path: '/skills', label: 'Skills', icon: '🎯', roles: ['instructor'] },
 
     // Administrator Navigation
-    {
-      path: '/dashboard',
-      label: 'Home',
-      icon: '🏠',
-      roles: ['admin'],
-    },
-    {
-      path: '/users',
-      label: 'Users',
-      icon: '👤',
-      roles: ['admin'],
-    },
-    {
-      path: '/courses',
-      label: 'Courses',
-      icon: '📚',
-      roles: ['admin'],
-    },
-    {
-      path: '/learning-paths',
-      label: 'Learning paths',
-      icon: '🛤️',
-      roles: ['admin'],
-    },
+    { path: '/dashboard', label: 'Home', icon: '🏠', roles: ['admin'] },
+    { path: '/users', label: 'Users', icon: '👤', roles: ['admin'] },
+    { path: '/courses', label: 'Courses', icon: '📚', roles: ['admin'] },
+    { path: '/learning-paths', label: 'Learning paths', icon: '🛤️', roles: ['admin'] },
     {
       path: '/course-store',
       label: 'Course store',
       icon: '🏪',
       roles: ['admin'],
       children: [
-        {
-          path: '/course-store/catalog',
-          label: 'Browse Catalog',
-          icon: '📖',
-          roles: ['admin'],
-        },
-        {
-          path: '/course-store/purchased',
-          label: 'Purchased',
-          icon: '✅',
-          roles: ['admin'],
-        },
+        { path: '/course-store/catalog', label: 'Browse Catalog', icon: '📖', roles: ['admin'] },
+        { path: '/course-store/purchased', label: 'Purchased', icon: '✅', roles: ['admin'] },
       ],
     },
-    {
-      path: '/groups',
-      label: 'Groups',
-      icon: '👥',
-      roles: ['admin'],
-    },
-    {
-      path: '/branches',
-      label: 'Branches',
-      icon: '🌿',
-      roles: ['admin'],
-    },
-    {
-      path: '/automations',
-      label: 'Automations',
-      icon: '⚡',
-      roles: ['admin'],
-    },
-    {
-      path: '/notifications',
-      label: 'Notifications',
-      icon: '🔔',
-      roles: ['admin'],
-    },
+    { path: '/groups', label: 'Groups', icon: '👥', roles: ['admin'] },
+    { path: '/branches', label: 'Branches', icon: '🌿', roles: ['admin'] },
+    { path: '/automations', label: 'Automations', icon: '⚡', roles: ['admin'] },
+    { path: '/notifications', label: 'Notifications', icon: '🔔', roles: ['admin'] },
     {
       path: '/reports',
       label: 'Reports',
       icon: '📊',
       roles: ['admin'],
       children: [
-        {
-          path: '/reports/overview',
-          label: 'Overview',
-          icon: '📈',
-          roles: ['admin'],
-        },
-        {
-          path: '/reports/users',
-          label: 'User Reports',
-          icon: '👤',
-          roles: ['admin'],
-        },
-        {
-          path: '/reports/courses',
-          label: 'Course Analytics',
-          icon: '📚',
-          roles: ['admin'],
-        },
-        {
-          path: '/reports/portal-activity',
-          label: 'Portal Activity',
-          icon: '📊',
-          roles: ['admin'],
-        },
+        { path: '/reports/overview', label: 'Overview', icon: '📈', roles: ['admin'] },
+        { path: '/reports/users', label: 'User Reports', icon: '👤', roles: ['admin'] },
+        { path: '/reports/courses', label: 'Course Analytics', icon: '📚', roles: ['admin'] },
+        { path: '/reports/portal-activity', label: 'Portal Activity', icon: '📊', roles: ['admin'] },
       ],
     },
-    {
-      path: '/calendar',
-      label: 'Calendar',
-      icon: '📅',
-      roles: ['admin'],
-    },
-    {
-      path: '/skills',
-      label: 'Skills',
-      icon: '🎯',
-      roles: ['admin'],
-    },
+    { path: '/calendar', label: 'Calendar', icon: '📅', roles: ['admin'] },
+    { path: '/skills', label: 'Skills', icon: '🎯', roles: ['admin'] },
     {
       path: '/settings',
       label: 'Account & Settings',
       icon: '⚙️',
       roles: ['admin'],
       children: [
-        {
-          path: '/settings/general',
-          label: 'General',
-          icon: '🔧',
-          roles: ['admin'],
-        },
-        {
-          path: '/settings/security',
-          label: 'Security',
-          icon: '🔒',
-          roles: ['admin'],
-        },
-        {
-          path: '/settings/integrations',
-          label: 'Integrations',
-          icon: '🔌',
-          roles: ['admin'],
-        },
+        { path: '/settings/general', label: 'General', icon: '🔧', roles: ['admin'] },
+        { path: '/settings/security', label: 'Security', icon: '🔒', roles: ['admin'] },
+        { path: '/settings/integrations', label: 'Integrations', icon: '🔌', roles: ['admin'] },
       ],
     },
-    {
-      path: '/subscription',
-      label: 'Subscription',
-      icon: '💳',
-      roles: ['admin'],
-    },
+    { path: '/subscription', label: 'Subscription', icon: '💳', roles: ['admin'] },
   ]);
 
   navItems = computed(() => {
     const currentUser = this.authService.user();
-    if (!currentUser) {
-      return [];
-    }
+    if (!currentUser) return [];
 
     return this.allNavItems().filter((item) => {
-      // Check roles
       const hasRole = !item.roles || item.roles.includes(currentUser.role.toLowerCase());
 
-      // Check permissions
       let hasPermission = true;
       if (item.permissions && item.permissions.length > 0) {
         if (item.requireAll) {
-          // User must have ALL permissions
           hasPermission = item.permissions.every((permission) =>
             this.authService.hasPermission(permission)
           );
         } else {
-          // User must have at least ONE permission
           hasPermission = item.permissions.some((permission) =>
             this.authService.hasPermission(permission)
           );
@@ -327,9 +119,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     });
   });
 
-
-
-  // Open flyout overlay globally via service
   openFlyout(item: NavItem, event: MouseEvent): void {
     const sidebarRect = (event.target as HTMLElement).closest('.sidebar-item-group')?.getBoundingClientRect();
     const sidebarEl = document.querySelector('.sidebar');
@@ -338,7 +127,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     if (sidebarRect) {
       position = {
         top: sidebarRect.top - sidebarBounds.top,
-        left: sidebarBounds.width + 8 // 8px gap
+        left: sidebarBounds.width + 8
       };
     }
     this.sidebarService.flyoutOpenItemPath = item.path;
@@ -346,7 +135,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.sidebarService.openFlyout(item, position);
   }
 
-  // Close flyout overlay globally
   closeFlyout(): void {
     setTimeout(() => {
       this.sidebarService.setFlyoutHover(false);
@@ -359,7 +147,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     return this.sidebarService.flyoutOpenItemPath === item.path;
   }
 
-  // (Optional) Keep toggle for keyboard/accessibility (click)
   toggleSubmenu(item: NavItem, event?: Event): void {
     if (event) {
       event.preventDefault();
@@ -370,7 +157,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   user = this.authService.user;
 
-  setSidebarHover(val: boolean) {
+  setSidebarHover(val: boolean): void {
     this.sidebarService.setFlyoutHover(val);
   }
 }
