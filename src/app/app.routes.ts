@@ -38,7 +38,7 @@ export const routes: Routes = [
       },
       {
         path: 'my-learning',
-        loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
+        loadComponent: () => import('./features/courses/my-training.component').then(m => m.MyTrainingComponent),
         canActivate: [roleGuard(['learner'])]
       },
       {

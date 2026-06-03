@@ -1,0 +1,109 @@
+<div class="my-training-page">
+  <div class="page-header">
+    <h1>My Training</h1>
+    <div class="view-controls">
+      <button class="toggle-btn" disabled>📁 Category view</button>
+      <button class="toggle-btn" disabled>⭐ Favorites</button>
+      <button
+        class="toggle-btn"
+        [class.active]="sortByDate()"
+        (click)="toggleSortByDate()"
+      >
+        🗓️ Sort by date
+      </button>
+      <select
+        class="filter-select"
+        [value]="statusFilter()"
+        (change)="setStatusFilter($any($event.target).value)"
+      >
+        <option value="all">All statuses</option>
+        <option value="enrolled">Enrolled</option>
+        <option value="in_progress">In Progress</option>
+        <option value="completed">Completed</option>
+        <option value="expired">Expired</option>
+        <option value="not_passed">Not Passed</option>
+      </select>
+      <select class="filter-select">
+        <option value="all">All types</option>
+        <option value="courses">Courses</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="results-info">
+    {{ filteredCourses().length }} {{ filteredCourses().length === 1 ? 'course' : 'courses' }}
+  </div>
+
+  <div class="courses-grid">
+    @for (item of filteredCourses(); track item.course.id) {
+      <div class="course-card">
+        <a [routerLink]="['/courses', item.course.id]" class="course-link">
+          <img
+            [src]="item.course.thumbnail_url"
+            [alt]="item.course.title"
+            class="course-thumbnail"
+          />
+        </a>
+
+        <div class="course-content">
+          <div class="card-top-row">
+            <span class="course-category">{{ item.course.category }}</span>
+            <span class="status-badge" [ngClass]="getStatusClass(item.enrollment.status)">
+              {{ getStatusLabel(item.enrollment.status) }}
+            </span>
+          </div>
+
+          <a [routerLink]="['/courses', item.course.id]" class="course-link">
+            <h3 class="course-title">{{ item.course.title }}</h3>
+          </a>
+
+          <p class="course-description">{{ item.course.description }}</p>
+
+          <div class="progress-section">
+            <div class="progress-header">
+              <span class="progress-label">Progress</span>
+              <span class="progress-pct">{{ item.progress }}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" [style.width.%]="item.progress"></div>
+            </div>
+          </div>
+
+          @if (item.enrollment.expiration_date) {
+            <div class="expiry-badge">
+              ⏳ Expires {{ item.enrollment.expiration_date | date:'mediumDate' }}
+            </div>
+          }
+
+          <div class="card-footer">
+            <a [routerLink]="['/courses', item.course.id]" class="btn-continue">
+              @switch (item.enrollment.status) {
+                @case ('enrolled') { Start }
+                @case ('in_progress') { Continue }
+                @case ('completed') { View Course }
+                @case ('expired') { View Course }
+                @case ('not_passed') { Retake }
+                @default { Continue }
+              }
+            </a>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      @if (hasAnyEnrollments()) {
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <h3>No courses match your filters</h3>
+          <p>Try changing the status filter to see more courses</p>
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-icon">📚</div>
+          <h3>You have no courses yet</h3>
+          <p>Browse our catalog and start learning</p>
+          <a routerLink="/courses" class="btn-browse">Browse Catalog</a>
+        </div>
+      }
+    }
+  </div>
+</div>
