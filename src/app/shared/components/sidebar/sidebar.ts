@@ -21,7 +21,7 @@ export class SidebarComponent {
 
   private allNavItems = signal<NavItem[]>([
     // Learner Navigation
-    { path: '/dashboard', label: 'Home', icon: '🏠', roles: ['learner'] },
+    { path: '/my-learning', label: 'Home', icon: '🏠', roles: ['learner'] },
     { path: '/my-training', label: 'My training', icon: '📖', roles: ['learner'] },
     { path: '/courses', label: 'Catalog', icon: '📚', roles: ['learner'] },
     { path: '/calendar', label: 'Calendar', icon: '📅', roles: ['learner'] },

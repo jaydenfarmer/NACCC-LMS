@@ -82,8 +82,12 @@ export class HeaderComponent {
   switchRole(role: 'admin' | 'instructor' | 'learner') {
     this.userMenuOpen = false;
     this.authService.switchRole(role);
-    // Navigate to dashboard to refresh the view
-    this.router.navigate(['/dashboard']);
+    const destinations: Record<'admin' | 'instructor' | 'learner', string> = {
+      admin: '/admin',
+      instructor: '/dashboard',
+      learner: '/my-learning'
+    };
+    this.router.navigate([destinations[role]]);
   }
 
   goToProfile() {
