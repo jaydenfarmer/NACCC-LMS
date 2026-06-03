@@ -5,11 +5,91 @@ import { Course, Enrollment, ExamQuestion } from '../models/course.model';
   providedIn: 'root'
 })
 export class CourseService {
+  private readonly ENROLLMENTS_KEY = 'lms.enrollments';
+  private readonly LESSON_PROGRESS_KEY = 'lms.lesson_progress';
+
   private courses = signal<Course[]>(this.getMockCourses());
   private enrollments = signal<Enrollment[]>(this.getMockEnrollments());
 
   readonly allCourses = this.courses.asReadonly();
   readonly userEnrollments = this.enrollments.asReadonly();
+
+  constructor() {
+    const savedEnrollments = this.loadEnrollments();
+    if (savedEnrollments.length > 0) {
+      this.enrollments.set(savedEnrollments);
+    }
+
+    const savedProgress = this.loadLessonProgress();
+    if (Object.keys(savedProgress).length > 0) {
+      this.applyLessonProgress(savedProgress);
+    }
+  }
+
+  private loadEnrollments(): Enrollment[] {
+    try {
+      const raw = localStorage.getItem(this.ENROLLMENTS_KEY);
+      if (!raw) return [];
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+      return parsed.map((item: unknown) => {
+        const e = item as Record<string, unknown>;
+        return {
+          ...e,
+          enrollment_date: new Date(e['enrollment_date'] as string),
+          expiration_date: e['expiration_date'] != null
+            ? new Date(e['expiration_date'] as string)
+            : undefined
+        } as Enrollment;
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  private loadLessonProgress(): Record<string, boolean> {
+    try {
+      const raw = localStorage.getItem(this.LESSON_PROGRESS_KEY);
+      if (!raw) return {};
+      const parsed: unknown = JSON.parse(raw);
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return {};
+      return parsed as Record<string, boolean>;
+    } catch {
+      return {};
+    }
+  }
+
+  private applyLessonProgress(progress: Record<string, boolean>): void {
+    this.courses.update(courses =>
+      courses.map(course => ({
+        ...course,
+        lessons: course.lessons.map(lesson => ({
+          ...lesson,
+          isCompleted: progress[lesson.id] ?? lesson.isCompleted
+        }))
+      }))
+    );
+  }
+
+  private saveEnrollments(): void {
+    try {
+      localStorage.setItem(this.ENROLLMENTS_KEY, JSON.stringify(this.enrollments()));
+    } catch { /* ignore — storage full or private browsing */ }
+  }
+
+  private saveLessonProgress(): void {
+    try {
+      const progress: Record<string, boolean> = {};
+      for (const course of this.courses()) {
+        for (const lesson of course.lessons) {
+          if (lesson.isCompleted) {
+            progress[lesson.id] = true;
+          }
+        }
+      }
+      localStorage.setItem(this.LESSON_PROGRESS_KEY, JSON.stringify(progress));
+    } catch { /* ignore — storage full or private browsing */ }
+  }
 
   getCourses(): Course[] {
     return this.courses();
@@ -42,9 +122,9 @@ export class CourseService {
       status: 'enrolled'
     };
     this.enrollments.set([...this.enrollments(), newEnrollment]);
+    this.saveEnrollments();
   }
 
-  // actual progress lives in course_progress (Phase 1A persistence task).
   updateProgress(enrollmentId: string, progress: number): void {
     const enrollments = this.enrollments();
     const index = enrollments.findIndex(e => e.id === enrollmentId);
@@ -54,6 +134,7 @@ export class CourseService {
         status: progress === 100 ? 'completed' : 'in_progress'
       };
       this.enrollments.set([...enrollments]);
+      this.saveEnrollments();
     }
   }
 
@@ -70,6 +151,7 @@ export class CourseService {
     const next = [...courses];
     next[index] = updated;
     this.courses.set(next);
+    this.saveLessonProgress();
   }
 
   addCourse(course: Omit<Course, 'id' | 'createdAt' | 'updatedAt' | 'enrolledCount' | 'rating'>): void {
