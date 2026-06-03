@@ -73,12 +73,10 @@ export class HeaderComponent {
 
   openNotifications() {
     // TODO: Implement notifications panel
-    console.log('Open notifications');
   }
 
   openMessages() {
     // TODO: Implement messages panel
-    console.log('Open messages');
   }
 
   switchRole(role: 'admin' | 'instructor' | 'learner') {
