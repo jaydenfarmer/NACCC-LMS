@@ -424,6 +424,105 @@
 
 .nav-lock-icon { font-size: 0.875rem; flex-shrink: 0; }
 
+/* Completion question */
+.completion-question {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e2e8f0;
+}
+
+.cq-prompt {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.cq-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-bottom: 1.25rem;
+}
+
+.cq-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  color: #1a202c;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cq-option:hover:not(:disabled) { border-color: #667eea; background: #f5f3ff; }
+.cq-option.selected { border-color: #667eea; background: #eef2ff; }
+.cq-option.correct { border-color: #10b981; background: #ecfdf5; }
+.cq-option:disabled { cursor: default; }
+
+.cq-option-letter {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: #e2e8f0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a5568;
+}
+
+.cq-option.selected .cq-option-letter { background: #667eea; color: white; }
+.cq-option.correct .cq-option-letter { background: #10b981; color: white; }
+
+.cq-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cq-submit {
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.cq-submit:disabled { opacity: 0.45; cursor: not-allowed; }
+.cq-submit:not(:disabled):hover { opacity: 0.9; }
+
+.cq-feedback {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.cq-incorrect { color: #dc2626; }
+
+.cq-feedback.cq-correct {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #ecfdf5;
+  border: 1.5px solid #10b981;
+  border-radius: 8px;
+  color: #065f46;
+  font-size: 0.9375rem;
+}
+
 .no-lesson-selected {
   text-align: center;
   padding: 4rem 2rem;

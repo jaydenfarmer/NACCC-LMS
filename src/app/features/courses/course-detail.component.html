@@ -134,19 +134,19 @@
                 </button>
 
                 <div class="nav-status">
-                  @if (getStatusMessage(lesson)) {
+                  @if (statusMessage()) {
                     <span class="nav-lock-icon">🔒</span>
-                    <span>{{ getStatusMessage(lesson) }}</span>
+                    <span>{{ statusMessage() }}</span>
                   }
                 </div>
 
                 <button
                   type="button"
                   class="btn-nav btn-next"
-                  [class.btn-finish]="isLastLesson(lesson) && lesson.isCompleted"
+                  [class.btn-finish]="rightButtonLabel() === 'Finish'"
                   (click)="navigateNext()"
                 >
-                  {{ getRightButtonLabel(lesson) }}
+                  {{ rightButtonLabel() }}
                 </button>
               </div>
 
@@ -203,6 +203,48 @@
               } @else if (lesson.type === 'content_page') {
                 <div class="content-page">
                   <p>Content for this lesson will appear here.</p>
+
+                  @if (lesson.completion_method === 'question' && lesson.completion_question) {
+                    <div class="completion-question">
+                      <p class="cq-prompt">{{ lesson.completion_question.text }}</p>
+
+                      <div class="cq-options">
+                        @for (option of lesson.completion_question.options; track $index) {
+                          <button
+                            type="button"
+                            class="cq-option"
+                            [class.selected]="selectedAnswerIndex() === $index"
+                            [class.correct]="answerCorrect() && selectedAnswerIndex() === $index"
+                            [disabled]="answerCorrect()"
+                            (click)="selectedAnswerIndex.set($index)"
+                          >
+                            <span class="cq-option-letter">{{ ['A', 'B', 'C', 'D'][$index] }}</span>
+                            {{ option }}
+                          </button>
+                        }
+                      </div>
+
+                      @if (!answerCorrect()) {
+                        <div class="cq-actions">
+                          <button
+                            type="button"
+                            class="cq-submit"
+                            [disabled]="selectedAnswerIndex() === null"
+                            (click)="submitAnswer()"
+                          >
+                            Submit Answer
+                          </button>
+                          @if (answerSubmitted() && !answerCorrect()) {
+                            <span class="cq-feedback cq-incorrect">Incorrect — try again</span>
+                          }
+                        </div>
+                      } @else {
+                        <div class="cq-feedback cq-correct">
+                          <span>✓</span> Correct! You can now proceed.
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
               }
 

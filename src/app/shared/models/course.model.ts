@@ -12,6 +12,12 @@ export type LessonType =
   | 'ilt'
   | 'scorm';
 
+export interface CompletionQuestion {
+  text: string;
+  options: string[];
+  correctIndex: number;
+}
+
 export interface Lesson {
   id: string;
   courseId?: string;
@@ -29,7 +35,7 @@ export interface Lesson {
   // Schema fields
   is_mandatory?: boolean;
   completion_method?: 'button' | 'time' | 'question';
-  completion_question?: string;
+  completion_question?: CompletionQuestion;
   delay_hours?: number;
   delay_days?: number;
   is_shared?: boolean;

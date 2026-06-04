@@ -52,6 +52,11 @@ export class CourseDetailComponent {
 
   selectedLesson = signal<Lesson | null>(null);
 
+  // Completion question state — reset on every lesson change
+  selectedAnswerIndex = signal<number | null>(null);
+  answerSubmitted = signal(false);
+  answerCorrect = signal(false);
+
   // Tracks which section IDs are collapsed; all expanded by default
   collapsedSections = signal<Set<string>>(new Set());
 
@@ -106,6 +111,9 @@ export class CourseDetailComponent {
 
   selectLesson(lesson: Lesson): void {
     this.selectedLesson.set(lesson);
+    this.selectedAnswerIndex.set(null);
+    this.answerSubmitted.set(false);
+    this.answerCorrect.set(false);
   }
 
   enroll(): void {
@@ -132,6 +140,25 @@ export class CourseDetailComponent {
 
     const next = this.findNextLesson(lesson);
     if (next) this.selectLesson(next);
+  }
+
+  submitAnswer(): void {
+    const lesson = this.selectedLesson();
+    const q = lesson?.completion_question;
+    if (!lesson || !q) return;
+    const selected = this.selectedAnswerIndex();
+    if (selected === null) return;
+
+    this.answerSubmitted.set(true);
+
+    if (selected === q.correctIndex) {
+      this.answerCorrect.set(true);
+      this.courseService.completeLesson(this.courseId(), lesson.id);
+      const enrollmentData = this.enrollment();
+      if (enrollmentData) {
+        this.courseService.updateProgress(enrollmentData.id, this.progressPercentage());
+      }
+    }
   }
 
   findNextLesson(currentLesson: Lesson): Lesson | null {
@@ -178,21 +205,26 @@ export class CourseDetailComponent {
     if (next) this.selectLesson(next);
   }
 
-  getRightButtonLabel(lesson: Lesson): string {
+  rightButtonLabel = computed(() => {
+    const lesson = this.selectedLesson();
+    if (!lesson) return 'Next →';
     const last = this.isLastLesson(lesson);
-    if (lesson.isCompleted) return last ? 'Finish' : 'Next →';
+    const done = lesson.isCompleted || this.answerCorrect();
+    if (done) return last ? 'Finish' : 'Next →';
     return last ? 'Skip to End' : 'Skip →';
-  }
+  });
 
-  getStatusMessage(lesson: Lesson): string {
-    if (lesson.isCompleted) return '';
+  statusMessage = computed(() => {
+    const lesson = this.selectedLesson();
+    if (!lesson) return '';
+    if (lesson.isCompleted || this.answerCorrect()) return '';
     if (lesson.type === 'test') return 'Pass the test to continue';
     if (lesson.type === 'assignment') return 'Complete the assignment to continue';
     if (lesson.type === 'content_page' && lesson.completion_method === 'question') {
       return 'Answer the question to continue';
     }
     return '';
-  }
+  });
 
   navigateToExam(lesson: Lesson): void {
     const id = this.courseId();
