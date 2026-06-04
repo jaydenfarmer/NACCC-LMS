@@ -144,6 +144,56 @@ export class CourseDetailComponent {
     return null;
   }
 
+  findPrevLesson(currentLesson: Lesson): Lesson | null {
+    const flat = this.lessons();
+    const idx = flat.findIndex(l => l.id === currentLesson.id);
+    if (idx === -1) return null;
+    for (let i = idx - 1; i >= 0; i--) {
+      if (flat[i].type !== 'section') return flat[i];
+    }
+    return null;
+  }
+
+  isFirstLesson(lesson: Lesson): boolean {
+    const nonSection = this.lessons().filter(l => l.type !== 'section');
+    return nonSection[0]?.id === lesson.id;
+  }
+
+  isLastLesson(lesson: Lesson): boolean {
+    const nonSection = this.lessons().filter(l => l.type !== 'section');
+    return nonSection[nonSection.length - 1]?.id === lesson.id;
+  }
+
+  navigatePrev(): void {
+    const lesson = this.selectedLesson();
+    if (!lesson) return;
+    const prev = this.findPrevLesson(lesson);
+    if (prev) this.selectLesson(prev);
+  }
+
+  navigateNext(): void {
+    const lesson = this.selectedLesson();
+    if (!lesson) return;
+    const next = this.findNextLesson(lesson);
+    if (next) this.selectLesson(next);
+  }
+
+  getRightButtonLabel(lesson: Lesson): string {
+    const last = this.isLastLesson(lesson);
+    if (lesson.isCompleted) return last ? 'Finish' : 'Next →';
+    return last ? 'Skip to End' : 'Skip →';
+  }
+
+  getStatusMessage(lesson: Lesson): string {
+    if (lesson.isCompleted) return '';
+    if (lesson.type === 'test') return 'Pass the test to continue';
+    if (lesson.type === 'assignment') return 'Complete the assignment to continue';
+    if (lesson.type === 'content_page' && lesson.completion_method === 'question') {
+      return 'Answer the question to continue';
+    }
+    return '';
+  }
+
   navigateToExam(lesson: Lesson): void {
     const id = this.courseId();
     this.router.navigate(['/courses', id, 'lesson', lesson.id, 'exam']);

@@ -121,6 +121,35 @@
         <div class="player-area">
           @if (selectedLesson(); as lesson) {
             <div class="player">
+
+              <!-- Top navigation bar -->
+              <div class="player-top-nav">
+                <button
+                  type="button"
+                  class="btn-nav btn-prev"
+                  [disabled]="isFirstLesson(lesson)"
+                  (click)="navigatePrev()"
+                >
+                  ← Prev
+                </button>
+
+                <div class="nav-status">
+                  @if (getStatusMessage(lesson)) {
+                    <span class="nav-lock-icon">🔒</span>
+                    <span>{{ getStatusMessage(lesson) }}</span>
+                  }
+                </div>
+
+                <button
+                  type="button"
+                  class="btn-nav btn-next"
+                  [class.btn-finish]="isLastLesson(lesson) && lesson.isCompleted"
+                  (click)="navigateNext()"
+                >
+                  {{ getRightButtonLabel(lesson) }}
+                </button>
+              </div>
+
               <h2>{{ lesson.title }}</h2>
               @if (lesson.description) {
                 <p class="lesson-description">{{ lesson.description }}</p>
@@ -177,17 +206,6 @@
                 </div>
               }
 
-              <div class="lesson-actions">
-                @if (!lesson.isCompleted && lesson.type !== 'test') {
-                  <button (click)="completeLesson()" class="btn-complete">
-                    Mark as Complete
-                  </button>
-                } @else if (lesson.isCompleted) {
-                  <div class="completed-badge">
-                    ✓ Completed
-                  </div>
-                }
-              </div>
             </div>
           } @else {
             <div class="no-lesson-selected">
