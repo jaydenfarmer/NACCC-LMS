@@ -567,37 +567,6 @@
   gap: 1.5rem;
 }
 
-.preview-module {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #e2e8f0;
-}
-
-.preview-module-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-  background: #f7fafc;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.preview-module-header .expand-icon {
-  color: #cbd5e0;
-}
-
-.preview-module-header .module-title {
-  font-weight: 700;
-  color: #1a202c;
-  font-size: 1rem;
-}
-
-.preview-module-header .module-meta {
-  font-size: 0.75rem;
-  color: #718096;
-}
-
 .preview-item {
   padding: 1rem 1.5rem;
   display: flex;
@@ -704,6 +673,146 @@
 
 .btn-back:hover {
   background: #764ba2;
+}
+
+/* Enrollment modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: min(520px, calc(100vw - 2rem));
+  overflow: hidden;
+}
+
+.modal-thumb {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.coupon-row { display: flex; gap: 0.5rem; }
+
+.coupon-input {
+  flex: 1;
+  padding: 0.625rem 0.875rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #1a202c;
+}
+
+.coupon-input:focus { outline: none; border-color: #667eea; }
+
+.btn-apply {
+  padding: 0.625rem 1rem;
+  background: #eef2ff;
+  color: #667eea;
+  border: 1.5px solid #667eea;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-apply:hover { background: #667eea; color: white; }
+
+.coupon-success { font-size: 0.875rem; font-weight: 600; color: #059669; margin: -0.25rem 0 0; }
+
+.modal-price { font-size: 1.875rem; font-weight: 800; color: #1a202c; }
+
+.payment-pending {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #667eea;
+  padding: 0.625rem 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 3px solid #e2e8f0;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.btn-checkout {
+  padding: 0.875rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-checkout:hover { opacity: 0.9; }
+
+.btn-cancel {
+  background: none;
+  border: none;
+  color: #718096;
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-align: center;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.btn-cancel:hover { color: #1a202c; }
+
+/* Enrollment toast */
+.enroll-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 2000;
+  background: #10b981;
+  color: white;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  padding: 0.875rem 1.25rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);
+  max-width: 360px;
+  line-height: 1.4;
 }
 
 @media (max-width: 1024px) {

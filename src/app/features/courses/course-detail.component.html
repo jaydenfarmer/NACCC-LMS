@@ -54,7 +54,9 @@
                 <span>This course awards a certificate</span>
               </div>
             }
-            <button (click)="enroll()" class="btn-enroll">Enroll in Course</button>
+            <button (click)="openModal()" class="btn-enroll">
+              {{ (currentCourse.price ?? 0) === 0 ? 'Enroll Free' : 'Get Course — ' + formatPrice(currentCourse.price!) }}
+            </button>
           } @else {
             <div class="progress-section">
               <div class="progress-header">
@@ -307,5 +309,69 @@
       <h2>Course not found</h2>
       <a routerLink="/courses" class="btn-back">Back to Courses</a>
     </div>
+  }
+
+  <!-- Enrollment modal -->
+  @if (modalOpen()) {
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="0"
+      (click)="closeModal()"
+      (keydown.escape)="closeModal()"
+    ></div>
+    <div class="modal" role="dialog" aria-modal="true">
+      @if (course(); as c) {
+        <div class="modal-layout">
+          <img [src]="c.thumbnail_url" [alt]="c.title" class="modal-thumb" />
+          <div class="modal-body">
+            <h2 class="modal-title">{{ c.title }}</h2>
+
+            <!-- Coupon -->
+            <div class="coupon-row">
+              <input
+                type="text"
+                class="coupon-input"
+                placeholder="Coupon code"
+                [value]="couponCode()"
+                (input)="couponCode.set($any($event.target).value)"
+              />
+              <button type="button" class="btn-apply" (click)="applyCoupon()">Apply</button>
+            </div>
+            @if (couponApplied()) {
+              <p class="coupon-success">Coupon applied!</p>
+            }
+
+            <!-- Price -->
+            <div class="modal-price">
+              {{ (c.price ?? 0) === 0 ? 'Free' : formatPrice(c.price!) }}
+            </div>
+
+            <!-- Actions -->
+            @if (paymentPending()) {
+              <div class="payment-pending">
+                <span class="spinner"></span>
+                Processing payment…
+              </div>
+            } @else {
+              <button
+                type="button"
+                class="btn-checkout"
+                (click)="(c.price ?? 0) === 0 ? enrollFree() : checkout()"
+              >
+                {{ (c.price ?? 0) === 0 ? 'Enroll Free' : 'Checkout' }}
+              </button>
+            }
+
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Enrollment toast -->
+  @if (enrollToast()) {
+    <div class="enroll-toast">{{ enrollToast() }}</div>
   }
 </div>

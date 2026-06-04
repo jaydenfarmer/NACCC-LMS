@@ -57,6 +57,14 @@ export class CourseDetailComponent {
   answerSubmitted = signal(false);
   answerCorrect = signal(false);
 
+  // Enrollment modal state
+  modalOpen = signal(false);
+  couponCode = signal('');
+  couponApplied = signal(false);
+  paymentPending = signal(false);
+  enrollToast = signal<string | null>(null);
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
   // Tracks which section IDs are collapsed; all expanded by default
   collapsedSections = signal<Set<string>>(new Set());
 
@@ -116,12 +124,53 @@ export class CourseDetailComponent {
     this.answerCorrect.set(false);
   }
 
-  enroll(): void {
+  openModal(): void {
+    this.couponCode.set('');
+    this.couponApplied.set(false);
+    this.paymentPending.set(false);
+    this.modalOpen.set(true);
+  }
+
+  closeModal(): void {
+    this.modalOpen.set(false);
+  }
+
+  applyCoupon(): void {
+    if (this.couponCode().trim()) {
+      this.couponApplied.set(true);
+    }
+  }
+
+  checkout(): void {
+    this.paymentPending.set(true);
+    setTimeout(() => {
+      this.doEnroll();
+    }, 800);
+  }
+
+  enrollFree(): void {
+    this.doEnroll();
+  }
+
+  private doEnroll(): void {
     const user = this.authService.user();
     const id = this.courseId();
+    const courseName = this.course()?.title ?? 'this course';
     if (user && id) {
       this.courseService.enrollCourse(user.id, id);
     }
+    this.modalOpen.set(false);
+    this.paymentPending.set(false);
+    this.showToast(`Success! You're now enrolled in ${courseName}`);
+  }
+
+  private showToast(message: string): void {
+    if (this.toastTimer !== null) clearTimeout(this.toastTimer);
+    this.enrollToast.set(message);
+    this.toastTimer = setTimeout(() => {
+      this.enrollToast.set(null);
+      this.toastTimer = null;
+    }, 4000);
   }
 
   completeLesson(): void {
