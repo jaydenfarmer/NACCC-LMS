@@ -43,6 +43,17 @@
           </div>
 
           @if (!isEnrolled()) {
+            @if (currentCourse.price !== undefined) {
+              <div class="price-tag">
+                {{ currentCourse.price === 0 ? 'Free' : formatPrice(currentCourse.price) }}
+              </div>
+            }
+            @if (currentCourse.issues_certificate) {
+              <div class="cert-callout">
+                <span class="cert-callout-icon">🏆</span>
+                <span>This course awards a certificate</span>
+              </div>
+            }
             <button (click)="enroll()" class="btn-enroll">Enroll in Course</button>
           } @else {
             <div class="progress-section">
@@ -56,6 +67,9 @@
               <div class="progress-stats">
                 <span>{{ completedLessonsCount() }} of {{ totalLessons() }} lessons completed</span>
               </div>
+              @if (enrollment()?.expiration_date) {
+                <div class="expiry-badge">Expires {{ formatExpiryDate(enrollment()!.expiration_date!) }}</div>
+              }
             </div>
           }
         </div>
@@ -262,6 +276,9 @@
       <div class="not-enrolled">
         <h2>Course Curriculum</h2>
         <p>Enroll to access all course materials</p>
+        <div class="mandatory-label">
+          <span>⚠</span> Mandatory units must be completed
+        </div>
         <div class="curriculum-preview">
           @for (lesson of lessons(); track lesson.id) {
             @if (lesson.type === 'section') {

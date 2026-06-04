@@ -268,6 +268,9 @@ export class CourseService {
         rating: 4.8,
         totalLessons: 16,
         tags: ['credit', 'counseling', 'basics'],
+        price: 720,
+        issues_certificate: true,
+        certificate_type: 'core' as const,
         createdAt: new Date('2024-01-15'),
         updatedAt: new Date('2024-11-01'),
         lessons: [
@@ -308,6 +311,9 @@ export class CourseService {
         rating: 4.9,
         totalLessons: 13,
         tags: ['debt', 'management', 'negotiation'],
+        price: 895,
+        issues_certificate: true,
+        certificate_type: 'core' as const,
         createdAt: new Date('2024-02-10'),
         updatedAt: new Date('2024-10-15'),
         lessons: [
@@ -345,6 +351,8 @@ export class CourseService {
         rating: 4.7,
         totalLessons: 11,
         tags: ['financial literacy', 'teaching', 'budgeting'],
+        price: 0,
+        issues_certificate: false,
         createdAt: new Date('2024-03-05'),
         updatedAt: new Date('2024-09-20'),
         lessons: [
@@ -380,6 +388,9 @@ export class CourseService {
         rating: 4.6,
         totalLessons: 9,
         tags: ['legal', 'ethics', 'compliance'],
+        price: 545,
+        issues_certificate: true,
+        certificate_type: 'ceu' as const,
         createdAt: new Date('2024-04-12'),
         updatedAt: new Date('2024-10-30'),
         lessons: [
@@ -414,6 +425,9 @@ export class CourseService {
         rating: 4.9,
         totalLessons: 7,
         tags: ['communication', 'counseling', 'soft skills'],
+        price: 395,
+        issues_certificate: true,
+        certificate_type: 'ceu' as const,
         createdAt: new Date('2024-05-08'),
         updatedAt: new Date('2024-11-05'),
         lessons: [
@@ -444,6 +458,8 @@ export class CourseService {
         rating: 4.8,
         totalLessons: 10,
         tags: ['credit report', 'analysis', 'bureaus'],
+        price: 0,
+        issues_certificate: false,
         createdAt: new Date('2024-06-20'),
         updatedAt: new Date('2024-10-10'),
         lessons: [

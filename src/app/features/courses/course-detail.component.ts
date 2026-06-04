@@ -226,6 +226,14 @@ export class CourseDetailComponent {
     return '';
   });
 
+  formatPrice(price: number): string {
+    return price.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
+  }
+
+  formatExpiryDate(date: Date): string {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
   navigateToExam(lesson: Lesson): void {
     const id = this.courseId();
     this.router.navigate(['/courses', id, 'lesson', lesson.id, 'exam']);
