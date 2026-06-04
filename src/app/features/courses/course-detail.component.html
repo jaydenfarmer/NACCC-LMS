@@ -135,7 +135,35 @@
         </div>
 
         <div class="player-area">
-          @if (selectedLesson(); as lesson) {
+          @if (courseComplete()) {
+            <div class="completion-screen">
+              <div class="completion-icon">🏆</div>
+              <h2 class="completion-heading">Congratulations!</h2>
+              <p class="completion-course-name">{{ course()?.title }}</p>
+              <p class="completion-date">Completed on {{ completionDate }}</p>
+
+              @if (course()?.issues_certificate) {
+                <div class="completion-cert-block">
+                  <div class="completion-cert-callout">
+                    <span class="cert-star">🎓</span>
+                    <span>Your certificate is ready!</span>
+                  </div>
+                  <button type="button" class="btn-download-cert" (click)="downloadCertificate()">
+                    Download Certificate (PDF)
+                  </button>
+                </div>
+              }
+
+              @if (course()?.is_ceu && course()?.ceu_credit_hours) {
+                <div class="completion-ceu-badge">
+                  <span>⭐</span>
+                  You earned <strong>{{ course()!.ceu_credit_hours }}</strong> CEU credit hours toward your renewal
+                </div>
+              }
+
+              <a routerLink="/my-learning" class="btn-return-training">Return to My Training</a>
+            </div>
+          } @else if (selectedLesson(); as lesson) {
             <div class="player">
 
               <!-- Top navigation bar -->

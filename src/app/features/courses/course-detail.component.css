@@ -599,6 +599,120 @@
   color: #cbd5e0;
 }
 
+/* Course completion screen */
+.completion-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3.5rem 2.5rem;
+  background: linear-gradient(160deg, #0f2d5e 0%, #1a4a7a 60%, #0e7490 100%);
+  border-radius: 16px;
+  min-height: 480px;
+  gap: 1rem;
+}
+
+.completion-icon {
+  font-size: 5rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  margin-bottom: 0.5rem;
+}
+
+.completion-heading {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.completion-course-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  margin: 0;
+  max-width: 480px;
+  line-height: 1.4;
+}
+
+.completion-date {
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.6);
+  margin: 0;
+  font-weight: 500;
+}
+
+.completion-cert-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.completion-cert-callout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 10px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.cert-star { font-size: 1.125rem; }
+
+.btn-download-cert {
+  padding: 0.75rem 1.75rem;
+  background: #ffffff;
+  color: #0f2d5e;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+
+.btn-download-cert:hover { background: #f0f4ff; transform: translateY(-1px); }
+
+.completion-ceu-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.9);
+  font-weight: 500;
+}
+
+.completion-ceu-badge strong { color: #ffffff; font-weight: 800; }
+
+.btn-return-training {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.75rem 1.75rem;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-return-training:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.7); }
+
 /* Pre-enrollment — price, cert callout, mandatory label */
 .price-tag {
   font-size: 2rem;

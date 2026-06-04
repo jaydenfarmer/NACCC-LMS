@@ -262,7 +262,7 @@ export class CourseService {
           { id: 'c1-13', type: 'test', title: 'Module 2 Quiz', order: 17, passingScore: 70 },
           { id: 'c1-s4', type: 'section', title: 'EXAM REVIEW', order: 18 },
           { id: 'c1-14', type: 'test', title: 'Practice Test', order: 19, isPractice: true, passingScore: 70, description: 'Review the key concepts from this course before your proctored final exam. This practice test is untimed and you may retake it as many times as you like.', pass_message: 'Great work! You are ready for the final exam.', fail_message: 'Review the material and try the practice test again before scheduling your exam.' },
-          { id: 'c1-15', type: 'content_page', title: 'Schedule Your Exam', order: 20, duration_minutes:5 },
+          { id: 'c1-15', type: 'content_page', title: 'Schedule Your Exam', order: 20, duration_minutes:5, completion_method: 'button' },
           { id: 'c1-s5', type: 'section', title: 'FINAL EXAM', order: 21 },
           { id: 'c1-16', type: 'test', title: 'Final Exam', order: 22, passingScore: 70, password: 'exam2024', time_limit_minutes: 90, description: 'This is your proctored final exam. You have 90 minutes to complete all questions. A passing score of 70% is required to earn your certificate.', pass_message: 'Congratulations! You have passed the exam and earned your certificate.', fail_message: 'You did not pass this time. Review the material and schedule a retake when you are ready.' }
         ]
@@ -290,7 +290,7 @@ export class CourseService {
           { id: 'c2-01', type: 'content_page', title: 'Course Overview', order: 2, duration_minutes:5, completion_method: 'question', completion_question: { text: 'What distinguishes this advanced course from the foundational certification?', options: ['It covers basic budgeting skills for new clients', 'It focuses on complex debt scenarios and creditor negotiation strategies', 'It teaches tax preparation and financial planning', 'It covers investment strategies for high-income clients'], correctIndex: 1 } },
           { id: 'c2-02', type: 'content_page', title: 'Prerequisites & Expectations', order: 3, duration_minutes:5, completion_method: 'question', completion_question: { text: 'Which of the following is a prerequisite for this advanced course?', options: ['No prior experience required', 'Completion of the Foundational Credit Counseling Certification', 'A degree in finance or accounting', 'At least 5 years of banking experience'], correctIndex: 1 } },
           { id: 'c2-s1', type: 'section', title: 'INSTRUCTOR INFORMATION', order: 4 },
-          { id: 'c2-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration_minutes:5 },
+          { id: 'c2-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration_minutes:5, completion_method: 'button' },
           { id: 'c2-s2', type: 'section', title: 'MODULE 1 — Advanced DMP Construction', order: 6 },
           { id: 'c2-04', type: 'video', title: 'Complex Debt Scenarios', order: 7, duration_minutes:30, content_body: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
           { id: 'c2-05', type: 'video', title: 'Creditor Negotiation Techniques', order: 8, duration_minutes:25, content_body: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
@@ -302,7 +302,7 @@ export class CourseService {
           { id: 'c2-10', type: 'test', title: 'Module 2 Quiz', order: 14, passingScore: 75 },
           { id: 'c2-s4', type: 'section', title: 'EXAM REVIEW', order: 15 },
           { id: 'c2-11', type: 'test', title: 'Practice Test', order: 16, isPractice: true, passingScore: 75 },
-          { id: 'c2-12', type: 'content_page', title: 'Schedule Your Exam', order: 17, duration_minutes:5 },
+          { id: 'c2-12', type: 'content_page', title: 'Schedule Your Exam', order: 17, duration_minutes:5, completion_method: 'button' },
           { id: 'c2-s5', type: 'section', title: 'FINAL EXAM', order: 18 },
           { id: 'c2-13', type: 'test', title: 'Final Exam', order: 19, passingScore: 75, password: 'adv2024' }
         ]
@@ -364,10 +364,10 @@ export class CourseService {
         updatedAt: new Date('2024-10-30'),
         lessons: [
           { id: 'c4-s0', type: 'section', title: 'INTRODUCTION', order: 1 },
-          { id: 'c4-01', type: 'content_page', title: 'Course Overview', order: 2, duration_minutes:5 },
-          { id: 'c4-02', type: 'content_page', title: 'Regulatory Landscape Overview', order: 3, duration_minutes:10 },
+          { id: 'c4-01', type: 'content_page', title: 'Course Overview', order: 2, duration_minutes:5, completion_method: 'button' },
+          { id: 'c4-02', type: 'content_page', title: 'Regulatory Landscape Overview', order: 3, duration_minutes:10, completion_method: 'button' },
           { id: 'c4-s1', type: 'section', title: 'INSTRUCTOR INFORMATION', order: 4 },
-          { id: 'c4-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration_minutes:5 },
+          { id: 'c4-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration_minutes:5, completion_method: 'button' },
           { id: 'c4-s2', type: 'section', title: 'MODULE 1 — Federal Compliance', order: 6 },
           { id: 'c4-04', type: 'video', title: 'CFPB Regulations & Requirements', order: 7, duration_minutes:25, content_body: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
           { id: 'c4-05', type: 'video', title: 'FCRA and Consumer Rights', order: 8, duration_minutes:20, content_body: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
@@ -433,10 +433,10 @@ export class CourseService {
         updatedAt: new Date('2024-10-10'),
         lessons: [
           { id: 'c6-s0', type: 'section', title: 'INTRODUCTION', order: 1 },
-          { id: 'c6-01', type: 'content_page', title: 'Course Overview', order: 2, duration_minutes:5 },
-          { id: 'c6-02', type: 'content_page', title: 'Understanding the Three Bureaus', order: 3, duration_minutes:10 },
+          { id: 'c6-01', type: 'content_page', title: 'Course Overview', order: 2, duration_minutes:5, completion_method: 'button' },
+          { id: 'c6-02', type: 'content_page', title: 'Understanding the Three Bureaus', order: 3, duration_minutes:10, completion_method: 'button' },
           { id: 'c6-s1', type: 'section', title: 'INSTRUCTOR INFORMATION', order: 4 },
-          { id: 'c6-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration_minutes:5 },
+          { id: 'c6-03', type: 'content_page', title: 'Meet Your Instructor', order: 5, duration_minutes:5, completion_method: 'button' },
           { id: 'c6-s2', type: 'section', title: 'MODULE 1 — Reading Credit Reports', order: 6 },
           { id: 'c6-04', type: 'video', title: 'Anatomy of a Credit Report', order: 7, duration_minutes:22, content_body: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
           { id: 'c6-05', type: 'video', title: 'Identifying Derogatory Marks', order: 8, duration_minutes:18, content_body: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },

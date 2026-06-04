@@ -50,6 +50,14 @@ export class CourseDetailComponent {
     return total > 0 ? Math.round((completed / total) * 100) : 0;
   });
 
+  courseComplete = computed(() =>
+    this.isEnrolled() &&
+    this.totalLessons() > 0 &&
+    this.completedLessonsCount() === this.totalLessons()
+  );
+
+  completionDate = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
   selectedLesson = signal<Lesson | null>(null);
 
   // Completion question state — reset on every lesson change
@@ -247,9 +255,25 @@ export class CourseDetailComponent {
     if (prev) this.selectLesson(prev);
   }
 
+  private readonly autoCompleteLessonTypes: LessonType[] = [
+    'video', 'audio', 'iframe', 'presentation_document', 'web_content'
+  ];
+
+  private isAutoComplete(lesson: Lesson): boolean {
+    return this.autoCompleteLessonTypes.includes(lesson.type) ||
+      (lesson.type === 'content_page' && lesson.completion_method === 'button');
+  }
+
   navigateNext(): void {
     const lesson = this.selectedLesson();
     if (!lesson) return;
+    if (this.isAutoComplete(lesson) && !lesson.isCompleted) {
+      this.courseService.completeLesson(this.courseId(), lesson.id);
+      const enrollmentData = this.enrollment();
+      if (enrollmentData) {
+        this.courseService.updateProgress(enrollmentData.id, this.progressPercentage());
+      }
+    }
     const next = this.findNextLesson(lesson);
     if (next) this.selectLesson(next);
   }
@@ -258,7 +282,8 @@ export class CourseDetailComponent {
     const lesson = this.selectedLesson();
     if (!lesson) return 'Next →';
     const last = this.isLastLesson(lesson);
-    const done = lesson.isCompleted || this.answerCorrect();
+    const autoComplete = this.isAutoComplete(lesson);
+    const done = lesson.isCompleted || this.answerCorrect() || autoComplete;
     if (done) return last ? 'Finish' : 'Next →';
     return last ? 'Skip to End' : 'Skip →';
   });
@@ -281,6 +306,10 @@ export class CourseDetailComponent {
 
   formatExpiryDate(date: Date): string {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  downloadCertificate(): void {
+    alert('Certificate PDF generation coming in Phase 2');
   }
 
   navigateToExam(lesson: Lesson): void {
