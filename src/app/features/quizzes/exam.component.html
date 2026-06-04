@@ -21,13 +21,45 @@
         </div>
       }
 
-      @if (!locked() && !started()) {
-        <div class="exam-info">
-          <p>Duration: {{ lesson?.duration_minutes || 0 }} minutes</p>
-          <p>Passing Score: {{ lesson?.passingScore || 'N/A' }}</p>
-          <div class="actions">
-            <button (click)="startExam()" class="btn btn-primary">Start Exam</button>
-            <button (click)="cancel()" class="btn btn-muted">Back</button>
+      @if (!locked() && !started() && !finished()) {
+        <div class="pretest-card">
+          <div class="pretest-header">
+            <span class="pretest-type-badge">{{ lesson?.isPractice ? 'Practice Test' : 'Exam' }}</span>
+            <h2 class="pretest-title">{{ lesson?.title }}</h2>
+            @if (lesson?.description) {
+              <p class="pretest-description">{{ lesson!.description }}</p>
+            }
+          </div>
+
+          <div class="pretest-stats">
+            <div class="pretest-stat">
+              <span class="pretest-stat-icon">❓</span>
+              <div>
+                <div class="pretest-stat-value">{{ questions.length }}</div>
+                <div class="pretest-stat-label">Questions</div>
+              </div>
+            </div>
+            <div class="pretest-stat">
+              <span class="pretest-stat-icon">⏱️</span>
+              <div>
+                <div class="pretest-stat-value">{{ lesson?.time_limit_minutes ? lesson!.time_limit_minutes + ' min' : 'Untimed' }}</div>
+                <div class="pretest-stat-label">Time Limit</div>
+              </div>
+            </div>
+            <div class="pretest-stat">
+              <span class="pretest-stat-icon">🎯</span>
+              <div>
+                <div class="pretest-stat-value">{{ lesson?.passingScore ?? 70 }}%</div>
+                <div class="pretest-stat-label">Pass Score</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pretest-actions">
+            <button (click)="startExam()" class="btn btn-primary">
+              {{ lesson?.isPractice ? 'Start Practice Test' : 'Start Exam' }}
+            </button>
+            <button (click)="cancel()" class="btn btn-muted">Back to Course</button>
           </div>
         </div>
       }
@@ -35,44 +67,119 @@
       @if (started()) {
         <div class="exam-running">
           <div class="exam-top">
-            <h3>Exam in progress</h3>
-            <div class="timer">Time left: {{ (timerSeconds / 60) | number:'1.0-0' }}m {{ timerSeconds % 60 }}s</div>
-          </div>
-
-          <form class="questions-form" (ngSubmit)="submitExam()">
-            @for (q of questions; track q.id; let i = $index) {
-              <div class="question">
-                <div class="q-text">{{ i + 1 }}. {{ q.text }}</div>
-                <div class="options">
-                  @for (opt of q.options; track $index; let oi = $index) {
-                    <label class="option">
-                      <input type="radio" name="{{ q.id }}" [checked]="answers[q.id] === oi" (change)="selectOption(q.id, oi)" />
-                      <span>{{ opt }}</span>
-                    </label>
-                  }
-                </div>
+            <div class="q-counter">Question {{ currentIndex() + 1 }} of {{ questions.length }}</div>
+            @if (lesson?.time_limit_minutes) {
+              <div class="timer" [class.timer-urgent]="timerSeconds <= 60 && timerSeconds > 0">
+                {{ (timerSeconds / 60 | number:'2.0-0') }}:{{ (timerSeconds % 60 | number:'2.0-0') }}
               </div>
             }
+          </div>
 
-            <div class="actions">
-              <button type="submit" class="btn btn-primary">Submit Exam</button>
-              <button type="button" (click)="cancel()" class="btn btn-muted">Exit</button>
+          @if (questions[currentIndex()]; as q) {
+            <div class="question-block">
+              <p class="q-text">{{ q.text }}</p>
+              <div class="q-options">
+                @for (opt of q.options; track $index; let oi = $index) {
+                  <button
+                    type="button"
+                    class="q-option"
+                    [class.selected]="answers[q.id] === oi"
+                    (click)="selectOption(q.id, oi)"
+                  >
+                    <span class="q-option-letter">{{ ['A','B','C','D'][oi] }}</span>
+                    {{ opt }}
+                  </button>
+                }
+              </div>
             </div>
-          </form>
+
+            <div class="q-nav">
+              <button
+                type="button"
+                class="btn btn-muted"
+                [disabled]="currentIndex() === 0"
+                (click)="prevQuestion()"
+              >
+                ← Prev
+              </button>
+
+              @if (currentIndex() < questions.length - 1) {
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  [disabled]="answers[q.id] === null || answers[q.id] === undefined"
+                  (click)="nextQuestion()"
+                >
+                  Next →
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  class="btn btn-submit"
+                  [disabled]="answers[q.id] === null || answers[q.id] === undefined"
+                  (click)="submitExam()"
+                >
+                  Submit
+                </button>
+              }
+            </div>
+          }
         </div>
       }
 
       @if (finished()) {
-        <div class="exam-result">
-          <h3>Exam Submitted</h3>
-          <p>Your score: <strong>{{ score }}%</strong></p>
-          @if (score !== null) {
-            <p>Result: <strong>{{ score >= (lesson?.passingScore ?? 70) ? 'Passed' : 'Failed' }}</strong></p>
-          }
-          <div class="actions">
-            <button (click)="cancel()" class="btn btn-primary">Return to Course</button>
+        @if (score !== null) {
+          <div class="results-card">
+            <!-- Score -->
+            <div class="results-score-block" [class.passed]="score >= (lesson?.passingScore ?? 70)" [class.failed]="score < (lesson?.passingScore ?? 70)">
+              <div class="results-pct">{{ score }}%</div>
+              <div class="results-status">{{ score >= (lesson?.passingScore ?? 70) ? 'Passed' : 'Failed' }}</div>
+            </div>
+
+            <!-- Custom message -->
+            <p class="results-message">
+              {{ score >= (lesson?.passingScore ?? 70) ? (lesson?.pass_message ?? 'You passed!') : (lesson?.fail_message ?? 'You did not pass. Please review the material and try again.') }}
+            </p>
+
+            <!-- Actions -->
+            <div class="results-actions">
+              @if (score >= (lesson?.passingScore ?? 70)) {
+                <button type="button" class="btn btn-primary" (click)="cancel()">Continue Course</button>
+              } @else {
+                <button type="button" class="btn btn-primary" (click)="scheduleRetake()">Schedule Retake</button>
+                <button type="button" class="btn btn-muted" (click)="cancel()">Return to Course</button>
+              }
+            </div>
+
+            <!-- Answer review -->
+            <div class="answer-review">
+              <h3 class="review-heading">Answer Review</h3>
+              @for (q of questions; track q.id; let i = $index) {
+                <div class="review-question">
+                  <p class="review-q-text">{{ i + 1 }}. {{ q.text }}</p>
+                  <div class="review-options">
+                    @for (opt of q.options; track $index; let oi = $index) {
+                      <div
+                        class="review-option"
+                        [class.review-correct]="oi === q.correctIndex"
+                        [class.review-wrong]="answers[q.id] === oi && oi !== q.correctIndex"
+                      >
+                        <span class="q-option-letter">{{ ['A','B','C','D'][oi] }}</span>
+                        <span>{{ opt }}</span>
+                        @if (oi === q.correctIndex) {
+                          <span class="review-tag correct-tag">Correct</span>
+                        }
+                        @if (answers[q.id] === oi && oi !== q.correctIndex) {
+                          <span class="review-tag wrong-tag">Your answer</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
           </div>
-        </div>
+        }
       }
     </div>
   }

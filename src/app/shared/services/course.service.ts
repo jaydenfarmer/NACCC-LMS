@@ -196,60 +196,29 @@ export class CourseService {
   getQuestionsForLesson(courseId: string, lessonId: string): ExamQuestion[] {
     if (courseId === 'course-1' && lessonId === 'c1-16') {
       return [
-        {
-          id: 'q1',
-          text: 'Which of the following best describes a Debt Management Plan (DMP)?',
-          options: [
-            'A short-term loan to cover emergency expenses',
-            'A negotiated repayment plan with creditors to lower payments',
-            'A type of investment vehicle for retirement savings',
-            'An insurance policy to protect against debt'
-          ],
-          correctIndex: 1
-        },
-        {
-          id: 'q2',
-          text: 'When assessing a client, which document is most important to review?',
-          options: [
-            'Client social media profiles',
-            'Recent bank statements and credit reports',
-            'Client favorite movies list',
-            'None of the above'
-          ],
-          correctIndex: 1
-        },
-        {
-          id: 'q3',
-          text: 'Which action is appropriate when a client cannot meet their monthly obligations?',
-          options: [
-            'Recommend immediate bankruptcy without assessment',
-            'Create an abusive collection plan',
-            'Work with the client to build a realistic budget and negotiate with creditors',
-            'Ignore the issue and hope it resolves'
-          ],
-          correctIndex: 2
-        },
-        {
-          id: 'q4',
-          text: 'What is a common goal of credit counseling?',
-          options: [
-            'Maximize interest charges',
-            'Improve client financial literacy and sustainable repayment',
-            'Encourage risky investments',
-            'Reduce client income'
-          ],
-          correctIndex: 1
-        }
+        { id: 'q1', text: 'Which of the following best describes a Debt Management Plan (DMP)?', options: ['A short-term loan to cover emergency expenses', 'A negotiated repayment plan with creditors to lower interest and payments', 'A type of investment vehicle for retirement savings', 'An insurance policy to protect against debt default'], correctIndex: 1 },
+        { id: 'q2', text: 'When assessing a new client, which document is most critical to review first?', options: ['Client social media profiles', 'Recent bank statements and credit reports', 'Client employment history from five years ago', 'A list of the client\'s personal goals'], correctIndex: 1 },
+        { id: 'q3', text: 'Which action is most appropriate when a client cannot meet their monthly debt obligations?', options: ['Recommend immediate bankruptcy without a full assessment', 'Create an aggressive collection pressure plan', 'Work with the client to build a realistic budget and negotiate with creditors', 'Advise the client to stop paying all debts immediately'], correctIndex: 2 },
+        { id: 'q4', text: 'What is the primary goal of credit counseling?', options: ['Maximize creditor interest charges on the client account', 'Improve client financial literacy and create a path to sustainable repayment', 'Encourage high-risk investments to grow client wealth', 'Reduce the client\'s reported income for tax purposes'], correctIndex: 1 },
+        { id: 'q5', text: 'Under NFCC standards, a credit counselor must disclose which of the following to a client?', options: ['The counselor\'s personal credit score', 'All fees, services, and the voluntary nature of the program', 'The names of other clients in the program', 'The counselor\'s commission rate per enrolled client'], correctIndex: 1 },
+        { id: 'q6', text: 'Which of the following is NOT a typical component of a Debt Management Plan?', options: ['Reduced interest rates negotiated with creditors', 'A single consolidated monthly payment to the agency', 'Immediate legal protection from all creditors', 'Regular budget counseling sessions'], correctIndex: 2 },
+        { id: 'q7', text: 'A client asks whether enrolling in a DMP will affect their credit score. What is the most accurate response?', options: ['It has no effect whatsoever on credit scores', 'It will immediately improve their credit score by 100 points', 'It may have a short-term impact but consistent on-time payments typically improve scores over time', 'It permanently destroys the client\'s credit rating'], correctIndex: 2 },
+        { id: 'q8', text: 'What is the recommended first step when a client presents with overwhelming debt?', options: ['Immediately enroll them in the most comprehensive DMP available', 'Conduct a thorough financial assessment including income, expenses, assets, and liabilities', 'Refer them directly to a bankruptcy attorney', 'Advise them to liquidate all assets immediately'], correctIndex: 1 }
+      ];
+    }
+
+    if (courseId === 'course-1' && lessonId === 'c1-14') {
+      return [
+        { id: 'p1', text: 'What does DMP stand for in the context of credit counseling?', options: ['Debt Management Plan', 'Deferred Monthly Payment', 'Debt Mediation Process', 'Direct Money Program'], correctIndex: 0 },
+        { id: 'p2', text: 'Which federal agency primarily oversees consumer credit counseling agencies?', options: ['The Federal Reserve', 'The Consumer Financial Protection Bureau (CFPB)', 'The Department of Labor', 'The Securities and Exchange Commission'], correctIndex: 1 },
+        { id: 'p3', text: 'A client has $30,000 in unsecured debt across six creditors. The best first step is to:', options: ['Tell the client to ignore the smallest debts', 'Compile a complete list of all debts, interest rates, and minimum payments', 'Contact each creditor separately without a plan', 'Recommend the client take out a home equity loan immediately'], correctIndex: 1 },
+        { id: 'p4', text: 'Which of the following is considered a secured debt?', options: ['Credit card balance', 'Medical bills', 'Mortgage loan', 'Utility arrears'], correctIndex: 2 },
+        { id: 'p5', text: 'Confidentiality in credit counseling means:', options: ['Sharing client information freely with all creditors', 'Protecting client information and only disclosing with explicit consent', 'Publishing client success stories without permission', 'Reporting all client debts to credit bureaus immediately'], correctIndex: 1 }
       ];
     }
 
     return [
-      {
-        id: 'q1',
-        text: 'This is a placeholder question for this exam.',
-        options: ['Option A', 'Option B', 'Option C', 'Option D'],
-        correctIndex: 0
-      }
+      { id: 'q1', text: 'This is a placeholder question for this exam.', options: ['Option A', 'Option B', 'Option C', 'Option D'], correctIndex: 0 }
     ];
   }
 
@@ -292,10 +261,10 @@ export class CourseService {
           { id: 'c1-12', type: 'content_page', title: 'Creating Debt Management Plans', order: 16, duration_minutes:12, completion_method: 'question', completion_question: { text: 'What is the primary goal of a Debt Management Plan (DMP)?', options: ['To eliminate all debt immediately through bankruptcy', 'To consolidate and repay debt through structured monthly payments', 'To negotiate permanent debt forgiveness with all creditors', 'To freeze interest rates without a formal repayment plan'], correctIndex: 1 } },
           { id: 'c1-13', type: 'test', title: 'Module 2 Quiz', order: 17, passingScore: 70 },
           { id: 'c1-s4', type: 'section', title: 'EXAM REVIEW', order: 18 },
-          { id: 'c1-14', type: 'test', title: 'Practice Test', order: 19, isPractice: true, passingScore: 70 },
+          { id: 'c1-14', type: 'test', title: 'Practice Test', order: 19, isPractice: true, passingScore: 70, description: 'Review the key concepts from this course before your proctored final exam. This practice test is untimed and you may retake it as many times as you like.', pass_message: 'Great work! You are ready for the final exam.', fail_message: 'Review the material and try the practice test again before scheduling your exam.' },
           { id: 'c1-15', type: 'content_page', title: 'Schedule Your Exam', order: 20, duration_minutes:5 },
           { id: 'c1-s5', type: 'section', title: 'FINAL EXAM', order: 21 },
-          { id: 'c1-16', type: 'test', title: 'Final Exam', order: 22, passingScore: 70, password: 'exam2024' }
+          { id: 'c1-16', type: 'test', title: 'Final Exam', order: 22, passingScore: 70, password: 'exam2024', time_limit_minutes: 90, description: 'This is your proctored final exam. You have 90 minutes to complete all questions. A passing score of 70% is required to earn your certificate.', pass_message: 'Congratulations! You have passed the exam and earned your certificate.', fail_message: 'You did not pass this time. Review the material and schedule a retake when you are ready.' }
         ]
       },
       {

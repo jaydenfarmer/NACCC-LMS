@@ -36,6 +36,9 @@ export interface Lesson {
   is_mandatory?: boolean;
   completion_method?: 'button' | 'time' | 'question';
   completion_question?: CompletionQuestion;
+  time_limit_minutes?: number;
+  pass_message?: string;
+  fail_message?: string;
   delay_hours?: number;
   delay_days?: number;
   is_shared?: boolean;

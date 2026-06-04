@@ -29,6 +29,7 @@ export class ExamComponent {
   passwordError = signal('');
   started = signal(false);
   finished = signal(false);
+  currentIndex = signal(0);
 
   course: Course | null = null;
   lesson: Lesson | null = null;
@@ -90,26 +91,31 @@ export class ExamComponent {
     this.locked.set(false);
   }
 
+  prevQuestion(): void {
+    this.currentIndex.update(i => Math.max(0, i - 1));
+  }
+
+  nextQuestion(): void {
+    this.currentIndex.update(i => Math.min(this.questions.length - 1, i + 1));
+  }
+
   startExam(): void {
     if (this.locked()) return;
+    this.currentIndex.set(0);
     this.started.set(true);
     this.finished.set(false);
     this.score = null;
 
-    // Start timer (lesson.duration is minutes)
-    const minutes = this.lesson?.duration_minutes || 0;
-    this.timerSeconds = Math.max(0, Math.floor(minutes * 60));
+    const minutes = this.lesson?.time_limit_minutes ?? 0;
+    this.timerSeconds = minutes > 0 ? minutes * 60 : 0;
 
-    // Start countdown
-    if (this.timerHandle) {
-      clearInterval(this.timerHandle);
+    if (this.timerHandle) clearInterval(this.timerHandle);
+    if (this.timerSeconds > 0) {
+      this.timerHandle = setInterval(() => {
+        this.timerSeconds = Math.max(0, this.timerSeconds - 1);
+        if (this.timerSeconds === 0) this.autoSubmit();
+      }, 1000);
     }
-    this.timerHandle = setInterval(() => {
-      this.timerSeconds = Math.max(0, this.timerSeconds - 1);
-      if (this.timerSeconds <= 0) {
-        this.autoSubmit();
-      }
-    }, 1000);
   }
 
   private autoSubmit(): void {
@@ -159,6 +165,10 @@ export class ExamComponent {
         this.courseService.updateProgress(enrollment.id, newProgress);
       }
     }
+  }
+
+  scheduleRetake(): void {
+    alert('To schedule a retake, please contact your instructor or visit the exam scheduling page.');
   }
 
   cancel(): void {
