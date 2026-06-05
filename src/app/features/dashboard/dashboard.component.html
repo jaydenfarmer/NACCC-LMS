@@ -26,177 +26,202 @@
   <!-- LEARNER DASHBOARD -->
   @if (user()?.role === 'learner') {
 
-    <!-- What's next -->
-    @if (whatsNext().state === 'active') {
-      <div class="whats-next-card">
-        <div class="whats-next-label">What's next</div>
-        <div class="whats-next-body">
-          <img
-            [src]="whatsNext().course!.thumbnail_url"
-            [alt]="whatsNext().course!.title"
-            class="whats-next-thumb"
-          />
-          <div class="whats-next-info">
-            <div class="whats-next-title">{{ whatsNext().course!.title }}</div>
-            <div class="whats-next-progress">
-              <div class="progress-track">
-                <div class="progress-fill" [style.width.%]="getCourseProgress(whatsNext().course!.id)"></div>
+    @for (widget of fullWidgets(); track widget.id) {
+      @switch (widget.type) {
+        @case ('whats-next') {
+          <!-- What's next -->
+          @if (whatsNext().state === 'active') {
+            <div class="whats-next-card">
+              <div class="whats-next-label">What's next</div>
+              <div class="whats-next-body">
+                <img
+                  [src]="whatsNext().course!.thumbnail_url"
+                  [alt]="whatsNext().course!.title"
+                  class="whats-next-thumb"
+                />
+                <div class="whats-next-info">
+                  <div class="whats-next-title">{{ whatsNext().course!.title }}</div>
+                  <div class="whats-next-progress">
+                    <div class="progress-track">
+                      <div class="progress-fill" [style.width.%]="getCourseProgress(whatsNext().course!.id)"></div>
+                    </div>
+                    <span class="whats-next-pct">{{ getCourseProgress(whatsNext().course!.id) }}% complete</span>
+                  </div>
+                </div>
+                <a [routerLink]="['/courses', whatsNext().course!.id]" class="btn-continue-learning">
+                  Continue Learning
+                </a>
               </div>
-              <span class="whats-next-pct">{{ getCourseProgress(whatsNext().course!.id) }}% complete</span>
             </div>
-          </div>
-          <a [routerLink]="['/courses', whatsNext().course!.id]" class="btn-continue-learning">
-            Continue Learning
-          </a>
-        </div>
-      </div>
-    } @else if (whatsNext().state === 'all_done') {
-      <div class="whats-next-card whats-next-done">
-        <span class="whats-next-done-icon">🎉</span>
-        <div class="whats-next-done-text">
-          <strong>Great work!</strong> You've completed all your courses.
-        </div>
-        <a routerLink="/courses" class="btn-browse-more">Browse More Courses</a>
-      </div>
-    } @else {
-      <div class="whats-next-card whats-next-done">
-        <span class="whats-next-done-icon">👋</span>
-        <div class="whats-next-done-text">
-          <strong>Get started</strong> — browse our catalog to find your first course.
-        </div>
-        <a routerLink="/courses" class="btn-browse-more">Browse Catalog</a>
-      </div>
+          } @else if (whatsNext().state === 'all_done') {
+            <div class="whats-next-card whats-next-done">
+              <span class="whats-next-done-icon">🎉</span>
+              <div class="whats-next-done-text">
+                <strong>Great work!</strong> You've completed all your courses.
+              </div>
+              <a routerLink="/courses" class="btn-browse-more">Browse More Courses</a>
+            </div>
+          } @else {
+            <div class="whats-next-card whats-next-done">
+              <span class="whats-next-done-icon">👋</span>
+              <div class="whats-next-done-text">
+                <strong>Get started</strong> — browse our catalog to find your first course.
+              </div>
+              <a routerLink="/courses" class="btn-browse-more">Browse Catalog</a>
+            </div>
+          }
+        }
+      }
     }
 
     <div class="learner-body">
       <div class="learner-main">
 
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">🎓</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stats().completedCourses }}</div>
-              <div class="stat-label">Completed Courses</div>
-            </div>
-          </div>
+        @for (widget of mainWidgets(); track widget.id) {
+          @switch (widget.type) {
 
-          <div class="stat-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stats().passedTests }}</div>
-              <div class="stat-label">Passed Tests</div>
-            </div>
-          </div>
+            @case ('stats') {
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-icon">🎓</div>
+                  <div class="stat-content">
+                    <div class="stat-value">{{ stats().completedCourses }}</div>
+                    <div class="stat-label">Completed Courses</div>
+                  </div>
+                </div>
 
-          <div class="stat-card">
-            <div class="stat-icon">📝</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stats().completedAssignments }}</div>
-              <div class="stat-label">Completed Assignments</div>
-            </div>
-          </div>
+                <div class="stat-card">
+                  <div class="stat-icon">✅</div>
+                  <div class="stat-content">
+                    <div class="stat-value">{{ stats().passedTests }}</div>
+                    <div class="stat-label">Passed Tests</div>
+                  </div>
+                </div>
 
-          <div class="stat-card">
-            <div class="stat-icon">📊</div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stats().completionRate }}%</div>
-              <div class="stat-label">Completion Rate</div>
-            </div>
-          </div>
-        </div>
+                <div class="stat-card">
+                  <div class="stat-icon">📝</div>
+                  <div class="stat-content">
+                    <div class="stat-value">{{ stats().completedAssignments }}</div>
+                    <div class="stat-label">Completed Assignments</div>
+                  </div>
+                </div>
 
-        <div class="section">
-          <div class="section-header">
-            <h2>Recent course activity →</h2>
-          </div>
+                <div class="stat-card">
+                  <div class="stat-icon">📊</div>
+                  <div class="stat-content">
+                    <div class="stat-value">{{ stats().completionRate }}%</div>
+                    <div class="stat-label">Completion Rate</div>
+                  </div>
+                </div>
+              </div>
+            }
 
-          @if (recentCourses().length > 0) {
-            <div class="courses-grid">
-              @for (course of recentCourses(); track course.id) {
-                @if (getEnrollmentForCourse(course.id); as enrollment) {
-                  <div class="course-card">
-                    <img [src]="course.thumbnail_url" [alt]="course.title" class="course-thumbnail" />
-                    <div class="course-content">
-                      <h3 class="course-title">{{ course.title }}</h3>
+            @case ('recent-courses') {
+              <div class="section">
+                <div class="section-header">
+                  <h2>Recent course activity →</h2>
+                </div>
 
-                      <div class="course-progress">
-                        <div class="progress-header">
-                          <span class="progress-label">Progress</span>
-                          <span class="progress-pct">{{ getCourseProgress(course.id) }}%</span>
+                @if (recentCourses().length > 0) {
+                  <div class="courses-grid">
+                    @for (course of recentCourses(); track course.id) {
+                      @if (getEnrollmentForCourse(course.id); as enrollment) {
+                        <div class="course-card">
+                          <img [src]="course.thumbnail_url" [alt]="course.title" class="course-thumbnail" />
+                          <div class="course-content">
+                            <h3 class="course-title">{{ course.title }}</h3>
+
+                            <div class="course-progress">
+                              <div class="progress-header">
+                                <span class="progress-label">Progress</span>
+                                <span class="progress-pct">{{ getCourseProgress(course.id) }}%</span>
+                              </div>
+                              <div class="progress-track">
+                                <div class="progress-fill" [style.width.%]="getCourseProgress(course.id)"></div>
+                              </div>
+                            </div>
+
+                            @if (enrollment.expiration_date) {
+                              <div class="expiry-label">Expires {{ formatExpiryDate(enrollment.expiration_date) }}</div>
+                            }
+
+                            <div class="course-footer">
+                              <a [routerLink]="['/courses', course.id]" class="btn-start">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                  <circle cx="8" cy="8" r="8"/>
+                                  <path d="M6 5l5 3-5 3z" fill="white"/>
+                                </svg>
+                                {{ getContinueLabel(enrollment.status) }}
+                              </a>
+                            </div>
+                          </div>
                         </div>
-                        <div class="progress-track">
-                          <div class="progress-fill" [style.width.%]="getCourseProgress(course.id)"></div>
-                        </div>
-                      </div>
-
-                      @if (enrollment.expiration_date) {
-                        <div class="expiry-label">Expires {{ formatExpiryDate(enrollment.expiration_date) }}</div>
                       }
-
-                      <div class="course-footer">
-                        <a [routerLink]="['/courses', course.id]" class="btn-start">
-                          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                            <circle cx="8" cy="8" r="8"/>
-                            <path d="M6 5l5 3-5 3z" fill="white"/>
-                          </svg>
-                          {{ getContinueLabel(enrollment.status) }}
-                        </a>
-                      </div>
-                    </div>
+                    }
+                  </div>
+                } @else {
+                  <div class="empty-state">
+                    <div class="empty-icon">📚</div>
+                    <h3>No courses yet</h3>
+                    <p>Explore our course catalog and start learning!</p>
+                    <a routerLink="/courses" class="btn-primary">Browse Courses</a>
                   </div>
                 }
-              }
-            </div>
-          } @else {
-            <div class="empty-state">
-              <div class="empty-icon">📚</div>
-              <h3>No courses yet</h3>
-              <p>Explore our course catalog and start learning!</p>
-              <a routerLink="/courses" class="btn-primary">Browse Courses</a>
-            </div>
+              </div>
+            }
+
           }
-        </div><!-- /.section -->
+        }
+
       </div><!-- /.learner-main -->
 
       <!-- Sidebar: Today + Don't miss -->
       <aside class="learner-sidebar">
 
-        <!-- Today widget -->
-        <div class="widget-card">
-          <div class="widget-header">
-            <h3 class="widget-title">Today</h3>
-          </div>
-          <div class="today-date">{{ todayStr }}</div>
-          <div class="today-empty">
-            <span class="today-empty-icon">📅</span>
-            <span>Nothing scheduled today</span>
-          </div>
-        </div>
+        @for (widget of sidebarWidgets(); track widget.id) {
+          @switch (widget.type) {
 
-        <!-- Don't miss widget -->
-        <div class="widget-card">
-          <div class="widget-header">
-            <h3 class="widget-title">Don't miss</h3>
-          </div>
+            @case ('today') {
+              <div class="widget-card">
+                <div class="widget-header">
+                  <h3 class="widget-title">Today</h3>
+                </div>
+                <div class="today-date">{{ todayStr }}</div>
+                <div class="today-empty">
+                  <span class="today-empty-icon">📅</span>
+                  <span>Nothing scheduled today</span>
+                </div>
+              </div>
+            }
 
-          @if (expiringCertificates().length === 0) {
-            <div class="dont-miss-empty">
-              <span>✅</span>
-              <span>You are all caught up!</span>
-            </div>
-          } @else {
-            <ul class="dont-miss-list">
-              @for (cert of expiringCertificates(); track cert.id) {
-                <li class="dont-miss-item">
-                  <div class="dont-miss-name">{{ cert.courseName }}</div>
-                  <div class="dont-miss-days" [class.urgent]="daysUntil(cert.expiresAt!) <= 30">
-                    {{ daysUntil(cert.expiresAt!) }} days left
+            @case ('dont-miss') {
+              <div class="widget-card">
+                <div class="widget-header">
+                  <h3 class="widget-title">Don't miss</h3>
+                </div>
+
+                @if (expiringCertificates().length === 0) {
+                  <div class="dont-miss-empty">
+                    <span>✅</span>
+                    <span>You are all caught up!</span>
                   </div>
-                </li>
-              }
-            </ul>
+                } @else {
+                  <ul class="dont-miss-list">
+                    @for (cert of expiringCertificates(); track cert.id) {
+                      <li class="dont-miss-item">
+                        <div class="dont-miss-name">{{ cert.courseName }}</div>
+                        <div class="dont-miss-days" [class.urgent]="daysUntil(cert.expiresAt!) <= 30">
+                          {{ daysUntil(cert.expiresAt!) }} days left
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
+
           }
-        </div>
+        }
 
       </aside>
     </div><!-- /.learner-body -->
@@ -205,123 +230,138 @@
   <!-- INSTRUCTOR/ADMIN DASHBOARD -->
   @if (user()?.role === 'admin' || user()?.role === 'instructor') {
     <div class="admin-grid">
-      <!-- Portal Activity Chart -->
-      <div class="chart-card">
-        <div class="card-header">
-          <h3>Portal activity</h3>
-          <select class="time-select">
-            <option>Week</option>
-            <option>Month</option>
-            <option>Year</option>
-          </select>
-        </div>
-        <div class="chart-container">
-          <canvas #portalActivityChart></canvas>
-        </div>
-      </div>
 
-      <!-- Quick Actions -->
-      <div class="quick-actions-card">
-        <h3>Quick actions</h3>
-        <div class="actions-list">
-          @if (user()?.role === 'admin') {
-            <button class="action-button">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                <path d="M10 5v10M5 10h10" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              Add user
-            </button>
-            <button class="action-button">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                <rect x="3" y="3" width="14" height="14" rx="2" stroke-width="1.5"/>
-                <path d="M7 3v4M13 3v4M3 9h14" stroke-width="1.5"/>
-              </svg>
-              Add course
-            </button>
-            <button class="action-button">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                <rect x="3" y="3" width="14" height="14" rx="2" stroke-width="1.5"/>
-                <path d="M10 7v6M7 10h6" stroke-width="1.5"/>
-              </svg>
-              Portal settings
-            </button>
-            <button class="action-button">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                <path d="M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" stroke-width="1.5"/>
-                <path d="M10 6v4l2 2" stroke-width="1.5"/>
-              </svg>
-              Add group
-            </button>
-            <button class="action-button">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                <rect x="3" y="5" width="14" height="12" rx="2" stroke-width="1.5"/>
-                <path d="M3 9h14" stroke-width="1.5"/>
-              </svg>
-              Add category
-            </button>
-          } @else {
-            <button class="action-button">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                <rect x="3" y="3" width="14" height="14" rx="2" stroke-width="1.5"/>
-                <path d="M7 3v4M13 3v4M3 9h14" stroke-width="1.5"/>
-              </svg>
-              Add course
-            </button>
-            <button class="action-button">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                <path d="M10 5v10M5 10h10" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              Add assignment
-            </button>
-            <button class="action-button">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                <path d="M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" stroke-width="1.5"/>
-                <path d="M10 6v4l2 2" stroke-width="1.5"/>
-              </svg>
-              Schedule conference
-            </button>
+      @for (widget of gridWidgets(); track widget.id) {
+        @switch (widget.type) {
+
+          @case ('portal-activity') {
+            <div class="chart-card">
+              <div class="card-header">
+                <h3>Portal activity</h3>
+                <select class="time-select">
+                  <option>Week</option>
+                  <option>Month</option>
+                  <option>Year</option>
+                </select>
+              </div>
+              <div class="chart-container">
+                <canvas #portalActivityChart></canvas>
+              </div>
+            </div>
           }
-        </div>
-      </div>
+
+          @case ('quick-actions') {
+            <div class="quick-actions-card">
+              <h3>Quick actions</h3>
+              <div class="actions-list">
+                @if (user()?.role === 'admin') {
+                  <button class="action-button">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <path d="M10 5v10M5 10h10" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Add user
+                  </button>
+                  <button class="action-button">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <rect x="3" y="3" width="14" height="14" rx="2" stroke-width="1.5"/>
+                      <path d="M7 3v4M13 3v4M3 9h14" stroke-width="1.5"/>
+                    </svg>
+                    Add course
+                  </button>
+                  <button class="action-button">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <rect x="3" y="3" width="14" height="14" rx="2" stroke-width="1.5"/>
+                      <path d="M10 7v6M7 10h6" stroke-width="1.5"/>
+                    </svg>
+                    Portal settings
+                  </button>
+                  <button class="action-button">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <path d="M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" stroke-width="1.5"/>
+                      <path d="M10 6v4l2 2" stroke-width="1.5"/>
+                    </svg>
+                    Add group
+                  </button>
+                  <button class="action-button">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <rect x="3" y="5" width="14" height="12" rx="2" stroke-width="1.5"/>
+                      <path d="M3 9h14" stroke-width="1.5"/>
+                    </svg>
+                    Add category
+                  </button>
+                } @else {
+                  <button class="action-button">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <rect x="3" y="3" width="14" height="14" rx="2" stroke-width="1.5"/>
+                      <path d="M7 3v4M13 3v4M3 9h14" stroke-width="1.5"/>
+                    </svg>
+                    Add course
+                  </button>
+                  <button class="action-button">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <path d="M10 5v10M5 10h10" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Add assignment
+                  </button>
+                  <button class="action-button">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <path d="M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" stroke-width="1.5"/>
+                      <path d="M10 6v4l2 2" stroke-width="1.5"/>
+                    </svg>
+                    Schedule conference
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+        }
+      }
+
     </div>
 
-    <!-- Additional Stats for Admin -->
-    @if (user()?.role === 'admin') {
-      <div class="section">
-        <div class="section-header">
-          <h2>Overview</h2>
-        </div>
-        <div class="stats-grid-admin">
-          <div class="stat-card-admin">
-            <div class="stat-icon-admin">👥</div>
-            <div class="stat-details">
-              <div class="stat-value-admin">248</div>
-              <div class="stat-label-admin">Total Users</div>
+    @for (widget of fullWidgets(); track widget.id) {
+      @switch (widget.type) {
+
+        @case ('overview-stats') {
+          <div class="section">
+            <div class="section-header">
+              <h2>Overview</h2>
+            </div>
+            <div class="stats-grid-admin">
+              <div class="stat-card-admin">
+                <div class="stat-icon-admin">👥</div>
+                <div class="stat-details">
+                  <div class="stat-value-admin">248</div>
+                  <div class="stat-label-admin">Total Users</div>
+                </div>
+              </div>
+              <div class="stat-card-admin">
+                <div class="stat-icon-admin">📚</div>
+                <div class="stat-details">
+                  <div class="stat-value-admin">42</div>
+                  <div class="stat-label-admin">Active Courses</div>
+                </div>
+              </div>
+              <div class="stat-card-admin">
+                <div class="stat-icon-admin">✅</div>
+                <div class="stat-details">
+                  <div class="stat-value-admin">1,284</div>
+                  <div class="stat-label-admin">Completions</div>
+                </div>
+              </div>
+              <div class="stat-card-admin">
+                <div class="stat-icon-admin">📈</div>
+                <div class="stat-details">
+                  <div class="stat-value-admin">87%</div>
+                  <div class="stat-label-admin">Avg. Completion</div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="stat-card-admin">
-            <div class="stat-icon-admin">📚</div>
-            <div class="stat-details">
-              <div class="stat-value-admin">42</div>
-              <div class="stat-label-admin">Active Courses</div>
-            </div>
-          </div>
-          <div class="stat-card-admin">
-            <div class="stat-icon-admin">✅</div>
-            <div class="stat-details">
-              <div class="stat-value-admin">1,284</div>
-              <div class="stat-label-admin">Completions</div>
-            </div>
-          </div>
-          <div class="stat-card-admin">
-            <div class="stat-icon-admin">📈</div>
-            <div class="stat-details">
-              <div class="stat-value-admin">87%</div>
-              <div class="stat-label-admin">Avg. Completion</div>
-            </div>
-          </div>
-        </div>
-      </div>
+        }
+
+      }
     }
   }
 </div>

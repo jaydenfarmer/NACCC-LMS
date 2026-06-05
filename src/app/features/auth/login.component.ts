@@ -29,7 +29,7 @@ export class LoginComponent {
         return;
       }
       const role = this.authService.user()?.role;
-      const dest = role === 'admin' ? '/admin' : role === 'learner' ? '/my-learning' : '/dashboard';
+      const dest = role === 'learner' ? '/my-learning' : '/dashboard';
       this.router.navigateByUrl(dest);
     } else {
       this.errorMessage.set('Invalid email or password');

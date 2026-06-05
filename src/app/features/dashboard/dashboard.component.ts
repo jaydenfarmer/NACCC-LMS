@@ -6,6 +6,7 @@ import { CourseService } from '../../shared/services/course.service';
 import { AnnouncementService } from '../../shared/services/announcement.service';
 import { AnnouncementBannerComponent } from '../../shared/components/announcement-banner/announcement-banner.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { WidgetConfig } from '../../shared/models/dashboard.model';
 
 Chart.register(...registerables);
 
@@ -118,6 +119,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
       c => c.expiresAt && c.expiresAt > now && c.expiresAt <= cutoff
     );
   });
+
+  // Widget config drives layout order and visibility. Drag-and-drop reordering coming in Phase 1B.
+  readonly widgetConfigs: WidgetConfig[] = [
+    { id: 'whats-next',      type: 'whats-next',      order: 0, visible: true, column: 'full',    roles: ['learner'] },
+    { id: 'stats',           type: 'stats',           order: 1, visible: true, column: 'main',    roles: ['learner'] },
+    { id: 'recent-courses',  type: 'recent-courses',  order: 2, visible: true, column: 'main',    roles: ['learner'] },
+    { id: 'today',           type: 'today',           order: 3, visible: true, column: 'sidebar', roles: ['learner'] },
+    { id: 'dont-miss',       type: 'dont-miss',       order: 4, visible: true, column: 'sidebar', roles: ['learner'] },
+    { id: 'portal-activity', type: 'portal-activity', order: 0, visible: true, column: 'grid',    roles: ['admin', 'instructor'] },
+    { id: 'quick-actions',   type: 'quick-actions',   order: 1, visible: true, column: 'grid',    roles: ['admin', 'instructor'] },
+    { id: 'overview-stats',  type: 'overview-stats',  order: 2, visible: true, column: 'full',    roles: ['admin'] },
+  ];
+
+  private widgetsForRole = computed((): WidgetConfig[] => {
+    const role = this.user()?.role;
+    if (!role) return [];
+    return this.widgetConfigs
+      .filter(w => w.visible && w.roles.includes(role))
+      .sort((a, b) => a.order - b.order);
+  });
+
+  fullWidgets    = computed(() => this.widgetsForRole().filter(w => w.column === 'full'));
+  mainWidgets    = computed(() => this.widgetsForRole().filter(w => w.column === 'main'));
+  sidebarWidgets = computed(() => this.widgetsForRole().filter(w => w.column === 'sidebar'));
+  gridWidgets    = computed(() => this.widgetsForRole().filter(w => w.column === 'grid'));
 
   daysUntil(date: Date): number {
     return Math.ceil((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
