@@ -33,6 +33,7 @@ import { SidebarComponent } from '../../shared/components/sidebar/sidebar';
       /* Main content is pushed right of the sidebar and below the fixed header */
       .main-content {
         margin-left: var(--sidebar-width);
+        padding-top: var(--header-height);
         min-height: calc(100vh - var(--header-height));
         display: flex;
         flex-direction: column;

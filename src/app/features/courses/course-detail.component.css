@@ -102,15 +102,21 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-.btn-enroll {
-  padding: 1rem 2rem;
+.btn-enroll,
+.btn-next,
+.cq-submit,
+.btn-checkout {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
+  cursor: pointer;
+}
+
+.btn-enroll {
+  padding: 1rem 2rem;
   border-radius: 8px;
   font-weight: 700;
   font-size: 1rem;
-  cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -300,8 +306,7 @@
 }
 
 .pdf-container,
-.quiz-container,
-.exam-container {
+.quiz-container {
   background: white;
   border-radius: 12px;
   padding: 3rem;
@@ -310,8 +315,7 @@
 }
 
 .pdf-placeholder,
-.quiz-placeholder,
-.exam-placeholder {
+.quiz-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -319,28 +323,24 @@
 }
 
 .pdf-icon,
-.quiz-icon,
-.exam-icon {
+.quiz-icon {
   font-size: 4rem;
 }
 
 .pdf-placeholder h3,
-.quiz-placeholder h3,
-.exam-placeholder h3 {
+.quiz-placeholder h3 {
   font-size: 1.5rem;
   font-weight: 700;
   color: #1a202c;
 }
 
 .pdf-placeholder p,
-.quiz-placeholder p,
-.exam-placeholder p {
+.quiz-placeholder p {
   color: #718096;
 }
 
 .btn-download,
-.btn-start-quiz,
-.btn-start-exam {
+.btn-start-quiz {
   padding: 0.75rem 1.5rem;
   background: #667eea;
   color: white;
@@ -352,8 +352,7 @@
 }
 
 .btn-download:hover,
-.btn-start-quiz:hover,
-.btn-start-exam:hover {
+.btn-start-quiz:hover {
   background: #764ba2;
   transform: translateY(-2px);
 }
@@ -395,12 +394,6 @@
 .btn-prev:disabled {
   opacity: 0.35;
   cursor: not-allowed;
-}
-
-.btn-next {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  color: white;
 }
 
 .btn-next:hover { opacity: 0.9; }
@@ -491,13 +484,9 @@
 
 .cq-submit {
   padding: 0.625rem 1.25rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 600;
-  cursor: pointer;
   transition: opacity 0.2s;
 }
 
@@ -887,13 +876,9 @@
 
 .btn-checkout {
   padding: 0.875rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 700;
-  cursor: pointer;
   transition: opacity 0.2s;
 }
 

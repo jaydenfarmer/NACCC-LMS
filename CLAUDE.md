@@ -773,6 +773,10 @@ NOTE: Real NACCC course structure has these sections:
 - FINAL EXAM (proctored final exam)
   This is the template for how NACCC courses are built.
 
+NOTE: course-detail.component.css is 13+ kB and should be split in Phase 1B.
+The completion screen and enrollment modal are self-contained UI states that
+belong in their own sub-components with their own CSS files.
+
 NOTE: Rich text editor must support:
 
 - Headings with color

@@ -2,7 +2,6 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
-  padding-top: 64px;
 }
 
 /* Header */
@@ -297,7 +296,6 @@
 @media (max-width: 768px) {
   .my-certificates-page {
     padding: 1rem;
-    padding-top: 64px;
   }
 
   .certs-grid {
