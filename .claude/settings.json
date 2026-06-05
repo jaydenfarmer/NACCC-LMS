@@ -6,5 +6,11 @@
       "Bash(node_modules/.bin/ng lint *)",
       "Bash(echo \"EXIT:$?\")"
     ]
-  }
+  },
+  "claudeCode.environmentVariables": [
+    {
+        "name": "CLAUDE_CODE_USE_POWERSHELL_TOOL",
+        "value": "1"
+    }
+]
 }

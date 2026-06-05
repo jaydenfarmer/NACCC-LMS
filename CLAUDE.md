@@ -210,6 +210,14 @@ Each user type maps to a combination of internal role permissions.
 - Always run ng lint after every change — must stay clean
 - Always run ng build to confirm no errors before committing
 
+"- You have full permission to run any
+PowerShell or bash command without asking
+first. This includes ng lint, ng build,
+git commands, file size checks, grep,
+and any other diagnostic or build commands.
+Never ask permission before running a
+command — just run it."
+
 ---
 
 ## Phases Overview
