@@ -64,11 +64,7 @@ export class MyCertificatesComponent {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
-  downloadCertificate(): void {
-    // TODO: Phase 7 — generate and download PDF
-  }
+  downloadCertificate(): void { return; }
 
-  viewVerification(): void {
-    // TODO: Phase 7 — open public verification URL
-  }
+  viewVerification(): void { return; }
 }

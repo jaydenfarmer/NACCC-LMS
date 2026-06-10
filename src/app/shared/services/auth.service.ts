@@ -19,6 +19,7 @@ export class AuthService {
         firstName: 'Alex',
         lastName: 'Learner',
         email: 'learner@naccc.com',
+        username: 'alex.learner',
         role: 'learner',
         profile_photo_url:'https://api.dicebear.com/7.x/avataaars/svg?seed=learner',
         availableRoles: ['learner'],
@@ -32,6 +33,7 @@ export class AuthService {
         firstName: 'Jane',
         lastName: 'Instructor',
         email: 'instructor@naccc.com',
+        username: 'jane.instructor',
         role: 'instructor',
         profile_photo_url:'https://api.dicebear.com/7.x/avataaars/svg?seed=instructor',
         availableRoles: ['instructor', 'learner'],
@@ -45,6 +47,7 @@ export class AuthService {
         firstName: 'Jayden',
         lastName: 'Farmer',
         email: 'admin@naccc.com',
+        username: 'jayden.farmer',
         role: 'admin',
         profile_photo_url:'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
         availableRoles: ['admin', 'instructor', 'learner'],
@@ -145,7 +148,6 @@ export class AuthService {
 
     // Check if user has permission to switch to this role
     if (!currentUser.availableRoles?.includes(role)) {
-      console.warn(`User does not have permission to switch to ${role}`);
       return;
     }
 

@@ -78,13 +78,6 @@ export class CoursesComponent {
     return !!this.courseService.getEnrollment(user.id, courseId);
   }
 
-  enroll(courseId: string): void {
-    const user = this.authService.user();
-    if (user) {
-      this.courseService.enrollCourse(user.id, courseId);
-    }
-  }
-
   getDifficultyBadgeClass(difficulty: string): string {
     const classes: Record<string, string> = {
       'beginner': 'badge-green',

@@ -39,5 +39,6 @@ export class LoginComponent {
   setDemoUser(email: string, password: string): void {
     this.email.set(email);
     this.password.set(password);
+    this.onSubmit();
   }
 }

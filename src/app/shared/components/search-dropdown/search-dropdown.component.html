@@ -5,11 +5,7 @@
       <div class="dropdown-section">
         <div class="section-label">Users</div>
         @for (user of results.users; track user.id) {
-          <a
-            class="result-item"
-            [routerLink]="['/users', user.id]"
-            (click)="resultSelected.emit()"
-          >
+          <div class="result-item">
             <img class="result-avatar" [src]="user.avatarUrl" [alt]="user.firstName" />
             <div class="result-info">
               <div
@@ -21,7 +17,7 @@
                 [innerHTML]="user.email | highlight: term"
               ></div>
             </div>
-          </a>
+          </div>
         }
       </div>
     }

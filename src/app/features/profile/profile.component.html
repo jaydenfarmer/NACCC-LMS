@@ -78,14 +78,13 @@
             </div>
 
             <div class="form-group">
-              <label for="profile-username">Username <span class="required">*</span></label>
+              <label for="profile-username">Username</label>
               <input
                 id="profile-username"
                 type="text"
                 class="form-input"
                 [value]="form().username"
                 (input)="updateForm('username', $any($event.target).value)"
-                required
                 autocomplete="username"
               />
             </div>

@@ -202,7 +202,7 @@
               @if (lesson.type === 'video') {
                 <div class="video-container">
                   <iframe
-                    [src]="lesson.content_body"
+                    [src]="getSafeVideoUrl(lesson.content_body ?? '')"
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen
@@ -246,7 +246,11 @@
                 </div>
               } @else if (lesson.type === 'content_page') {
                 <div class="content-page">
-                  <p>Content for this lesson will appear here.</p>
+                  @if (lesson.content_body) {
+                    <div [innerHTML]="lesson.content_body"></div>
+                  } @else {
+                    <p>No content available for this lesson.</p>
+                  }
 
                   @if (lesson.completion_method === 'question' && lesson.completion_question) {
                     <div class="completion-question">

@@ -1,4 +1,8 @@
 <div class="exam-root">
+  @if (retakeToast()) {
+    <div class="toast-message">{{ retakeToast() }}</div>
+  }
+
   @if (loading()) {
     <div class="loading">Loading exam…</div>
   }

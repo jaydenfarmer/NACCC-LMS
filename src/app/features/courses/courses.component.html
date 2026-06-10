@@ -88,9 +88,9 @@
                 Continue Learning →
               </a>
             } @else {
-              <button (click)="enroll(course.id)" class="btn-enroll">
+              <a [routerLink]="['/courses', course.id]" class="btn-enroll">
                 Enroll Now
-              </button>
+              </a>
             }
           </div>
         </div>

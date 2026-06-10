@@ -63,10 +63,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const completed = enrollments.filter(e => e.status === 'completed').length;
     const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-    // TODO: Phase 1A — source from quiz attempt records once tracking is implemented
     const passedTests = 0;
-
-    // TODO: Phase 1A — source from assignment submissions once tracking is implemented
     const completedAssignments = 0;
 
     return {

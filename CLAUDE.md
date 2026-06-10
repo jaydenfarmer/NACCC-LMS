@@ -794,6 +794,34 @@ NOTE: Rich text editor must support:
 - Block-based editing
   Recommended library: TipTap
 
+NOTE: 'section' is a UI-only lesson type used as a display divider
+in the course player sidebar. It does not exist in the database
+schema lesson_type enum and will never map to a DB row.
+Section items are filtered out of all progress and completion
+calculations (type !== 'section' guards are intentional).
+
+NOTE: Phase 7 field mapping warnings — these frontend field names
+do not match the database schema and must be corrected in Phase 7:
+- AssignmentSubmission.feedback → schema: comments
+- AssignmentSubmission.grade → schema: score
+- Assignment.maxPoints → schema: max_score
+- Certificate.issuedAt → schema: issued_at
+- Certificate.certificateNumber → schema: certificate_number
+- Certificate.expiresAt → schema: expires_at
+- Lesson.time_limit_minutes → belongs on quizzes table, not lessons
+- Lesson.pass_message / fail_message → schema: message_if_passed /
+  message_if_not_passed on quizzes table
+
+NOTE: Deferred Phase TODOs (removed from code — tracked here):
+- passedTests stat in dashboard — source from quiz attempt records
+  once attempt tracking is implemented (Phase 1B)
+- completedAssignments stat in dashboard — source from assignment
+  submissions once submission tracking is implemented (Phase 1B)
+- Certificate PDF download — generate and download PDF (Phase 7)
+- Certificate public verification URL — open public URL (Phase 7)
+- Notifications panel in header — implement slide-in panel (Phase 1B)
+- Messages panel in header — implement slide-in panel (Phase 1B)
+
 NOTE: Open questions for Heather:
 
 ## Questions for Heather
@@ -822,3 +850,355 @@ NOTE: Open questions for Heather:
 
 - Is 2FA wanted for staff only or also some learners?
 - Do surveys need to be revisited from an admin side or is Google Forms via iFrame sufficient long term?
+
+### Phase 1A Audit Report
+
+Phase 1A QA Audit — Full Code-Trace Report
+Flow 1 — Login
+BUG 1 — Demo buttons don't auto-submit
+
+login.component.ts:39 — setDemoUser() sets the email/password signals but never calls onSubmit(). After clicking a demo button, the user still has to click "Sign In". The CLAUDE.md "manual typing is broken" note appears stale; the [value] + (input) pattern in the template is correct.
+
+BUG 2 — switchRole('admin') navigates to /admin, not /dashboard
+
+header.component.ts:86 — The destinations map sends admin to /admin (the old CRUD panel AdminComponent). Login was fixed this session to go to /dashboard. Role-switching from the header user menu is still inconsistent.
+
+Flow 2 — Learner Dashboard
+BUG 3 — Chart @ViewChild may not resolve
+
+dashboard.component.ts:32 — The #portalActivityChart canvas is inside @for/@switch conditional blocks. The 100ms setTimeout hack in ngOnInit is fragile if signals take longer to settle after a role switch. No fallback if portalActivityChartRef is undefined.
+
+NOTE 4 — Stats widget always shows 0 for Passed Tests and Completed Assignments
+
+dashboard.component.ts:67 — Both are hardcoded to 0 with TODO comments. Expected limitation, but these stats are always wrong for any user.
+
+Flow 3 — Course Catalog
+BUG 5 — "Enroll Now" button bypasses the payment and modal flow entirely
+
+courses.component.ts:81 — enroll() calls courseService.enrollCourse() directly: no modal, no price check, no coupon, no toast, no spinner. Paid courses (e.g., $720, $895) can be enrolled for free from the catalog. The entire Get Course modal only exists on course-detail.
+
+MISSING 6 — No price badge on course cards
+
+courses.component.html:78 — Spec requires "Course cards show: thumbnail, name, price badge, course type icon." The catalog card renders stats (rating/enrolled/duration/lessons) but no price.
+
+MISSING 7 — No hover overlay on catalog cards
+
+Spec: "Course card hover state — thumbnail dims, View overlay, + button appears." Not implemented anywhere in the catalog template.
+
+MISSING 8 — Category filter is a dropdown, not a sidebar
+
+Spec: "Catalog left sidebar with hierarchical category filter checkboxes and course counts." Current implementation has a <select> dropdown. The categories list is also hardcoded in the component, not derived from course data.
+
+Flow 4 — Pre-enrollment Course Detail
+BUG 9 — Completion date is always today, not actual completion date
+
+course-detail.component.ts:59 — completionDate = new Date().toLocaleDateString(...) is set at component construction. It always shows the date the page first loads, not when the user actually completes all lessons.
+
+BUG 10 — CEU credit hours badge never shows on completion screen
+
+course-detail.component.html:157 — Template checks course()?.is_ceu. No course in mock data sets is_ceu: true; CEU courses only have certificate_type: 'ceu'. The badge will never render.
+
+Flow 5 — Get Course Modal
+BUG 11 — Coupon applied but price display never changes
+
+course-detail.component.ts:146 — applyCoupon() sets couponApplied.set(true) and nothing else. The price shown in .modal-price is unchanged regardless of what code is entered.
+
+BUG 12 — Escape key only works when backdrop has focus
+
+course-detail.component.html:349 — (keydown.escape) is bound to the backdrop <div>, not the modal dialog or a global handler. Once focus moves inside the modal form, escape does nothing.
+
+Flow 6 — Course Player
+BUG 13 — YouTube iframes blocked by Angular's sanitizer
+
+course-detail.component.html:205 — [src]="lesson.content_body" passes a raw URL string. Angular sanitizes iframe src by default and marks YouTube embed URLs as unsafe. The component never calls DomSanitizer.bypassSecurityTrustResourceUrl(). All video lessons are broken.
+
+BUG 14 — Five lesson types render nothing
+
+course-detail.component.html:202 — The player's @if/@else if chain handles: video, presentation_document, test, iframe, content_page. Types audio, assignment, web_content, scorm, and survey fall through all branches and render an empty <div class="player">.
+
+BUG 15 — Content page shows only a placeholder, not actual content
+
+course-detail.component.html:249 — Every content_page lesson renders <p>Content for this lesson will appear here.</p>. The lesson.content_body field is never rendered.
+
+BUG 16 — "Finish" / "Skip to End" button on the last lesson does nothing
+
+course-detail.component.ts:277 — navigateNext() calls findNextLesson() which returns null when on the last lesson. The guard if (next) this.selectLesson(next) silently skips. Clicking the button has no effect. For the last lesson being a test, the button label is "Skip to End" and appears functional but is dead.
+
+Flow 7 — Quiz Engine
+BUG 17 — Timer display rounds minutes instead of flooring them
+
+exam.component.html:73 — timerSeconds / 60 | number:'2.0-0' rounds to nearest integer. At t=5399 (one second into a 90-minute exam), it displays "90:59" instead of "89:59". The minutes digit counts up then back rather than counting down cleanly.
+
+NOTE 18 — Retake flow is a stub alert()
+
+exam.component.ts:170 — scheduleRetake() shows a browser alert. Spec requires a retake purchase flow with Stripe. Expected missing feature, but the alert is jarring UX.
+
+Flow 8 — My Training
+BUG 19 — "All types" filter dropdown has no event binding
+
+my-training.component.html:26 — The second <select class="filter-select"> has no (change) handler and no [value] binding. Changing it does nothing.
+
+Flow 9 — My Certificates
+BUG 20 — Download PDF and Verify buttons are silent no-ops
+
+my-certificates.component.ts:67 — Both stub methods have empty bodies. Clicking either button produces zero feedback. Should at minimum show a "Coming soon" toast or disabled state.
+
+Flow 10 — Learner Profile
+BUG 21 — Demo user Alex Learner can't save without entering a username
+
+profile.component.html:82 — The username field has required and \* label. The mock user has no username set, so ngOnInit pre-fills it as ''. HTML5 validation prevents ngSubmit from firing until a username is entered. First-visit save is blocked.
+
+BUG 22 — "Change Photo" button has no click handler
+
+profile.component.html:27 — The button renders and is clickable but has no (click) binding. Silent no-op with no feedback.
+
+Flow 11 — Global Search
+BUG 23 — User result links navigate to a non-existent route
+
+search-dropdown.component.html:11 and search.component.html:31 — Both link to [routerLink]="['/users', user.id]". There is no /users/:id route in app.routes.ts. Clicking a user result redirects to /dashboard.
+
+BUG 24 — Search matches course titles only; catalog search matches title + description + tags
+
+search.service.ts:65 vs courses.component.ts:42 — The header SearchService.search() filters only by c.title. The catalog's filterCourses() also searches description and tags. Inconsistent behavior: a tag-only or description-only match finds courses in the catalog but not via the header search.
+
+Summary
+
+# Severity Flow Issue
+
+1 Medium Login Demo buttons don't auto-submit
+2 High Login Header switchRole admin → wrong route
+3 Low Dashboard Chart @ViewChild fragile in @for/@switch
+4 Low Dashboard Stats passedTests/completedAssignments always 0
+5 Critical Catalog Enroll Now bypasses payment flow
+6 Medium Catalog No price badge on cards
+7 Low Catalog No hover overlay
+8 Low Catalog Dropdown filter instead of sidebar
+9 Low Course Detail Completion date is load date, not finish date
+10 Low Course Detail CEU badge never shows (is_ceu not set in mock data)
+11 Low Modal Coupon code has no effect on price
+12 Low Modal Escape key only works on backdrop focus
+13 Critical Player YouTube iframes blocked by Angular sanitizer
+14 Critical Player audio/assignment/web_content/scorm/survey render nothing
+15 High Player Content page shows placeholder, not actual content
+16 Medium Player Finish/Skip button on last lesson does nothing
+17 Medium Quiz Timer minutes round instead of floor
+18 Low Quiz Retake is a browser alert stub
+19 Medium My Training "All types" dropdown unbound
+20 Low Certificates Download/Verify buttons are silent no-ops
+21 High Profile Demo user can't save (username required but empty)
+22 Low Profile Change Photo button has no handler
+23 High Search User result links route to 404
+24 Low Search Search service only matches course titles
+Critical (must fix before demo): 5, 13, 14
+
+High (significant UX breaks): 2, 15, 21, 23
+
+Medium (noticeable but workable): 1, 3, 16, 17, 19
+
+Low (polish / spec alignment): 4, 6, 7, 8, 9, 10, 11, 12, 18, 20, 22, 24
+
+## Comprehensive
+
+NACCC LMS — Phase 1A Code Quality Audit
+Category 1 — Angular Signals Correctness
+[exam.component.ts:23–39] — courseId, lessonId, course, lesson, questions, answers, timerSeconds, score are all plain mutable class properties despite changing at runtime. The component mixes signal state (loading, locked, started, finished, currentIndex) with non-signal data for the core exam model. All of these should be signals.
+
+[exam.component.ts:34] — timerSeconds: number = 0 is a plain property read directly in the template. Angular zones will trigger change detection via setInterval, so the display will update, but this is accidental reactivity — not signal-based and fragile if zone handling changes.
+
+[courses.component.ts:27] — filteredCourses = signal<Course[]>([]) is populated imperatively via filterCourses() called from the constructor and three separate event handlers. This should be a computed() signal derived from searchTerm, selectedCategory, and selectedDifficulty. The constructor call and three filterCourses() methods become unnecessary.
+
+[course-detail.component.ts:94–105] — this.route.params.subscribe(...) has no takeUntilDestroyed(). This is a subscription leak — the only acceptable RxJS usage per CLAUDE.md requires the takeUntilDestroyed guard. search.component.ts:27 uses it correctly; this does not.
+
+[sidebar.service.ts] — flyoutOpenItemPath: string | null = null (and related flyout state) is a plain mutable class property controlling UI state across components. Should be a signal<string | null>(null).
+
+[course-detail.component.html:264] — (click)="selectedAnswerIndex.set($index)" — signal .set() called directly from template. Not a violation, but prefer a named method (selectAnswer($index)) to keep template logic minimal per CLAUDE.md.
+
+Category 2 — TypeScript Strictness
+$any($event.target).value usages — deliberate template escapes, but flagged per audit rules. Each of these could be replaced with a typed (event: Event) handler method using (event.target as HTMLInputElement).value. Appears in:
+
+login.component.html:22, 30
+courses.component.html:13, 26, 37
+course-detail.component.html:365
+my-training.component.html:17
+exam.component.html:13
+profile.component.html:48, 57, 73, 87, 100, 116, 130, 148, 163, 179
+admin.component.html:195, 208, 219, 232, 248, 263, 286
+[course.service.ts:42–43] — const e = item as Record<string, unknown> followed immediately by e['enrollment_date'] as string — unsafe double cast of unknown to string without validation. If stored data is malformed, new Date(undefined) produces a silent invalid Date.
+
+[dashboard.component.ts:103] — getEnrollmentForCourse(courseId: string) — missing return type annotation. Returns Enrollment | null.
+
+[course.service.ts:128–138] — updateProgress() reads const enrollments = this.enrollments(), then does enrollments[index] = { ...enrollments[index], ... } and calls this.enrollments.set([...enrollments]). This works, but mutating the locally-bound array variable before re-setting is an unsafe pattern. Should use .update() with a clean immutable replace.
+
+[auth.service.ts:94] — setDefaultPermissions(user: User): User mutates the passed-in object (user.permissions = [...]) then returns it. The function signature implies it's a pure transform, but it's actually an in-place mutator. Callers pass spread copies ({ ...match.user }), so it's safe today, but the contract is deceptive.
+
+[exam.component.ts:70] — getQuestionsForLesson(...) || [] surrounded by an unnecessary try/catch. The method never throws and always returns an array. The try/catch suppresses hypothetical future errors silently.
+
+[course.model.ts:119] — ExamQuestion.correctIndex: number — single correct answer only. CLAUDE.md explicitly requires "Multiple correct answers possible per question (checkboxes not radio buttons)." The model structurally prevents this.
+
+[admin.component.ts:131–136] — updateFormField<K extends keyof ReturnType<typeof this.courseForm>> — unnecessarily complex generic signature that could be simplified.
+
+Category 3 — Component Architecture
+[courses.component.ts:24–25] — categories and difficulties arrays hardcoded in the component. Same categories array duplicated in admin.component.ts:24. Both should reference a shared service or config.
+
+[dashboard.component.ts:124–133] — readonly widgetConfigs: WidgetConfig[] is hardcoded inline in the component. Per CLAUDE.md, this config array should drive the dashboard architecture and eventually be user-configurable. It belongs in a service.
+
+[dashboard.component.html:336–360] — Admin Overview Stats widget hardcodes literal values 248, 42, 1,284, 87% directly in the template. These should come from the service's computed stats — the signal infrastructure exists but isn't wired up here.
+
+[course-detail.component.html:58] — (currentCourse.price ?? 0) === 0 ? 'Enroll Free' : 'Get Course — ' + formatPrice(currentCourse.price!) — label logic in the template. Belongs in a getEnrollButtonLabel() computed signal.
+
+[course-detail.component.html:375] — (c.price ?? 0) === 0 ? enrollFree() : checkout() — conditional method dispatch in a template event binding. Should be a single handleCheckout() method in the component.
+
+[exam.component.html:134] — [class.passed]="score >= (lesson?.passingScore ?? 70)" — comparison in template. Should be a isPassed() computed/method.
+
+ExamComponent — multi-responsibility — handles: route params, password gate, pre-test landing, timer management, question navigation, answer selection, grading, progress persistence, and result display. Should be split.
+
+CourseDetailComponent — multi-responsibility — handles: route subscription, enrollment state, modal open/close, coupon application, mock payment, toast, lesson selection, answer submission, section collapse, lesson completion, progress updates, completion screen. Should be split into sub-components (completion screen, enrollment modal) per the CLAUDE.md note already added.
+
+Category 4 — Service Architecture
+CourseService — four responsibilities — manages: course data, enrollment data, lesson progress persistence, exam question data, and certificate data. Should be split into CourseService, EnrollmentService, QuizService, CertificateService.
+
+[course.service.ts:196–222] — getQuestionsForLesson() contains hardcoded question arrays inline in the service, gated by courseId === 'course-1' && lessonId === 'c1-16'. Quiz content belongs in a QuizService.
+
+[course.service.ts:483–540] — getMockCertificates() returns certificate data from CourseService. Certificate data belongs in a CertificateService.
+
+[sidebar.service.ts:60–65] — readInitial() is called during signal field initialization and calls document.body.classList.add(...) during service construction. DOM manipulation during service construction is a lifecycle violation.
+
+[auth.service.ts:128–140] — login() has a try/catch that silently ignores localStorage failures. Acceptable for storage-full edge cases, but any other error is also silently swallowed.
+
+[search.component.ts:27] — takeUntilDestroyed() is used correctly here. ✓ Noted for contrast with course-detail.component.ts.
+
+Category 5 — Naming and Schema Consistency
+ID types — all wrong: Schema defines all primary and foreign keys as integer. The UI models use string throughout.
+
+user.model.ts:9 — id: string (should be number)
+course.model.ts:90–103 — Enrollment.id, userId, courseId, enrolled_by all string (should be number)
+Lesson.time_limit_minutes — course.model.ts:38 — no time_limit_minutes column on lessons table. Timer limits live on the quizzes table. This field is on the wrong entity in the model.
+
+Lesson.pass_message / fail_message — course.model.ts:39–40 — schema names are message_if_passed and message_if_not_passed on the quizzes table.
+
+AssignmentSubmission.feedback — course.model.ts:174 — schema column is comments.
+
+AssignmentSubmission.grade — course.model.ts:175 — schema column is score.
+
+Assignment.maxPoints — course.model.ts:167 — schema column is max_score.
+
+Assignment.submissionTypes: array — course.model.ts:158 — schema uses individual boolean columns (allow_text_reply, allow_file_upload, allow_video_reply, allow_audio_reply, allow_screen_reply), not an array.
+
+Course.created_by?: string — course.model.ts:65 — schema defines this as integer (FK to users).
+
+Certificate.issuedAt, certificateNumber, expiresAt — course.model.ts:179–181 — schema uses issued_at, certificate_number, expires_at. Mixed casing without documentation.
+
+Lesson type 'section' — used throughout the codebase (service, component, model) but does NOT exist in the schema's lesson_type enum. The schema values are: content_page, web_content, video, audio, presentation_document, iframe, test, survey, assignment, ilt, scorm. section is a UI-only concept that bypasses the schema's actual content structure (courses → modules → lessons). This needs to be explicitly documented as a UI-only type that will not map to a DB row.
+
+Enrollment.enrollment_date — course.model.ts:94 — snake_case, inconsistent with userId, courseId on the same interface which are camelCase. The interface mixes conventions.
+
+ExamQuestion.correctIndex — course.model.ts:123 — schema quiz_answers uses is_correct: boolean per row. Single correctIndex structurally prevents multiple-correct-answer questions required by spec.
+
+Category 6 — Dead Code
+Dead methods (defined but do nothing):
+
+header.component.ts:75 — openNotifications() — empty body
+header.component.ts:79 — openMessages() — empty body
+header.component.ts:98 — goToProgress() — navigates to /my-progress which has no route
+header.component.ts:103 — goToGroups() — navigates to /groups which has no route
+course-detail.component.ts:315 — navigateToExam() — defined but never called; template uses [routerLink] directly instead
+Alert stubs that should not be in production code:
+
+course-detail.component.ts:312 — alert('Certificate PDF generation coming in Phase 2')
+exam.component.ts:171 — alert('To schedule a retake...')
+Empty method stubs with no feedback:
+
+my-certificates.component.ts:67 — downloadCertificate() empty
+my-certificates.component.ts:71 — viewVerification() empty
+Dead comment:
+
+auth.service.ts:176 — // Additional logout logic
+TODOs scattered in code — should be tracked in CLAUDE.md, not inline:
+
+dashboard.component.ts:67 — // TODO: Phase 1A — source from quiz attempt records
+dashboard.component.ts:70 — // TODO: Phase 1A — source from assignment submissions
+my-certificates.component.ts:68 — // TODO: Phase 7 — generate and download PDF
+my-certificates.component.ts:72 — // TODO: Phase 7 — open public verification URL
+header.component.ts:75 — // TODO: Implement notifications panel
+header.component.ts:79 — // TODO: Implement messages panel
+Category 7 — Security and Safety
+[auth.service.ts:148] — console.warn(...) in switchRole() — debug artifact in production service code.
+
+[highlight.pipe.ts:14] — this.sanitizer.bypassSecurityTrustHtml(escapedText) is called even on the non-highlight path (no <mark> tags, just escaped plain text). bypassSecurityTrustHtml should only be called when the output actually contains trusted HTML markup. The non-match path should return a plain string, not bypass sanitization.
+
+[announcement-banner.component.html:14] — [innerHTML]="announcement.message" — currently safe because all announcement data is hardcoded in the service. However this binding has no sanitization guard if the data source ever becomes dynamic or admin-configurable. Should use a sanitizer pipe or DomSanitizer.sanitize().
+
+[course-detail.component.ts:312] — alert(...) — browser alert() calls surface developer messages to end users. Replace with toast or disabled button state.
+
+[exam.component.ts:87] — Plain-text password comparison: attempt !== this.lesson.password. Passwords are stored as plain strings in mock data throughout course.service.ts ('exam2024', 'adv2024', 'comm2024', etc.). This pattern must not carry forward to Phase 7.
+
+localStorage usage beyond permitted scope:
+
+lms.sidebar.collapsed in sidebar.service.ts:60 — UI preference storage. CLAUDE.md permits localStorage for "temporary progress persistence until Phase 7" only. Sidebar collapse state is outside this scope.
+Category 8 — CSS and Styling
+No global CSS custom properties for brand colors. The gradient #667eea → #764ba2 and all accent colors are hardcoded as literals in every component CSS file. A single brand color change requires editing 10+ files.
+
+Files with hardcoded #667eea / #764ba2:
+
+login.component.css — 6 occurrences
+courses.component.css — 8 occurrences
+course-detail.component.css — 12+ occurrences
+dashboard.component.css — 8 occurrences
+my-training.component.css — 5 occurrences
+exam.component.css — 4 occurrences
+my-certificates.component.css — 5 occurrences
+profile.component.css — 4 occurrences
+sidebar.css — 4 occurrences
+header.component.css — 8 occurrences
+260px sidebar width — hardcoded in 4 places instead of referencing --sidebar-width:
+
+sidebar.css:9 — width: 260px
+sidebar.ts:127 — hardcoded JavaScript value 260
+profile.component.css:48 — grid-template-columns: 260px 1fr
+layout.component.ts:23 — --sidebar-width: 260px (correct — this is the definition)
+64px / 80px header height — hardcoded instead of var(--header-height):
+
+header.component.css:19 — height: 4rem
+profile.component.css:25, 57 — top: 80px
+dashboard.component.css:174 — top: 80px
+Duplicate .progress-track + .progress-fill rules across 4 files:
+
+dashboard.component.css:~269
+my-training.component.css:~237
+course-detail.component.css:~149
+my-certificates.component.css:~231
+Duplicate .empty-state block rules across 4 files:
+
+courses.component.css:~275
+dashboard.component.css:~319
+my-training.component.css:~291
+my-certificates.component.css:~253
+Duplicate .page-header h1 rules across 3 files (same font-size: 2rem; font-weight: 700; color: #1a202c):
+
+my-training.component.css:17
+my-certificates.component.css:12
+profile.component.css:11
+CSS files over the 6kB warning threshold:
+
+File Size Status
+course-detail.component.css ~13 kB Known issue — in CLAUDE.md
+dashboard.component.css ~10 kB Over threshold
+header.component.css ~8.7 kB Over threshold
+admin.component.css ~7.1 kB Over threshold
+exam.component.css ~7.0 kB Over threshold
+Summary
+Category Violations
+1 — Angular Signals 6 (subscription leak, 4 plain properties that should be signals, 1 missed computed)
+2 — TypeScript Strictness 9 (17 $any() in templates, unsafe cast, mutation pattern, missing return type, unnecessary try/catch, model structural issue)
+3 — Component Architecture 8 (hardcoded data × 2, multi-responsibility components × 2, template logic × 3, literal stats in template)
+4 — Service Architecture 6 (CourseService 4+ responsibilities, quiz data in wrong service, cert data in wrong service, DOM in constructor, silent catch, fragile update pattern)
+5 — Schema Consistency 19 (IDs all wrong type, 6 field name mismatches, section not in schema, mixed naming conventions, correctIndex prevents multi-answer)
+6 — Dead Code 12 (5 dead methods, 2 alert stubs, 2 empty stubs, 1 dead comment, 6 TODO comments that belong in CLAUDE.md)
+7 — Security & Safety 6 (console.warn, unnecessary bypassSecurityTrustHtml, unguarded innerHTML, alert() stubs, plain-text password pattern, out-of-scope localStorage)
+8 — CSS & Styling 15+ (no brand color custom properties in 10 files, sidebar width in 3 wrong places, header height in 3 wrong places, progress bar duplicated in 4 files, empty state duplicated in 4 files, 4 CSS files over threshold)
+Before Phase 1B, highest priority items:
+
+Category 5 — section lesson type undocumented as UI-only; ID types are all wrong; several field names will break Phase 7 mapping
+Category 1 — course-detail.component.ts:94 subscription leak
+Category 4 — Split CourseService before it grows further
+Category 8 — Introduce CSS custom properties for brand colors and shared utility classes before Phase 1B adds more components

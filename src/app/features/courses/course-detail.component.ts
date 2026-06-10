@@ -1,6 +1,8 @@
-import { Component, computed, signal, inject } from '@angular/core';
+import { Component, computed, signal, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CourseService } from '../../shared/services/course.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { Lesson, LessonType } from '../../shared/models/course.model';
@@ -17,6 +19,8 @@ export class CourseDetailComponent {
   private router = inject(Router);
   private courseService = inject(CourseService);
   private authService = inject(AuthService);
+  private sanitizer = inject(DomSanitizer);
+  private destroyRef = inject(DestroyRef);
 
   courseId = signal<string>('');
 
@@ -91,7 +95,7 @@ export class CourseDetailComponent {
   });
 
   constructor() {
-    this.route.params.subscribe(params => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       this.courseId.set(params['id']);
       setTimeout(() => {
         const firstIncomplete = this.findFirstIncompleteLesson();
@@ -300,6 +304,10 @@ export class CourseDetailComponent {
     return '';
   });
 
+  getSafeVideoUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
   formatPrice(price: number): string {
     return price.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
   }
@@ -308,9 +316,7 @@ export class CourseDetailComponent {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
-  downloadCertificate(): void {
-    alert('Certificate PDF generation coming in Phase 2');
-  }
+  downloadCertificate(): void { return; }
 
   navigateToExam(lesson: Lesson): void {
     const id = this.courseId();

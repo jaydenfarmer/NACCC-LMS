@@ -38,6 +38,8 @@ export class ExamComponent {
   timerSeconds = 0;
   private timerHandle: ReturnType<typeof setInterval> | null = null;
   score: number | null = null;
+  retakeToast = signal<string | null>(null);
+  private retakeToastTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     const params = this.route.snapshot.params;
@@ -168,7 +170,12 @@ export class ExamComponent {
   }
 
   scheduleRetake(): void {
-    alert('To schedule a retake, please contact your instructor or visit the exam scheduling page.');
+    if (this.retakeToastTimer !== null) clearTimeout(this.retakeToastTimer);
+    this.retakeToast.set('Retake scheduling coming soon.');
+    this.retakeToastTimer = setTimeout(() => {
+      this.retakeToast.set(null);
+      this.retakeToastTimer = null;
+    }, 3000);
   }
 
   cancel(): void {

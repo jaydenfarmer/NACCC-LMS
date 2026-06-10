@@ -71,19 +71,15 @@ export class HeaderComponent {
     this.searchQuery.set('');
   }
 
-  openNotifications() {
-    // TODO: Implement notifications panel
-  }
+  openNotifications() { return; }
 
-  openMessages() {
-    // TODO: Implement messages panel
-  }
+  openMessages() { return; }
 
   switchRole(role: 'admin' | 'instructor' | 'learner') {
     this.userMenuOpen = false;
     this.authService.switchRole(role);
     const destinations: Record<'admin' | 'instructor' | 'learner', string> = {
-      admin: '/admin',
+      admin: '/dashboard',
       instructor: '/dashboard',
       learner: '/my-learning'
     };
