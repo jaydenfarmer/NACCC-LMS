@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--naccc-primary);
   padding: 1rem;
 }
 
@@ -61,8 +61,8 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--naccc-primary);
+  box-shadow: 0 0 0 3px rgba(0, 136, 148, 0.1);
 }
 
 .error-message {
@@ -78,7 +78,7 @@
 .btn-primary {
   width: 100%;
   padding: 0.875rem 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--naccc-primary);
   color: white;
   border: none;
   border-radius: 8px;
@@ -90,7 +90,7 @@
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 10px 20px rgba(0, 136, 148, 0.3);
 }
 
 .btn-primary:active {
@@ -120,8 +120,8 @@
   flex: 1;
   padding: 0.625rem 0.75rem;
   background: white;
-  color: #667eea;
-  border: 1.5px solid #667eea;
+  color: var(--naccc-primary);
+  border: 1.5px solid var(--naccc-primary);
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -130,7 +130,7 @@
 }
 
 .btn-demo:hover {
-  background: #667eea;
+  background: var(--naccc-primary);
   color: white;
   transform: translateY(-1px);
 }

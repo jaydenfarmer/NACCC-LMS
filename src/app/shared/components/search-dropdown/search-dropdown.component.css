@@ -99,7 +99,7 @@
   display: block;
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #667eea;
+  color: var(--naccc-primary);
   text-decoration: none;
   text-align: center;
   padding: 4px 0;

@@ -39,7 +39,7 @@ input[type="password"] {
   box-sizing: border-box;
 }
 
-input[type="password"]:focus { outline: none; border-color: #667eea; }
+input[type="password"]:focus { outline: none; border-color: var(--naccc-primary); }
 
 .error { color: #dc2626; font-size: 0.875rem; font-weight: 600; }
 
@@ -55,8 +55,8 @@ input[type="password"]:focus { outline: none; border-color: #667eea; }
 
 .pretest-type-badge {
   display: inline-block;
-  background: #eef2ff;
-  color: #667eea;
+  background: var(--naccc-secondary-light);
+  color: var(--naccc-primary);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -113,9 +113,9 @@ input[type="password"]:focus { outline: none; border-color: #667eea; }
 .timer {
   font-size: 1.125rem;
   font-weight: 800;
-  color: #667eea;
+  color: var(--naccc-primary);
   font-variant-numeric: tabular-nums;
-  background: #eef2ff;
+  background: var(--naccc-secondary-light);
   padding: 0.375rem 0.875rem;
   border-radius: 8px;
 }
@@ -156,8 +156,8 @@ input[type="password"]:focus { outline: none; border-color: #667eea; }
   width: 100%;
 }
 
-.q-option:hover { border-color: #667eea; background: #f5f3ff; }
-.q-option.selected { border-color: #667eea; background: #eef2ff; }
+.q-option:hover { border-color: var(--naccc-primary); background: var(--naccc-secondary-light); }
+.q-option.selected { border-color: var(--naccc-primary); background: var(--naccc-secondary-light); }
 
 .q-option-letter {
   flex-shrink: 0;
@@ -173,7 +173,7 @@ input[type="password"]:focus { outline: none; border-color: #667eea; }
   color: #4a5568;
 }
 
-.q-option.selected .q-option-letter { background: #667eea; color: white; }
+.q-option.selected .q-option-letter { background: var(--naccc-primary); color: white; }
 
 /* Question nav */
 .q-nav { display: flex; justify-content: space-between; align-items: center; }
@@ -192,7 +192,7 @@ input[type="password"]:focus { outline: none; border-color: #667eea; }
 }
 
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.btn-primary { background: var(--naccc-primary); color: white; }
 .btn-primary:not(:disabled):hover { opacity: 0.9; }
 .btn-muted { background: #edf2f7; color: #2d3748; }
 .btn-muted:not(:disabled):hover { background: #e2e8f0; }

@@ -46,8 +46,8 @@
 
 .search-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--naccc-primary);
+  box-shadow: 0 0 0 3px rgba(0, 136, 148, 0.1);
 }
 
 .search-icon {
@@ -75,8 +75,8 @@
 
 .filter-select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--naccc-primary);
+  box-shadow: 0 0 0 3px rgba(0, 136, 148, 0.1);
 }
 
 .results-info {
@@ -139,8 +139,8 @@
 }
 
 .course-category {
-  background: #eef2ff;
-  color: #667eea;
+  background: var(--naccc-secondary-light);
+  color: var(--naccc-primary);
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -181,7 +181,7 @@
 }
 
 .course-link:hover .course-title {
-  color: #667eea;
+  color: var(--naccc-primary);
 }
 
 .course-description {
@@ -239,7 +239,7 @@
 .btn-enroll {
   width: 100%;
   padding: 0.75rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--naccc-primary);
   color: white;
   border: none;
   border-radius: 8px;
@@ -250,7 +250,7 @@
 
 .btn-enroll:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 136, 148, 0.4);
 }
 
 .btn-enrolled {
@@ -258,8 +258,8 @@
   width: 100%;
   padding: 0.75rem;
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: var(--naccc-primary);
+  border: 2px solid var(--naccc-primary);
   border-radius: 8px;
   font-weight: 600;
   text-align: center;
@@ -268,7 +268,7 @@
 }
 
 .btn-enrolled:hover {
-  background: #667eea;
+  background: var(--naccc-primary);
   color: white;
 }
 

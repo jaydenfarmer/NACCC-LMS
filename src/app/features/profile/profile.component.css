@@ -93,8 +93,8 @@
 
 .role-badge {
   display: inline-block;
-  background: #eef2ff;
-  color: #667eea;
+  background: var(--naccc-secondary-light);
+  color: var(--naccc-primary);
   padding: 0.25rem 0.875rem;
   border-radius: 999px;
   font-size: 0.75rem;
@@ -116,8 +116,8 @@
 }
 
 .btn-change-photo:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: var(--naccc-primary);
+  color: var(--naccc-primary);
 }
 
 /* Right: form */
@@ -192,8 +192,8 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+  border-color: var(--naccc-primary);
+  box-shadow: 0 0 0 3px rgba(0, 136, 148, 0.15);
 }
 
 .form-textarea {
@@ -216,7 +216,7 @@
 
 .btn-save {
   padding: 0.75rem 2.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--naccc-primary);
   color: white;
   border: none;
   border-radius: 8px;

@@ -81,8 +81,8 @@
 .search-input:focus {
   outline: none;
   background: #fff;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--naccc-primary);
+  box-shadow: 0 0 0 3px rgba(0, 136, 148, 0.1);
 }
 .search-input::placeholder {
   color: #a0aec0;
@@ -101,12 +101,12 @@
   border-radius: 4px;
 }
 .search-button:hover {
-  color: #667eea;
-  background: #eef2ff;
+  color: var(--naccc-primary);
+  background: var(--naccc-secondary-light);
 }
 .search-button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 0 0 2px rgba(0, 136, 148, 0.2);
 }
 
 /* nav link */
@@ -124,11 +124,11 @@
 }
 .nav-link:hover {
   background: #f7fafc;
-  color: #667eea;
+  color: var(--naccc-primary);
 }
 .nav-link.active {
-  background: #eef2ff;
-  color: #667eea;
+  background: var(--naccc-secondary-light);
+  color: var(--naccc-primary);
 }
 .nav-icon {
   font-size: 1.125rem;
@@ -159,11 +159,11 @@
 }
 .icon-button:hover {
   background: #f7fafc;
-  color: #667eea;
+  color: var(--naccc-primary);
 }
 .icon-button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 136, 148, 0.1);
 }
 .icon-button .badge {
   position: absolute;
@@ -253,8 +253,8 @@
 .btn-logout {
   padding: 0.5rem 1rem;
   background: #fff;
-  color: #667eea;
-  border: 1.5px solid #667eea;
+  color: var(--naccc-primary);
+  border: 1.5px solid var(--naccc-primary);
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -262,7 +262,7 @@
   transition: all 0.2s;
 }
 .btn-logout:hover {
-  background: #667eea;
+  background: var(--naccc-primary);
   color: #fff;
 }
 
@@ -372,7 +372,7 @@
   width: 16px;
   height: 16px;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: var(--naccc-primary);
 }
 .role-option span {
   flex: 1;

@@ -14,7 +14,7 @@
 }
 
 .breadcrumb a {
-  color: #667eea;
+  color: var(--naccc-primary);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.875rem;
@@ -22,7 +22,7 @@
 }
 
 .breadcrumb a:hover {
-  color: #764ba2;
+  color: var(--naccc-primary-dark);
 }
 
 .header-content {
@@ -34,8 +34,8 @@
 
 .category-badge {
   display: inline-block;
-  background: #eef2ff;
-  color: #667eea;
+  background: var(--naccc-secondary-light);
+  color: var(--naccc-primary);
   padding: 0.375rem 0.875rem;
   border-radius: 12px;
   font-size: 0.875rem;
@@ -106,7 +106,7 @@
 .btn-next,
 .cq-submit,
 .btn-checkout {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--naccc-primary);
   color: white;
   border: none;
   cursor: pointer;
@@ -122,7 +122,7 @@
 
 .btn-enroll:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 136, 148, 0.4);
 }
 
 .progress-section {
@@ -142,7 +142,7 @@
 
 .progress-percentage {
   font-size: 1.25rem;
-  color: #667eea;
+  color: var(--naccc-primary);
 }
 
 .progress-bar {
@@ -155,7 +155,7 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: var(--naccc-primary);
   border-radius: 6px;
   transition: width 0.3s ease;
 }
@@ -196,7 +196,7 @@
 
 .course-progress {
   font-size: 0.875rem;
-  color: #667eea;
+  color: var(--naccc-primary);
   font-weight: 600;
 }
 
@@ -222,8 +222,8 @@
 }
 
 .lesson-item.active {
-  background: #eef2ff;
-  border-left-color: #667eea;
+  background: var(--naccc-secondary-light);
+  border-left-color: var(--naccc-primary);
 }
 
 .lesson-item.completed {
@@ -342,7 +342,7 @@
 .btn-download,
 .btn-start-quiz {
   padding: 0.75rem 1.5rem;
-  background: #667eea;
+  background: var(--naccc-primary);
   color: white;
   border: none;
   border-radius: 8px;
@@ -353,7 +353,7 @@
 
 .btn-download:hover,
 .btn-start-quiz:hover {
-  background: #764ba2;
+  background: var(--naccc-primary-dark);
   transform: translateY(-2px);
 }
 
@@ -387,8 +387,8 @@
 }
 
 .btn-prev:not(:disabled):hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: var(--naccc-primary);
+  color: var(--naccc-primary);
 }
 
 .btn-prev:disabled {
@@ -454,8 +454,8 @@
   transition: border-color 0.15s, background 0.15s;
 }
 
-.cq-option:hover:not(:disabled) { border-color: #667eea; background: #f5f3ff; }
-.cq-option.selected { border-color: #667eea; background: #eef2ff; }
+.cq-option:hover:not(:disabled) { border-color: var(--naccc-primary); background: var(--naccc-secondary-light); }
+.cq-option.selected { border-color: var(--naccc-primary); background: var(--naccc-secondary-light); }
 .cq-option.correct { border-color: #10b981; background: #ecfdf5; }
 .cq-option:disabled { cursor: default; }
 
@@ -473,7 +473,7 @@
   color: #4a5568;
 }
 
-.cq-option.selected .cq-option-letter { background: #667eea; color: white; }
+.cq-option.selected .cq-option-letter { background: var(--naccc-primary); color: white; }
 .cq-option.correct .cq-option-letter { background: #10b981; color: white; }
 
 .cq-actions {
@@ -766,7 +766,7 @@
 .btn-back {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  background: #667eea;
+  background: var(--naccc-primary);
   color: white;
   text-decoration: none;
   border-radius: 8px;
@@ -775,7 +775,7 @@
 }
 
 .btn-back:hover {
-  background: #764ba2;
+  background: var(--naccc-primary-dark);
 }
 
 /* Enrollment modal */
@@ -831,13 +831,13 @@
   color: #1a202c;
 }
 
-.coupon-input:focus { outline: none; border-color: #667eea; }
+.coupon-input:focus { outline: none; border-color: var(--naccc-primary); }
 
 .btn-apply {
   padding: 0.625rem 1rem;
-  background: #eef2ff;
-  color: #667eea;
-  border: 1.5px solid #667eea;
+  background: var(--naccc-secondary-light);
+  color: var(--naccc-primary);
+  border: 1.5px solid var(--naccc-primary);
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -846,7 +846,7 @@
   transition: background 0.2s, color 0.2s;
 }
 
-.btn-apply:hover { background: #667eea; color: white; }
+.btn-apply:hover { background: var(--naccc-primary); color: white; }
 
 .coupon-success { font-size: 0.875rem; font-weight: 600; color: #059669; margin: -0.25rem 0 0; }
 
@@ -858,7 +858,7 @@
   gap: 0.75rem;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #667eea;
+  color: var(--naccc-primary);
   padding: 0.625rem 0;
 }
 
@@ -868,7 +868,7 @@
   width: 1.25rem;
   height: 1.25rem;
   border: 3px solid #e2e8f0;
-  border-top-color: #667eea;
+  border-top-color: var(--naccc-primary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;

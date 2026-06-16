@@ -134,14 +134,14 @@
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #667eea;
+  color: var(--naccc-primary);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .btn-view-more:hover {
-  background: #eef2ff;
-  border-color: #667eea;
+  background: var(--naccc-secondary-light);
+  border-color: var(--naccc-primary);
 }
 
 .empty-state,

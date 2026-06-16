@@ -72,6 +72,15 @@ body {
   --sidebar-width: 250px;
   --sidebar-collapsed-width: 60px;
   --header-height: 4rem;
+
+  /* NACCC brand colors */
+  --naccc-primary: #008894;
+  --naccc-primary-dark: #006870;
+  --naccc-primary-light: #00a8b5;
+  --naccc-secondary: #bddee5;
+  --naccc-secondary-dark: #8ec5cf;
+  --naccc-secondary-light: #e8f5f7;
+  --naccc-text-on-primary: #ffffff;
 }
 
 /* Default main content positioning */
