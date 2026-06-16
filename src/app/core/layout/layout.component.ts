@@ -1,67 +1,27 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { HeaderComponent } from '../../shared/components/header.component';
-import { SidebarComponent } from '../../shared/components/sidebar/sidebar';
+import { TopNavComponent } from '../../shared/components/top-nav/top-nav.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, HeaderComponent, SidebarComponent],
+  imports: [RouterOutlet, TopNavComponent],
   template: `
-    <app-header></app-header>
-    <div class="app-layout">
-      <app-sidebar></app-sidebar>
-      <main class="main-content">
-        <router-outlet></router-outlet>
-      </main>
-    </div>
+    <app-top-nav></app-top-nav>
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
   `,
   styles: [
     `
       :host {
-        --sidebar-width: 260px; /* adjust to match SidebarComponent */
-        --header-height: 64px; /* header height used across layout */
         display: block;
       }
 
-      .app-layout {
-        min-height: 100vh;
-        background: #f7fafc;
-      }
-
-      /* Main content is pushed right of the sidebar and below the fixed header */
       .main-content {
-        margin-left: var(--sidebar-width);
         padding-top: var(--header-height);
         min-height: calc(100vh - var(--header-height));
-        display: flex;
-        flex-direction: column;
-        transition: margin-left 0.3s ease;
-        width: calc(100% - var(--sidebar-width));
-        position: relative;
-      }
-
-      .page-body {
-        padding: 24px;
-        box-sizing: border-box;
-        flex: 1 1 auto;
-        overflow: auto;
-      }
-
-      /* Responsive: sidebar overlays on small screens */
-      @media (max-width: 920px) {
-        .main-content {
-          margin-left: 0;
-          width: 100%;
-        }
-      }
-
-      @media (max-width: 768px) {
-        .main-content {
-          margin-left: 0;
-          width: 100%;
-        }
+        background: #f7fafc;
       }
     `,
   ],
