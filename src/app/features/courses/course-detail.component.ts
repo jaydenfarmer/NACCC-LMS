@@ -304,6 +304,17 @@ export class CourseDetailComponent {
     return '';
   });
 
+  currentSectionTitle = computed<string>(() => {
+    const lesson = this.selectedLesson();
+    if (!lesson) return '';
+    let section = '';
+    for (const l of this.lessons()) {
+      if (l.type === 'section') section = l.title;
+      else if (l.id === lesson.id) return section;
+    }
+    return '';
+  });
+
   getSafeVideoUrl(url: string): SafeResourceUrl {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }

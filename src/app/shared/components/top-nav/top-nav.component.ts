@@ -74,23 +74,19 @@ export class TopNavComponent {
 
     // Admin
     { path: '/dashboard', label: 'Home', icon: '🏠', roles: ['admin'] },
-    { path: '/users', label: 'Users', icon: '👤', roles: ['admin'] },
-    { path: '/courses', label: 'Courses', icon: '📚', roles: ['admin'] },
-    { path: '/learning-paths', label: 'Learning paths', icon: '🛤️', roles: ['admin'] },
     {
-      path: '/course-store',
-      label: 'Course store',
-      icon: '🏪',
+      path: '/manage',
+      label: 'Manage',
+      icon: '🗂️',
       roles: ['admin'],
       children: [
-        { path: '/course-store/catalog', label: 'Browse Catalog', icon: '📖', roles: ['admin'] },
-        { path: '/course-store/purchased', label: 'Purchased', icon: '✅', roles: ['admin'] },
+        { path: '/users', label: 'Users', icon: '👤', roles: ['admin'] },
+        { path: '/courses', label: 'Courses', icon: '📚', roles: ['admin'] },
+        { path: '/learning-paths', label: 'Learning paths', icon: '🛤️', roles: ['admin'] },
+        { path: '/groups', label: 'Groups', icon: '👥', roles: ['admin'] },
+        { path: '/branches', label: 'Branches', icon: '🌿', roles: ['admin'] },
       ],
     },
-    { path: '/groups', label: 'Groups', icon: '👥', roles: ['admin'] },
-    { path: '/branches', label: 'Branches', icon: '🌿', roles: ['admin'] },
-    { path: '/automations', label: 'Automations', icon: '⚡', roles: ['admin'] },
-    { path: '/notifications', label: 'Notifications', icon: '🔔', roles: ['admin'] },
     {
       path: '/reports',
       label: 'Reports',
@@ -104,17 +100,28 @@ export class TopNavComponent {
       ],
     },
     {
-      path: '/settings',
-      label: 'Account & Settings',
+      path: '/tools',
+      label: 'Tools',
+      icon: '🛠️',
+      roles: ['admin'],
+      children: [
+        { path: '/automations', label: 'Automations', icon: '⚡', roles: ['admin'] },
+        { path: '/notifications', label: 'Notifications', icon: '🔔', roles: ['admin'] },
+        { path: '/course-store', label: 'Course store', icon: '🏪', roles: ['admin'] },
+      ],
+    },
+    { path: '/calendar', label: 'Calendar', icon: '📅', roles: ['admin'] },
+    { path: '/skills', label: 'Skills', icon: '🎯', roles: ['admin'] },
+    {
+      path: '/account',
+      label: 'Account',
       icon: '⚙️',
       roles: ['admin'],
       children: [
-        { path: '/settings/general', label: 'General', icon: '🔧', roles: ['admin'] },
-        { path: '/settings/security', label: 'Security', icon: '🔒', roles: ['admin'] },
-        { path: '/settings/integrations', label: 'Integrations', icon: '🔌', roles: ['admin'] },
+        { path: '/settings', label: 'Account & Settings', icon: '⚙️', roles: ['admin'] },
+        { path: '/subscription', label: 'Subscription', icon: '💳', roles: ['admin'] },
       ],
     },
-    { path: '/subscription', label: 'Subscription', icon: '💳', roles: ['admin'] },
   ]);
 
   readonly navItems = computed<NavItem[]>(() => {

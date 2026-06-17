@@ -87,7 +87,6 @@
         <div class="lessons-sidebar">
           <div class="sidebar-header">
             <h2>Course Content</h2>
-            <div class="course-progress">{{ progressPercentage() }}% Complete</div>
           </div>
 
           <div class="lessons-list">
@@ -135,6 +134,35 @@
         </div>
 
         <div class="player-area">
+          @if (isEnrolled()) {
+            <div class="player-top-nav">
+              <button
+                type="button"
+                class="btn-nav btn-prev"
+                [disabled]="!selectedLesson() || isFirstLesson(selectedLesson()!)"
+                (click)="navigatePrev()"
+              >
+                ← Prev
+              </button>
+
+              <div class="nav-status">
+                @if (statusMessage()) {
+                  <span class="nav-lock-icon">🔒</span>
+                  <span>{{ statusMessage() }}</span>
+                }
+              </div>
+
+              <button
+                type="button"
+                class="btn-nav btn-next"
+                [class.btn-finish]="rightButtonLabel() === 'Finish'"
+                (click)="navigateNext()"
+              >
+                {{ rightButtonLabel() }}
+              </button>
+            </div>
+          }
+
           @if (courseComplete()) {
             <div class="completion-screen">
               <div class="completion-icon">🏆</div>
@@ -166,34 +194,9 @@
           } @else if (selectedLesson(); as lesson) {
             <div class="player">
 
-              <!-- Top navigation bar -->
-              <div class="player-top-nav">
-                <button
-                  type="button"
-                  class="btn-nav btn-prev"
-                  [disabled]="isFirstLesson(lesson)"
-                  (click)="navigatePrev()"
-                >
-                  ← Prev
-                </button>
-
-                <div class="nav-status">
-                  @if (statusMessage()) {
-                    <span class="nav-lock-icon">🔒</span>
-                    <span>{{ statusMessage() }}</span>
-                  }
-                </div>
-
-                <button
-                  type="button"
-                  class="btn-nav btn-next"
-                  [class.btn-finish]="rightButtonLabel() === 'Finish'"
-                  (click)="navigateNext()"
-                >
-                  {{ rightButtonLabel() }}
-                </button>
-              </div>
-
+              @if (currentSectionTitle()) {
+                <div class="lesson-breadcrumb">{{ currentSectionTitle() }}</div>
+              }
               <h2>{{ lesson.title }}</h2>
               @if (lesson.description) {
                 <p class="lesson-description">{{ lesson.description }}</p>

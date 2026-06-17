@@ -168,7 +168,7 @@
 .course-content {
   display: grid;
   grid-template-columns: 350px 1fr;
-  min-height: calc(100vh - 400px);
+  align-items: start;
 }
 
 .lessons-sidebar {
@@ -176,9 +176,9 @@
   border-right: 1px solid #e2e8f0;
   padding: 1.5rem;
   overflow-y: auto;
-  max-height: calc(100vh - 400px);
+  height: calc(100vh - var(--header-height));
   position: sticky;
-  top: 4rem;
+  top: var(--header-height);
 }
 
 .sidebar-header {
@@ -192,12 +192,6 @@
   font-weight: 700;
   color: #1a202c;
   margin-bottom: 0.5rem;
-}
-
-.course-progress {
-  font-size: 0.875rem;
-  color: var(--naccc-primary);
-  font-weight: 600;
 }
 
 .lessons-list {
@@ -272,6 +266,15 @@
 .player-area {
   padding: 2rem;
   background: #f7fafc;
+}
+
+.lesson-breadcrumb {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--naccc-primary);
+  margin-bottom: 0.5rem;
 }
 
 .player h2 {
@@ -929,7 +932,7 @@
 
   .lessons-sidebar {
     position: static;
-    max-height: none;
+    height: auto;
     border-right: none;
     border-bottom: 1px solid #e2e8f0;
   }

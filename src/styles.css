@@ -69,8 +69,6 @@ body {
 }
 
 :root {
-  --sidebar-width: 250px;
-  --sidebar-collapsed-width: 60px;
   --header-height: 4rem;
 
   /* NACCC brand colors */
@@ -83,17 +81,9 @@ body {
   --naccc-text-on-primary: #ffffff;
 }
 
-/* Default main content positioning */
 .main-content {
-  margin-left: var(--sidebar-width);
-  transition: margin-left 0.3s ease;
   min-height: calc(100vh - var(--header-height));
   padding: 2rem;
-}
-
-/* When body has sidebar-collapsed class, adjust main content */
-body.sidebar-collapsed .main-content {
-  margin-left: var(--sidebar-collapsed-width);
 }
 
 /* Also make sure your layout component uses the main-content class */
