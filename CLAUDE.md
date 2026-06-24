@@ -39,36 +39,46 @@ designed to eventually serve multiple organizations.
 
 ## Current Project Status
 
-The project is currently a **UI prototype with mock data**.
-No backend exists. No database exists.
+The project is a **UI prototype with mock data**. No backend, no
+database yet (Phase 7). Phase 1A (learner experience) is complete;
+Phase 1B (admin tooling, service splits, accessibility) is in progress.
 
-### Actually Working
+### Working (Phase 1A complete)
 
-- Login page and role switching
-- Sidebar and header navigation
-- Course catalog with filtering
-- Course detail page (module/lesson tree)
-- Quiz engine — routes correctly, timer works, but grading is broken and answers not persisting
-- Dashboard with Chart.js bar chart
-- Admin dashboard with platform overview stats
-- Learner dashboard with Chart.js stats
-- Course catalog with search and filtering
-- Course detail page with module/lesson tree
-- Role switching between Learner, Instructor, Admin
+- Auth: login with role-aware routing (learner → /my-learning,
+  instructor/admin → /dashboard); demo buttons auto-submit; manual
+  typing works
+- Navigation: horizontal TopNavComponent with role-filtered links,
+  global search, avatar dropdown (the old Sidebar/Header components
+  were deleted — the empty sidebar dir is a leftover)
+- Dashboard: widget architecture (WidgetConfig array) with role-aware
+  widgets; Chart.js charts
+- Course catalog with search/filter; "View Course" routes to detail
+  (no longer enrolls directly)
+- Course detail / player: pre-enrollment view, Get Course modal
+  (mock 800ms Stripe stub), lesson completion by type, completion
+  screen, sticky lesson sidebar, persistent Prev/Skip/Next bar
+- Quiz/exam engine: password gate, pre-test landing, one-question
+  navigation with answer persistence, countdown timer, results screen
+- My Training, My Certificates, Learner Profile pages all exist
+- Global search: live dropdown + dedicated results page
+- localStorage persistence for enrollments and lesson progress
+  (keys: lms.enrollments, lms.lesson_progress)
 
 ### Mock / Incomplete
 
-- All course data is hardcoded in services — no backend
-- Progress tracking uses in-memory signals — resets on refresh
-- Assignments have a data model but no submission UI
-- Certificates are a TypeScript interface only — no PDF, nothing visible
-- Notifications and messages are icon badges with no real data
-- Several sidebar links route to pages that do not exist yet
-- Progress resets on page refresh — no localStorage persistence yet
-- All sidebar links except Home and Courses route to dashboard
-- No pages exist for: Users, Branches, Notifications, Reports, My Training, My Certificates, Grading Hub
-- Search bar in header is broken
-- Login requires demo buttons — manual typing is broken
+- No backend — all data is mock data in services
+- CourseService split in progress (CertificateService → QuizService →
+  EnrollmentService → CourseService cleanup)
+- Lesson types that render nothing: assignment, audio, web_content,
+  scorm, survey
+- Certificate PDF download, real retake/Stripe flow, and
+  coupon-affects-price are all stubs (later phases)
+- No /users/:id detail page — search user-result links are dead
+- Notifications and messages panels are no-ops
+- /admin route loads an old prototype CRUD stub — to be rebuilt in 1B
+- "Passed Tests" / "Completed Assignments" dashboard stats hardcoded 0
+  (need attempt/submission tracking)
 
 ---
 
@@ -150,7 +160,7 @@ settings/
 ## Database Schema (Planned — PostgreSQL)
 
 The complete schema is documented in DATABASE_SCHEMA.md
-in the root directory. 59 tables across 10 categories.
+in the root directory. 66 tables across 10 categories.
 
 Read DATABASE_SCHEMA.md before building any feature
 that touches data. Every data model in the UI must
@@ -159,14 +169,14 @@ match this schema exactly.
 Categories:
 
 - People (9 tables)
-- Content (9 tables)
-- Assessments (11 tables)
-- Progress & Enrollment (6 tables)
+- Content (10 tables)
+- Assessments (12 tables)
+- Progress & Enrollment (8 tables)
 - Certificates (5 tables)
 - Automations (2 tables)
 - Payments (6 tables)
-- Communication (7 tables)
-- System (3 tables)
+- Communication (9 tables)
+- System (4 tables)
 - Integrations (1 table)
 
 ---
@@ -636,20 +646,13 @@ command — just run it."
 - PayGo is fully self-service — learner adds each part to cart independently
 - Congratulations unit at end of each PayGo part with link to next part
 - No automatic progression — learner chooses when to purchase next part
-- Integrity Advocate proctoring service integration
+- Proctoring service integration — vendor TBD (Integrity Advocate under evaluation; confirm with Heather)
 - Two-factor authentication for admin and instructor accounts only
 - 2FA not required for learner accounts
 - Notification: assignment graded — sent to learner automatically
 - Notification: course expiring — sent to learner before expiration
-- Proactive exam reminder notifications — learners want more of these
+- Proactive exam reminder notifications — configurable frequency
 - Google Form embed as a lesson type — iFrame unit can handle this
-- Integrity Advocate proctoring service integration
-- Two-factor authentication for admin and instructor accounts only
-- Notification: assignment graded → learner
-- Notification: course expiring → learner
-- Exam reminder notifications — configurable frequency
-- Total training time tracked and reportable per learner
-- Google Form embeddable via iFrame lesson type
 
 ---
 
@@ -703,6 +706,8 @@ command — just run it."
 - Calendar event creation for instructors/admins
 - Native survey lesson type (NACCC uses Google Forms via iFrame)
 - Gamification (revisit with Heather later)
+- Course bundles — sell multiple courses as a discounted package
+  (bundles + bundle_courses tables are already staged in the schema)
 
 NOTE: notification_preferences are tenant-controlled
 by admins, NOT per-user. This is intentional.
@@ -724,6 +729,47 @@ NOTE: LMS accounts are only created upon successful
 payment. No guest accounts. The interest/lead form
 creates a Salesforce Lead only — no LMS account.
 The public catalog is accessible without login.
+
+NOTE (POSSIBILITY — not yet committed): Invite-token
+registration for company-affiliated counselors.
+Problem being solved: prevent duplicate company records
+and avoid exposing the member-firm list publicly. Goal is
+that the user NEVER names, picks, or types their company —
+they arrive already bound to one.
+
+Core rule (decide early, build later): companies are
+created ONLY by Salesforce sync or NACCC staff. The
+registration path can only RESOLVE to an existing company,
+never create one and never show a roster/search of firms.
+account_number / salesforce_account_id stay on the
+companies table as the silent Salesforce matching key —
+never user-typed, never the dedup mechanism.
+
+Two binding mechanisms under consideration:
+- Invite token (preferred): staff or firm admin sends a
+  signed invite link encoding company_id. Counselor clicks,
+  sets password, force-change on first login. This is just
+  the email half of the existing "company purchase → system
+  generates accounts → individual notification emails" flow.
+- Company enrollment code (self-serve fallback): the
+  existing "group key" nice-to-have. One opaque LMS-issued
+  code per company; server resolves it to exactly one
+  company_id or rejects it. No roster shipped to the client.
+
+Duplicate prevention is architectural, not vigilance:
+registration has NO insert capability against the companies
+table; DB unique constraint on account_number /
+salesforce_account_id; users deduped by existing
+email-unique-per-tenant constraint. Genuinely unaffiliated
+individuals register with email only, company_id stays null.
+
+Sizing: this is a Phase 5 (Salesforce integration) / Phase 7
+(backend) BUILD — invite tokens need backend token minting,
+email pipeline, and real auth, none of which exist pre-Phase 7.
+But the core rule above should be respected by any earlier UI
+(esp. the Phase 1B admin panel rebuild) so company management
+treats companies as sync-owned, read-mostly records and user
+creation as invite-oriented. Confirm approach with Heather.
 
 NOTE: Course content editor uses block-based rich text
 (similar to Notion). Recommended library: TipTap.
@@ -755,6 +801,11 @@ NOTE: Two certificate designs exist:
   Must be built into the LMS. Has unique certification number,
   expiration date, and boss signature.
 
+Phase split for certificates: the certificate DESIGN / UI is Phase 2;
+actual PDF GENERATION and the public verification URL require the
+backend and are Phase 7. (A stale in-code alert says "Phase 2" for PDF
+generation — correct it to Phase 7 in a future Claude Code pass.)
+
 NOTE: PayGo courses are sequential parts of a full course.
 4 parts total, each requiring separate payment before
 next part unlocks. PayGo branch contains all PayGo courses.
@@ -771,6 +822,19 @@ NOTE: Recertification — $100 per certificate flat fee.
 One set of 16 CEU credit hours renews ALL eligible
 certificates at once in a single batch payment.
 This replaces the current Formstack recertification form.
+
+NOTE: CEU gating — CEU courses are gated behind core certification.
+A learner can only earn/use CEUs AFTER they are certified. Modeled via
+the course_prerequisites table (hard gate). Confirm with Heather whether
+the gate is "completed the cert course" or "holds an active certificate."
+
+NOTE: Exam proctoring — a learner may use an INTERNAL NACCC proctor or
+supply an EXTERNAL proctor. External proctors require NACCC approval and
+do NOT receive a scheduling/Zoom link; internal proctoring auto-generates
+the Zoom link. Native scheduling replaces Formstack + Calendly. Proctoring
+vendor is TBD (Integrity Advocate under evaluation; currently NACCC staff
+proctor manually) and must be API-compatible from day one. Modeled via
+the exam_bookings table.
 
 NOTE: Real NACCC course structure has these sections:
 
@@ -848,10 +912,18 @@ NOTE: Open questions for Heather:
 
 ### Low Priority
 
-- Is 2FA wanted for staff only or also some learners?
 - Do surveys need to be revisited from an admin side or is Google Forms via iFrame sufficient long term?
 
 ### Phase 1A Audit Report
+
+> ⚠️ PARTIALLY STALE: This audit predates the TopNav refactor. Any item
+> referencing `header.component.ts`, `sidebar.service.ts`, or
+> `SidebarComponent` is obsolete — those files were deleted (the nav is
+> now `TopNavComponent`). This affects e.g. BUG 2 (switchRole in header),
+> the sidebar.service signal/DOM items, and the `lms.sidebar.collapsed`
+> localStorage item. Re-verify each item against current code before
+> acting. Items not tied to those files (e.g. BUG 13/14/15 player,
+> schema-consistency Category 5) are still live.
 
 Phase 1A QA Audit — Full Code-Trace Report
 Flow 1 — Login

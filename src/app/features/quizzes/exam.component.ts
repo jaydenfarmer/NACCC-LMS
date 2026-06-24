@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CourseService } from '../../shared/services/course.service';
+import { QuizService } from '../../shared/services/quiz.service';
 import { AuthService } from '../../shared/services/auth.service';
 import { Course, Lesson, ExamQuestion } from '../../shared/models/course.model';
 
@@ -18,6 +19,7 @@ export class ExamComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private courseService = inject(CourseService);
+  private quizService = inject(QuizService);
   private authService = inject(AuthService);
 
   courseId = '';
@@ -69,7 +71,7 @@ export class ExamComponent {
 
     // Load mock questions for this lesson
     try {
-      this.questions = this.courseService.getQuestionsForLesson(this.courseId, this.lessonId) || [];
+      this.questions = this.quizService.getQuestionsForLesson(this.courseId, this.lessonId) || [];
       // initialize answers map
       for (const q of this.questions) {
         this.answers[q.id] = null;

@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../shared/services/auth.service';
-import { CourseService } from '../../shared/services/course.service';
+import { CertificateService } from '../../shared/services/certificate.service';
 import { Certificate } from '../../shared/models/course.model';
 
 const EXPIRING_SOON_DAYS = 60;
@@ -18,14 +18,14 @@ type CertStatus = 'active' | 'expiring_soon' | 'expired';
 })
 export class MyCertificatesComponent {
   private authService = inject(AuthService);
-  private courseService = inject(CourseService);
+  private certificateService = inject(CertificateService);
 
   readonly ceuRenewalThreshold = CEU_RENEWAL_THRESHOLD;
 
   private allCertificates = computed(() => {
     const user = this.authService.user();
     if (!user) return [];
-    return this.courseService.getUserCertificates(user.id);
+    return this.certificateService.getUserCertificates(user.id);
   });
 
   coreCertificates = computed(() =>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../shared/services/auth.service';
 import { CourseService } from '../../shared/services/course.service';
+import { CertificateService } from '../../shared/services/certificate.service';
 import { AnnouncementService } from '../../shared/services/announcement.service';
 import { AnnouncementBannerComponent } from '../../shared/components/announcement-banner/announcement-banner.component';
 import { Chart, ChartConfiguration, registerables } from 'chart.js';
@@ -20,6 +21,7 @@ Chart.register(...registerables);
 export class DashboardComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private courseService = inject(CourseService);
+  private certificateService = inject(CertificateService);
   private announcementService = inject(AnnouncementService);
 
   @ViewChild('portalActivityChart') portalActivityChartRef?: ElementRef<HTMLCanvasElement>;
@@ -112,7 +114,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (!user) return [];
     const now = new Date();
     const cutoff = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
-    return this.courseService.getUserCertificates(user.id).filter(
+    return this.certificateService.getUserCertificates(user.id).filter(
       c => c.expiresAt && c.expiresAt > now && c.expiresAt <= cutoff
     );
   });

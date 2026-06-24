@@ -8,7 +8,15 @@
 
 ## Important Notes
 
-- All tables include `tenant_id` for multi-tenancy support
+- Tenant-scoped tables carry `tenant_id`. Top-level and entity tables
+  (tenants, branches, users, companies, courses, modules, lessons,
+  quizzes, quiz_questions, surveys, survey_questions, enrollments,
+  certificates, payments, notifications, etc.) include it directly.
+  Pure bridge/junction tables (user_roles, user_branches, course_branches,
+  bundle_courses, lesson_course_links, coupon_courses,
+  conversation_participants, *_filters) and global reference tables
+  (roles) inherit tenant scope via their FK parent. Phase 7 enforces
+  isolation with row-level security — required for the CIA branded skin.
 - NACCC is `tenant_id = 1` during development
 - `created_at` and `updated_at` on all tables are timestamps
 - All IDs are auto-incrementing integers unless noted
@@ -53,8 +61,7 @@
 | external_announcement        | text      | nullable — shown on login page              |
 | internal_announcement_active | boolean   | Default false                               |
 | external_announcement_active | boolean   | Default false                               |
-| default_user_type            | varchar   | nullable                                    |
-| default_group_id             | integer   | nullable — FK to groups                     |
+| default_group_id             | integer   | nullable — FK to groups (groups table not yet designed — see note) |
 | sign_up_method               | varchar   | Default: direct                             |
 | domain_restriction           | varchar   | nullable — restrict to email domain         |
 | registration_cap             | integer   | nullable                                    |
@@ -62,6 +69,12 @@
 | terms_of_service             | text      | nullable                                    |
 | default_course_image_url     | varchar   | nullable                                    |
 | default_user_type_id         | integer   | nullable — FK to user_types                 |
+
+NOTE: `groups` is a Nice-to-Have (Phase 3/6) that may not ship.
+`branches.default_group_id` and `automation_filters.filter_type = group`
+reference a `groups` table that is NOT yet designed and is NOT in the
+table count. Like `enrollment_groups`, keep these columns nullable and
+do not query/join them until the table is formally designed.
 
 ---
 
@@ -86,7 +99,7 @@
 | last_name             | varchar   |                                                                                                              |
 | email                 | varchar   | Unique per tenant                                                                                            |
 | username              | varchar   | Unique per tenant                                                                                            |
-| password_hash         | varchar   | Never plain text                                                                                             |
+| password_hash         | varchar   | Never plain text — nullable for SSO-only accounts                                                            |
 | bio                   | text      | nullable                                                                                                     |
 | timezone              | varchar   | e.g. America/New_York                                                                                        |
 | language              | varchar   | Default: en                                                                                                  |
@@ -98,6 +111,10 @@
 | updated_at            | timestamp |                                                                                                              |
 | user_type_id          | integer   | Foreign key → user_types                                                                                     |
 | profile_photo_url     | varchar   | nullable                                                                                                     |
+| totp_secret           | varchar   | nullable — TOTP secret for 2FA (admin/instructor only)                                                       |
+| totp_enabled          | boolean   | Default false — 2FA on (admin/instructor only; not required for learners)                                    |
+| sso_provider          | varchar   | nullable — google or microsoft when SSO-linked                                                               |
+| sso_external_id       | varchar   | nullable — provider's user ID for SSO login                                                                  |
 
 _Branch assignments are managed via the user_branches bridge table —
 a user can belong to multiple branches._
@@ -178,6 +195,15 @@ a user can belong to multiple branches._
 | created_at            | timestamp |                                                         |
 | updated_at            | timestamp |                                                         |
 
+NOTE (POSSIBILITY — not yet committed): Company records are
+intended to be created ONLY by Salesforce sync or NACCC staff —
+never by the registration path. `account_number` /
+`salesforce_account_id` are the silent Salesforce matching key
+(never user-typed). Enforce a DB unique constraint on
+`account_number` (and `salesforce_account_id`) so neither sync
+nor staff can double-insert. See the invite-token registration
+NOTE in CLAUDE.md. Phase 5/7 build; confirm with Heather.
+
 ---
 
 ## CONTENT
@@ -189,6 +215,7 @@ a user can belong to multiple branches._
 | id                      | integer   | Primary key                                                                          |
 | tenant_id               | integer   | Foreign key → tenants                                                                |
 | title                   | varchar   |                                                                                      |
+| code                    | varchar   | nullable — optional course code/SKU, system-assigned (NACCC does not label manually) |
 | description             | text      |                                                                                      |
 | thumbnail_url           | varchar   | nullable                                                                             |
 | price                   | decimal   | 0.00 for free courses                                                                |
@@ -258,6 +285,7 @@ _One row per course/branch assignment. A course with no rows here is main domain
 | Column     | Type      | Notes                       |
 | ---------- | --------- | --------------------------- |
 | id         | integer   | Primary key                 |
+| tenant_id  | integer   | Foreign key → tenants       |
 | course_id  | integer   | Foreign key → courses       |
 | title      | varchar   |                             |
 | order      | integer   | Display order within course |
@@ -271,9 +299,10 @@ _One row per course/branch assignment. A course with no rows here is main domain
 | Column                  | Type      | Notes                                                                                                       |
 | ----------------------- | --------- | ----------------------------------------------------------------------------------------------------------- |
 | id                      | integer   | Primary key                                                                                                 |
+| tenant_id               | integer   | Foreign key → tenants                                                                                       |
 | module_id               | integer   | Foreign key → modules                                                                                       |
 | title                   | varchar   |                                                                                                             |
-| type                    | varchar   | content_page, web_content, video, audio, presentation_document, iframe, test, survey, assignment ilt, scorm |
+| type                    | varchar   | content_page, web_content, video, audio, presentation_document, iframe, test, survey, assignment, ilt, scorm |
 | content_url             | varchar   | nullable                                                                                                    |
 | order                   | integer   | Display order within module                                                                                 |
 | duration_minutes        | integer   | nullable                                                                                                    |
@@ -281,12 +310,11 @@ _One row per course/branch assignment. A course with no rows here is main domain
 | is_mandatory            | boolean   |                                                                                                             |
 | created_at              | timestamp |                                                                                                             |
 | updated_at              | timestamp |                                                                                                             |
-| completion_method       | varchar   | button, time, question — Default: button                                                                    |
+| completion_method       | varchar   | button, time, question — Default: question (NACCC primary; a lesson with a question requires answering it to complete, a lesson without one completes via the Next button) |
 | completion_time_seconds | integer   | nullable — only when completion_method = time                                                               |
 | completion_question     | text      | nullable — only when completion_method = question                                                           |
 | delay_hours             | integer   | nullable — hours before lesson becomes accessible                                                           |
 | delay_days              | integer   | nullable — days before lesson becomes accessible                                                            |
-| completion_method       | varchar   | question (NACCC primary), button, time — Default: question                                                  |
 | content_body            | text      | nullable — rich text for content_page lessons                                                               |
 | is_shared               | boolean   | Default false — linked across multiple courses                                                              |
 | password                | varchar   | nullable — for password protected tests                                                                     |
@@ -356,6 +384,25 @@ Video Library, Core Certifications, PayGo, Exams, Inactive, Previews._
 
 ---
 
+### course_prerequisites
+
+| Column                 | Type      | Notes                                                                                                       |
+| ---------------------- | --------- | ----------------------------------------------------------------------------------------------------------- |
+| id                     | integer   | Primary key                                                                                                 |
+| tenant_id              | integer   | Foreign key → tenants                                                                                        |
+| course_id              | integer   | Foreign key → courses — the gated course                                                                     |
+| prerequisite_course_id | integer   | Foreign key → courses — must be completed first                                                              |
+| path_group             | integer   | nullable — prereqs sharing a path_group are alternatives (OR); separate groups are all required (AND)        |
+| is_hard_gate           | boolean   | Default true — hard gate blocks enrollment/start until satisfied                                             |
+| created_at             | timestamp |                                                                                                             |
+
+_Drives hard-gate prerequisites and alternative paths. Primary NACCC use
+case: CEU courses are gated behind core certification — a learner can only
+earn/use CEUs AFTER they are certified. (A future enhancement may gate on
+holding an active certificate rather than course completion — confirm with Heather.)_
+
+---
+
 ## ASSESSMENTS
 
 ### quizzes
@@ -377,7 +424,6 @@ Video Library, Core Certifications, PayGo, Exams, Inactive, Previews._
 | shuffle_questions             | boolean   | Default false                                    |
 | shuffle_answers               | boolean   | Default false                                    |
 | allow_repetitions             | varchar   | always, never, if_not_passed                     |
-| max_attempts                  | integer   | nullable — null = unlimited                      |
 | show_correct_answers          | varchar   | always, never, when_passed                       |
 | show_given_answers            | boolean   | Default true                                     |
 | show_correct_incorrect_labels | boolean   | Default true                                     |
@@ -402,6 +448,7 @@ Video Library, Core Certifications, PayGo, Exams, Inactive, Previews._
 | ------------- | --------- | -------------------------------------------------------------------------------- |
 | id            | integer   | Primary key                                                                      |
 | quiz_id       | integer   | Foreign key → quizzes                                                            |
+| tenant_id     | integer   | Foreign key → tenants                                                            |
 | question_text | text      |                                                                                  |
 | question_type | varchar   | multiple_choice, fill_the_gaps, ordering, match_the_pairs, free_text, randomized |
 | points        | integer   |                                                                                  |
@@ -528,6 +575,7 @@ Video Library, Core Certifications, PayGo, Exams, Inactive, Previews._
 | ------------- | --------- | ---------------------------------------- |
 | id            | integer   | Primary key                              |
 | survey_id     | integer   | Foreign key → surveys                    |
+| tenant_id     | integer   | Foreign key → tenants                    |
 | question_text | text      |                                          |
 | question_type | varchar   | multiple_choice, free_text, likert_scale |
 | order         | integer   |                                          |
@@ -558,6 +606,37 @@ Video Library, Core Certifications, PayGo, Exams, Inactive, Previews._
 | answer_id     | integer   | Foreign key → survey_answers (nullable — for multiple choice) |
 | response_text | text      | nullable — for free text and likert responses                 |
 | created_at    | timestamp |                                                               |
+
+---
+
+### exam_bookings
+
+| Column                  | Type      | Notes                                                                                  |
+| ----------------------- | --------- | -------------------------------------------------------------------------------------- |
+| id                      | integer   | Primary key                                                                            |
+| tenant_id               | integer   | Foreign key → tenants                                                                   |
+| user_id                 | integer   | Foreign key → users — the examinee                                                     |
+| course_id               | integer   | Foreign key → courses                                                                  |
+| lesson_id               | integer   | nullable — Foreign key → lessons (the proctored exam unit)                              |
+| scheduled_at            | timestamp | nullable — chosen exam time slot                                                       |
+| proctor_type            | varchar   | internal (NACCC proctor) or external (learner-supplied)                                |
+| proctor_user_id         | integer   | nullable — Foreign key → users, assigned NACCC proctor (internal only)                  |
+| external_proctor_name   | varchar   | nullable — for external proctor                                                        |
+| external_proctor_email  | varchar   | nullable                                                                               |
+| external_proctor_status | varchar   | nullable — pending, approved, rejected (NACCC must approve external proctors)           |
+| approved_by             | integer   | nullable — Foreign key → users (admin/instructor who approved the external proctor)     |
+| zoom_url                | varchar   | nullable — auto-generated for INTERNAL proctor only; external proctors get no link      |
+| proctor_vendor          | varchar   | nullable — proctoring vendor reference (vendor TBD; currently manual/NACCC staff)        |
+| status                  | varchar   | requested, scheduled, completed, cancelled                                             |
+| created_at              | timestamp |                                                                                        |
+| updated_at              | timestamp |                                                                                        |
+
+_Vendor-agnostic foundation for native exam scheduling (replaces Formstack +
+Calendly). Internal proctor → NACCC scheduling + auto Zoom link. External
+proctor → learner supplies proctor details, NACCC must approve, and NO
+scheduling/Zoom link is issued to them. Feeds the learner calendar and the
+exam_scheduled notification. Proctoring vendor (Integrity Advocate under
+evaluation) plugs in later via proctor_vendor — must be API-compatible from day one._
 
 ---
 
@@ -620,6 +699,37 @@ enrollment_groups: TO BE DESIGNED IN PHASE 3
 | completed_at          | timestamp | nullable                                    |
 | last_accessed_at      | timestamp | nullable                                    |
 | time_spent_seconds    | integer   | Default 0 — cumulative time in course       |
+
+---
+
+### lesson_notes
+
+| Column     | Type      | Notes                                       |
+| ---------- | --------- | ------------------------------------------- |
+| id         | integer   | Primary key                                 |
+| tenant_id  | integer   | Foreign key → tenants                       |
+| user_id    | integer   | Foreign key → users — note author (learner) |
+| lesson_id  | integer   | Foreign key → lessons                       |
+| course_id  | integer   | Foreign key → courses                       |
+| body       | text      | Learner's personal note for this lesson     |
+| created_at | timestamp |                                             |
+| updated_at | timestamp |                                             |
+
+_Personal notes are private to the authoring learner._
+
+---
+
+### course_favorites
+
+| Column     | Type      | Notes                 |
+| ---------- | --------- | --------------------- |
+| id         | integer   | Primary key           |
+| tenant_id  | integer   | Foreign key → tenants |
+| user_id    | integer   | Foreign key → users   |
+| course_id  | integer   | Foreign key → courses |
+| created_at | timestamp |                       |
+
+_One row per learner-favorited course; unique on (user_id, course_id)._
 
 ---
 
@@ -688,7 +798,7 @@ renewal_batch_id — group multiple certificate renewals that happened together
 | tenant_id                  | integer   | Foreign key → tenants              |
 | user_id                    | integer   | Foreign key → users                |
 | payment_id                 | integer   | Foreign key → payments             |
-| ceu_hours_used             | decimal   | note — remove hardcoded "16 hours" |
+| ceu_hours_used             | decimal   | CEU hours accumulated this cycle (summed from per-course ceu_credit_hours); 16h global threshold triggers eligibility |
 | total_fee                  | decimal   | $100 per certificate               |
 | renewed_at                 | timestamp |                                    |
 | created_at                 | timestamp |                                    |
@@ -1035,6 +1145,41 @@ _Only populated when coupon applicable_to = specific_courses_
 
 ---
 
+### notification_preferences
+
+| Column                | Type      | Notes                                                   |
+| --------------------- | --------- | ------------------------------------------------------- |
+| id                    | integer   | Primary key                                             |
+| tenant_id             | integer   | Foreign key → tenants — tenant-controlled, NOT per-user |
+| global_footer_enabled | boolean   | Default false — append global footer to all emails      |
+| global_footer_text    | text      | nullable — footer body when enabled                     |
+| created_at            | timestamp |                                                         |
+| updated_at            | timestamp |                                                         |
+
+_Tenant-level email/notification settings. Do NOT add user_id —
+preferences are admin-controlled per tenant, not per-user._
+
+---
+
+### email_templates
+
+| Column       | Type      | Notes                                                                                                  |
+| ------------ | --------- | ------------------------------------------------------------------------------------------------------ |
+| id           | integer   | Primary key                                                                                            |
+| tenant_id    | integer   | Foreign key → tenants                                                                                   |
+| template_key | varchar   | reset_password, create_password, account_confirmation, account_activation, export_reports, import_data |
+| subject      | varchar   |                                                                                                        |
+| body         | text      | Rich text with smart tags                                                                              |
+| is_system    | boolean   | Default true — fixed platform email vs admin-customized                                                 |
+| updated_by   | integer   | Foreign key → users (nullable)                                                                         |
+| created_at   | timestamp |                                                                                                        |
+| updated_at   | timestamp |                                                                                                        |
+
+_System emails (reset password, create password, confirmation, etc.)
+plus the editable templates surfaced on the Email Template management page._
+
+---
+
 ## SYSTEM
 
 ### audit_logs
@@ -1085,6 +1230,27 @@ _Only populated when coupon applicable_to = specific_courses_
 
 ---
 
+### security_settings
+
+| Column                | Type      | Notes                                             |
+| --------------------- | --------- | ------------------------------------------------- |
+| id                    | integer   | Primary key                                       |
+| tenant_id             | integer   | Foreign key → tenants                             |
+| password_min_length   | integer   | Default 8                                         |
+| require_uppercase     | boolean   | Default true                                      |
+| require_number        | boolean   | Default true                                      |
+| require_special       | boolean   | Default false                                     |
+| max_failed_attempts   | integer   | Default 5 — lock account after this many failures |
+| lockout_minutes       | integer   | Default 15 — lock duration                        |
+| require_2fa_for_staff | boolean   | Default false — enforce 2FA for admin/instructor  |
+| created_at            | timestamp |                                                   |
+| updated_at            | timestamp |                                                   |
+
+_Tenant-level configurable password policy and lockout thresholds.
+Drives users.failed_login_attempts / locked_until enforcement._
+
+---
+
 ## INTEGRATIONS
 
 ### salesforce_sync_log
@@ -1109,16 +1275,16 @@ _Only populated when coupon applicable_to = specific_courses_
 | Category              | Tables                                                                                                                                                                       | Count  |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
 | People                | tenants, branches, users, roles, user_roles, user_branches, user_types, companies, user_files                                                                                | 9      |
-| Content               | courses, course_branches, course_files, modules, lessons, lesson_course_links, bundles, bundle_courses, categories                                                           | 9      |
-| Assessments           | quizzes, quiz_questions, quiz_answers, quiz_attempts, quiz_attempt_answers, assignments, assignment_submissions, surveys, survey_questions, survey_answers, survey_responses | 11     |
-| Progress & Enrollment | enrollments, unit_progress, course_progress, learning_paths, learning_path_sections, learning_path_courses                                                                   | 6      |
+| Content               | courses, course_branches, course_files, modules, lessons, lesson_course_links, course_prerequisites, bundles, bundle_courses, categories                                     | 10     |
+| Assessments           | quizzes, quiz_questions, quiz_answers, quiz_attempts, quiz_attempt_answers, assignments, assignment_submissions, exam_bookings, surveys, survey_questions, survey_answers, survey_responses | 12     |
+| Progress & Enrollment | enrollments, lesson_progress, course_progress, lesson_notes, course_favorites, learning_paths, learning_path_sections, learning_path_courses                                 | 8      |
 | Certificates          | certificates, ceu_records, ceu_submissions, certificate_renewals, renewal_batches                                                                                            | 5      |
 | Automations           | automation_rules, automation_filters                                                                                                                                         | 2      |
 | Payments              | coupons, coupon_courses, payments, payment_items, ecommerce_settings, invoices                                                                                               | 6      |
-| Communication         | notifications, notification_rules, notification_rule_filters, notification_log, conversations, conversation_participants, messages                                           | 7      |
-| System                | audit_logs, custom_field_definitions, custom_field_values                                                                                                                    | 3      |
+| Communication         | notifications, notification_rules, notification_rule_filters, notification_log, notification_preferences, email_templates, conversations, conversation_participants, messages | 9      |
+| System                | audit_logs, custom_field_definitions, custom_field_values, security_settings                                                                                                 | 4      |
 | Integrations          | salesforce_sync_log                                                                                                                                                          | 1      |
-| **Total**             |                                                                                                                                                                              | **59** |
+| **Total**             |                                                                                                                                                                              | **66** |
 
 ---
 
@@ -1129,8 +1295,12 @@ _Only populated when coupon applicable_to = specific_courses_
 - [x] Renewal threshold is global not per course
 - [x] Shared lessons confirmed — lesson_course_links bridge table added
 - [ ] Which specific courses are CEU courses
-- [ ] Confirmed: expired + recertified learner gets a NEW certificate number
-- [ ] Confirmed: credit hour threshold varies by course (stored on courses table)
+- [x] DECIDED: certificate number is PERMANENT — recertification does NOT
+      issue a new number. `renewal_count` increments and a `certificate_renewals`
+      row is added; `certificate_number` never changes.
+- [x] DECIDED: renewal THRESHOLD is global = 16 credit hours. The credit
+      hours EARNED vary per course (`courses.ceu_credit_hours`, e.g. 2–8).
+      Threshold is not per-course.
 - [ ] salesforce_sync_log — add retry_count column
       when building retry logic in Phase 7
 - [ ] user_branches replaces branch_id on users table —
