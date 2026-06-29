@@ -928,10 +928,12 @@ NOTE: Open questions for Heather:
 Phase 1A QA Audit — Full Code-Trace Report
 Flow 1 — Login
 BUG 1 — Demo buttons don't auto-submit
+✅ RESOLVED (verified 2026-06-24, World Tour Room 1): login.component.ts:42 — setDemoUser() now calls this.onSubmit(). Demo buttons auto-submit. Original finding below kept for history.
 
 login.component.ts:39 — setDemoUser() sets the email/password signals but never calls onSubmit(). After clicking a demo button, the user still has to click "Sign In". The CLAUDE.md "manual typing is broken" note appears stale; the [value] + (input) pattern in the template is correct.
 
 BUG 2 — switchRole('admin') navigates to /admin, not /dashboard
+✅ RESOLVED / OBSOLETE (verified 2026-06-24, World Tour Room 2): header.component.ts no longer exists — nav is now top-nav.component.ts. Its switchRole() (line 212) maps admin → /dashboard via a typed destinations record. Both the bug and the file it referenced are gone. Original finding below kept for history.
 
 header.component.ts:86 — The destinations map sends admin to /admin (the old CRUD panel AdminComponent). Login was fixed this session to go to /dashboard. Role-switching from the header user menu is still inconsistent.
 
@@ -948,18 +950,22 @@ Flow 3 — Course Catalog
 BUG 5 — "Enroll Now" button bypasses the payment and modal flow entirely
 
 courses.component.ts:81 — enroll() calls courseService.enrollCourse() directly: no modal, no price check, no coupon, no toast, no spinner. Paid courses (e.g., $720, $895) can be enrolled for free from the catalog. The entire Get Course modal only exists on course-detail.
+✅ RESOLVED (verified 2026-06-26, World Tour Room 3): the enroll() method no longer exists in courses.component.ts — the card button is now a plain `<a [routerLink]="['/courses', course.id]">` (courses.component.html:91) that NAVIGATES to the course detail page; it runs no enrollment logic, so the free-enroll path is gone. NOTE (cosmetic follow-up, not the bug): the button still reads "Enroll Now" even though it only opens the detail page — a truthful label is "View Course"/"Get Course". CLAUDE.md status already says "View Course routes to detail (no longer enrolls directly)"; the catalog button text just wasn't updated to match.
 
 MISSING 6 — No price badge on course cards
 
 courses.component.html:78 — Spec requires "Course cards show: thumbnail, name, price badge, course type icon." The catalog card renders stats (rating/enrolled/duration/lessons) but no price.
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 3): the card's .course-stats row (courses.component.html:78-83) still renders rating/enrolled/duration/lessons and NO price badge or course-type icon.
 
 MISSING 7 — No hover overlay on catalog cards
 
 Spec: "Course card hover state — thumbnail dims, View overlay, + button appears." Not implemented anywhere in the catalog template.
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 3): no View overlay / dim / "+" markup exists in courses.component.html — the card is a static thumbnail + content block.
 
 MISSING 8 — Category filter is a dropdown, not a sidebar
 
 Spec: "Catalog left sidebar with hierarchical category filter checkboxes and course counts." Current implementation has a <select> dropdown. The categories list is also hardcoded in the component, not derived from course data.
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 3): still two `<select>` dropdowns (courses.component.html:20-44), no left sidebar / checkboxes / counts. categories array is still hardcoded in courses.component.ts:24 (not derived from course data). Related signal smell also still live — filteredCourses is an imperative signal re-set by filterCourses() from the constructor + 3 handlers instead of a computed() (courses.component.ts:27).
 
 Flow 4 — Pre-enrollment Course Detail
 BUG 9 — Completion date is always today, not actual completion date
@@ -983,27 +989,33 @@ Flow 6 — Course Player
 BUG 13 — YouTube iframes blocked by Angular's sanitizer
 
 course-detail.component.html:205 — [src]="lesson.content_body" passes a raw URL string. Angular sanitizes iframe src by default and marks YouTube embed URLs as unsafe. The component never calls DomSanitizer.bypassSecurityTrustResourceUrl(). All video lessons are broken.
+✅ RESOLVED (verified 2026-06-26, World Tour Room 4): the component now injects DomSanitizer and exposes getSafeVideoUrl(url) → bypassSecurityTrustResourceUrl(url) (course-detail.component.ts:318-320). The video branch binds [src]="getSafeVideoUrl(lesson.content_body ?? '')" (course-detail.component.html:208). YouTube embeds render.
 
 BUG 14 — Five lesson types render nothing
 
 course-detail.component.html:202 — The player's @if/@else if chain handles: video, presentation_document, test, iframe, content_page. Types audio, assignment, web_content, scorm, and survey fall through all branches and render an empty <div class="player">.
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 4): the @if/@else-if chain (course-detail.component.html:205-300) still handles only video / presentation_document / test / iframe / content_page and has NO @else fallback. audio, assignment, web_content, scorm, survey render just the lesson title+description with an empty body. WORSE: audio + web_content are in autoCompleteLessonTypes (course-detail.component.ts:262-264), so clicking Next marks them COMPLETE — a learner gets credit for a lesson that displayed no content (a certification-compliance hole, not just cosmetic).
 
 BUG 15 — Content page shows only a placeholder, not actual content
 
 course-detail.component.html:249 — Every content_page lesson renders <p>Content for this lesson will appear here.</p>. The lesson.content_body field is never rendered.
+✅ RESOLVED (verified 2026-06-26, World Tour Room 4): content_page now renders the real body via <div [innerHTML]="lesson.content_body"></div> (course-detail.component.html:252-256), with a "No content available" fallback only when content_body is empty. (Note for later: [innerHTML] relies on Angular's default sanitizer; fine while content is mock/trusted, revisit if admin-authored HTML becomes dynamic.)
 
 BUG 16 — "Finish" / "Skip to End" button on the last lesson does nothing
 
 course-detail.component.ts:277 — navigateNext() calls findNextLesson() which returns null when on the last lesson. The guard if (next) this.selectLesson(next) silently skips. Clicking the button has no effect. For the last lesson being a test, the button label is "Skip to End" and appears functional but is dead.
+⚠️ PARTIAL (verified 2026-06-26, World Tour Room 4): navigateNext() (course-detail.component.ts:271-283) now completes the current lesson FIRST if it's an auto-complete type, even when findNextLesson() returns null — so for an auto-complete LAST lesson, "Finish" marks it done → courseComplete flips true → completion screen shows. WORKS for auto-complete last lessons. STILL DEAD for a non-auto-complete last lesson (test/assignment/question): isAutoComplete is false so nothing completes, findNextLesson is null so nothing navigates — clicking "Skip to End" still does nothing. (In practice NACCC courses end on a proctored final-exam test, which is the dead case.)
 
 Flow 7 — Quiz Engine
 BUG 17 — Timer display rounds minutes instead of flooring them
 
 exam.component.html:73 — timerSeconds / 60 | number:'2.0-0' rounds to nearest integer. At t=5399 (one second into a 90-minute exam), it displays "90:59" instead of "89:59". The minutes digit counts up then back rather than counting down cleanly.
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 5): the timer is still `{{ (timerSeconds / 60 | number:'2.0-0') }}:{{ (timerSeconds % 60 | number:'2.0-0') }}` (exam.component.html:77). `'2.0-0'` rounds, so 5399/60 = 89.98 → "90", giving "90:59" one second in — the minutes digit reads 90 for the first ~30s before ticking down. Fix is Math.floor(timerSeconds/60) before formatting (floor, not round, for a clock).
 
 NOTE 18 — Retake flow is a stub alert()
 
 exam.component.ts:170 — scheduleRetake() shows a browser alert. Spec requires a retake purchase flow with Stripe. Expected missing feature, but the alert is jarring UX.
+✅ RESOLVED / ⚠️ TRADE (verified 2026-06-26, World Tour Room 5): the alert() is gone — scheduleRetake() (exam.component.ts:174-181) now sets a soft retakeToast ("Retake scheduling coming soon.") that auto-clears after 3s (rendered exam.component.html:2-4). The jarring alert is fixed; the real Stripe retake-purchase flow is still unbuilt (later phase).
 
 Flow 8 — My Training
 BUG 19 — "All types" filter dropdown has no event binding
@@ -1037,8 +1049,8 @@ Summary
 
 # Severity Flow Issue
 
-1 Medium Login Demo buttons don't auto-submit
-2 High Login Header switchRole admin → wrong route
+1 Medium Login Demo buttons don't auto-submit — ✅ RESOLVED 2026-06-24
+2 High Login Header switchRole admin → wrong route — ✅ RESOLVED/OBSOLETE 2026-06-24 (file deleted; top-nav maps admin → /dashboard)
 3 Low Dashboard Chart @ViewChild fragile in @for/@switch
 4 Low Dashboard Stats passedTests/completedAssignments always 0
 5 Critical Catalog Enroll Now bypasses payment flow
@@ -1063,9 +1075,9 @@ Summary
 24 Low Search Search service only matches course titles
 Critical (must fix before demo): 5, 13, 14
 
-High (significant UX breaks): 2, 15, 21, 23
+High (significant UX breaks): 15, 21, 23  (2 ✅ resolved/obsolete 2026-06-24)
 
-Medium (noticeable but workable): 1, 3, 16, 17, 19
+Medium (noticeable but workable): 3, 16, 17, 19  (1 ✅ resolved 2026-06-24)
 
 Low (polish / spec alignment): 4, 6, 7, 8, 9, 10, 11, 12, 18, 20, 22, 24
 
@@ -1074,12 +1086,14 @@ Low (polish / spec alignment): 4, 6, 7, 8, 9, 10, 11, 12, 18, 20, 22, 24
 NACCC LMS — Phase 1A Code Quality Audit
 Category 1 — Angular Signals Correctness
 [exam.component.ts:23–39] — courseId, lessonId, course, lesson, questions, answers, timerSeconds, score are all plain mutable class properties despite changing at runtime. The component mixes signal state (loading, locked, started, finished, currentIndex) with non-signal data for the core exam model. All of these should be signals.
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 5): courseId/lessonId/course/lesson/questions/answers/timerSeconds/score are still plain properties (exam.component.ts:25-42); only loading/locked/enteredPassword/passwordError/started/finished/currentIndex/retakeToast are signals. timerSeconds (plain number) is read in the template and only updates because setInterval ticks inside Angular's zone — accidental reactivity, exactly as flagged.
 
 [exam.component.ts:34] — timerSeconds: number = 0 is a plain property read directly in the template. Angular zones will trigger change detection via setInterval, so the display will update, but this is accidental reactivity — not signal-based and fragile if zone handling changes.
 
 [courses.component.ts:27] — filteredCourses = signal<Course[]>([]) is populated imperatively via filterCourses() called from the constructor and three separate event handlers. This should be a computed() signal derived from searchTerm, selectedCategory, and selectedDifficulty. The constructor call and three filterCourses() methods become unnecessary.
 
 [course-detail.component.ts:94–105] — this.route.params.subscribe(...) has no takeUntilDestroyed(). This is a subscription leak — the only acceptable RxJS usage per CLAUDE.md requires the takeUntilDestroyed guard. search.component.ts:27 uses it correctly; this does not.
+✅ RESOLVED (verified 2026-06-26, World Tour Room 4): the subscription is now guarded — this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(...) (course-detail.component.ts:98), with DestroyRef injected. No leak.
 
 [sidebar.service.ts] — flyoutOpenItemPath: string | null = null (and related flyout state) is a plain mutable class property controlling UI state across components. Should be a signal<string | null>(null).
 
@@ -1100,6 +1114,7 @@ admin.component.html:195, 208, 219, 232, 248, 263, 286
 [dashboard.component.ts:103] — getEnrollmentForCourse(courseId: string) — missing return type annotation. Returns Enrollment | null.
 
 [course.service.ts:128–138] — updateProgress() reads const enrollments = this.enrollments(), then does enrollments[index] = { ...enrollments[index], ... } and calls this.enrollments.set([...enrollments]). This works, but mutating the locally-bound array variable before re-setting is an unsafe pattern. Should use .update() with a clean immutable replace.
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 6): updateProgress() (course.service.ts:128) still does `const enrollments = this.enrollments(); enrollments[index] = {...}; this.enrollments.set([...enrollments])` — same in-place mutate-then-set pattern. Natural cleanup candidate when this code moves into EnrollmentService.
 
 [auth.service.ts:94] — setDefaultPermissions(user: User): User mutates the passed-in object (user.permissions = [...]) then returns it. The function signature implies it's a pure transform, but it's actually an in-place mutator. Callers pass spread copies ({ ...match.user }), so it's safe today, but the contract is deceptive.
 
@@ -1128,10 +1143,13 @@ CourseDetailComponent — multi-responsibility — handles: route subscription, 
 
 Category 4 — Service Architecture
 CourseService — four responsibilities — manages: course data, enrollment data, lesson progress persistence, exam question data, and certificate data. Should be split into CourseService, EnrollmentService, QuizService, CertificateService.
+⚠️ PARTIAL (verified 2026-06-26, World Tour Room 6): 2 of 4 kitchens are carved off — QuizService (quiz.service.ts, owns getQuestionsForLesson) and CertificateService (certificate.service.ts, owns getUserCertificates + cert data) both exist and are clean. CourseService (course.service.ts, still 454 lines) still does THREE jobs: course data + enrollment data (enrollCourse/getEnrollment/updateProgress + enrollments signal) + lesson-progress localStorage persistence. No enrollment.service.ts exists yet — the EnrollmentService split is the next step in The Great Service Split. NOTE for that split: getUserCourses()/getAdminStats() need both lists — keep them in CourseService and let it depend ONE-WAY on EnrollmentService (EnrollmentService must NOT import CourseService) to avoid a circular dependency.
 
 [course.service.ts:196–222] — getQuestionsForLesson() contains hardcoded question arrays inline in the service, gated by courseId === 'course-1' && lessonId === 'c1-16'. Quiz content belongs in a QuizService.
+✅ RESOLVED (verified 2026-06-26, World Tour Room 6): getQuestionsForLesson() now lives in quiz.service.ts (with the c1-16 / c1-14 question banks); it is no longer in course.service.ts. ExamComponent injects QuizService for it.
 
 [course.service.ts:483–540] — getMockCertificates() returns certificate data from CourseService. Certificate data belongs in a CertificateService.
+✅ RESOLVED (verified 2026-06-26, World Tour Room 6): getMockCertificates() + getUserCertificates() now live in certificate.service.ts; CourseService no longer holds certificate data.
 
 [sidebar.service.ts:60–65] — readInitial() is called during signal field initialization and calls document.body.classList.add(...) during service construction. DOM manipulation during service construction is a lifecycle violation.
 
@@ -1141,6 +1159,7 @@ CourseService — four responsibilities — manages: course data, enrollment dat
 
 Category 5 — Naming and Schema Consistency
 ID types — all wrong: Schema defines all primary and foreign keys as integer. The UI models use string throughout.
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 7): UI models still type IDs as string throughout — ~13 declarations across course.model.ts (Course/Lesson/Enrollment/ExamQuestion/Assignment/Certificate ids + userId/courseId), user.model.ts:9, dashboard.model.ts:6. Mock IDs are strings ('course-1', 'c1-16', user id '1'). Blast radius is wider than the declarations: every service signature, ID-keyed localStorage, and `===` comparison (~13 .ts files touch IDs). Phase-7 risk is SILENT: JS `'1' === 1` is false, so an integer DB id compared to a leftover string id returns no-match with no error (vanished enrollments, lessons that won't complete). Cheap to align now (13 lines) vs a cross-cutting migration later. (Mitigation exists in principle — convert at the service boundary per the "only the service layer changes at Phase 7" rule — but models-match-schema is the cleaner fix.)
 
 user.model.ts:9 — id: string (should be number)
 course.model.ts:90–103 — Enrollment.id, userId, courseId, enrolled_by all string (should be number)
@@ -1170,13 +1189,19 @@ Category 6 — Dead Code
 Dead methods (defined but do nothing):
 
 header.component.ts:75 — openNotifications() — empty body
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 2): header.component.ts is gone, but the dead method moved to top-nav.component.ts:208 — openNotifications() { return; } — still an empty no-op wired to the bell button (top-nav.component.html:94).
 header.component.ts:79 — openMessages() — empty body
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 2): moved to top-nav.component.ts:210 — openMessages() { return; } — empty no-op wired to the envelope button (top-nav.component.html:105).
 header.component.ts:98 — goToProgress() — navigates to /my-progress which has no route
+✅ RESOLVED (verified 2026-06-26, World Tour Room 2): the goToProgress() method no longer exists — top-nav.component.ts has no such method and no /my-progress link. Dead method and its dead route are both gone.
 header.component.ts:103 — goToGroups() — navigates to /groups which has no route
+✅ RESOLVED / ⚠️ PARTIAL (verified 2026-06-26, World Tour Room 2): the goToGroups() method is gone from top-nav.component.ts. BUT a /groups nav link still exists (top-nav.component.ts:60 instructor, :86 admin) and there is still no /groups route in app.routes.ts — so clicking "Groups" silently redirects to /dashboard via the '**' wildcard. The dead method is resolved; the dead destination lives on as a nav link.
 course-detail.component.ts:315 — navigateToExam() — defined but never called; template uses [routerLink] directly instead
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 4): navigateToExam() still exists (course-detail.component.ts:332-335) and is still never called — the Start Test button uses [routerLink] directly (course-detail.component.html:235). Dead code persists.
 Alert stubs that should not be in production code:
 
 course-detail.component.ts:312 — alert('Certificate PDF generation coming in Phase 2')
+✅ RESOLVED / ⚠️ TRADE (verified 2026-06-26, World Tour Room 4): the alert() is gone — downloadCertificate() is now an empty no-op { return; } (course-detail.component.ts:330) wired to the "Download Certificate (PDF)" button (course-detail.component.html:179). The jarring alert is fixed, but it traded for a silent no-op (clicking does nothing, no feedback) — same family as BUG 20. Real PDF gen is Phase 7.
 exam.component.ts:171 — alert('To schedule a retake...')
 Empty method stubs with no feedback:
 
@@ -1203,6 +1228,7 @@ Category 7 — Security and Safety
 [course-detail.component.ts:312] — alert(...) — browser alert() calls surface developer messages to end users. Replace with toast or disabled button state.
 
 [exam.component.ts:87] — Plain-text password comparison: attempt !== this.lesson.password. Passwords are stored as plain strings in mock data throughout course.service.ts ('exam2024', 'adv2024', 'comm2024', etc.). This pattern must not carry forward to Phase 7.
+⚠️ STILL LIVE (verified 2026-06-26, World Tour Room 5): submitPassword() still does `attempt !== this.lesson.password` (exam.component.ts:90). Confirmed the plain-text exam passwords in course.service.ts: exam2024 (c1-16), adv2024 (c2-13), finlit2024 (c3-11), legal2024 (c4-10), comm2024 (c5-07), credit2024 (c6-11). Fine for the mock; must become hashed server-side auth in Phase 7.
 
 localStorage usage beyond permitted scope:
 
@@ -1274,3 +1300,347 @@ Category 5 — section lesson type undocumented as UI-only; ID types are all wro
 Category 1 — course-detail.component.ts:94 subscription leak
 Category 4 — Split CourseService before it grows further
 Category 8 — Introduce CSS custom properties for brand colors and shared utility classes before Phase 1B adds more components
+
+---
+
+# Idea Forge — Divergent Ideation (2026-06-26)
+
+Candidate features and gaps surfaced by a divergent-ideation pass over the
+Must-Have list, Nice-to-Have list, and the 66-table schema. These are
+CANDIDATES, not commitments. Items marked ⚠️ DECISION need Heather's input
+before they become real Must-Haves. Promote the rest into the main feature
+lists once reviewed. Nothing here changes code or sequencing.
+
+## A. Schema gaps — features that are promised but have no data model
+
+1. **Question bank / reuse questions across tests — STRUCTURALLY IMPOSSIBLE today.**
+   Must-Have says "Reuse existing questions across multiple tests" and "Import
+   questions from file," but `quiz_questions.quiz_id` ties each question to
+   exactly ONE quiz. Reuse needs the same treatment shared lessons got: a
+   question-bank table plus a `quiz_question_links` bridge (mirror of
+   `lesson_course_links`). Without it, "reuse" and "remove vs delete"
+   (remove = unlink, delete = destroy) cannot both be honored. High priority —
+   this is a listed feature the schema cannot deliver.
+
+2. **Course-level announcements have no table.** "Instructor announcements per
+   course" is Must-Have and there's an `announcement-banner` component, but
+   announcements are hardcoded in a service. Branches have
+   internal/external announcement TEXT columns; per-course instructor
+   announcements have nowhere to live. Needs a `course_announcements` table
+   (course_id, author_id, body, published_at, is_active).
+
+3. **Integration settings have no home.** The Integrations category has ONE
+   table (`salesforce_sync_log`), yet the feature list promises Zoom (auto
+   Zoom link generation), Constant Contact, SSO (Microsoft/Google), and a
+   proctoring vendor. Stripe keys live on `ecommerce_settings`; everything
+   else has no credential/config storage. Needs a generic
+   `integration_settings` table (tenant_id, provider, config jsonb, is_active)
+   or per-provider tables. Blocks Phase 5.
+
+4. **Native exam scheduling has no availability model.** `exam_bookings` lets a
+   learner set `scheduled_at`, but "learner selects available time slot" needs
+   a source of slots. There is no proctor-availability / exam-slot table. To
+   truly replace Calendly you need `proctor_availability` (proctor_user_id,
+   start, end, capacity) or pre-generated `exam_slots`. Otherwise scheduling
+   is free-text, not slot-based.
+
+5. **ILT sessions have no table.** `lessons.type` includes `ilt`, ILT session
+   types are listed (online integrated / in-person / online external), and the
+   Grading Hub has an ILT tab — but there is no `ilt_sessions` table (date,
+   location/url, capacity, instructor) and no `ilt_attendance`. ⚠️ DECISION:
+   confirm whether NACCC actually runs ILT before modeling it (already an open
+   question — this is the schema half of it).
+
+6. **Gamification triggers reference tables that don't exist.** `automation_rules`
+   has `action_type = give_points`, `action_points`, and `trigger_type =
+   level_reached`, but there is NO points/levels/badges table anywhere. Either
+   stage `user_points` / `levels` / `badges` or remove the orphan
+   trigger/action so the engine can't reference a void. (Gamification is
+   Nice-to-Have, so removing the orphans until then is the cleaner call.)
+
+7. **Refunds have no table.** `payments.status` includes `refunded` and
+   "Refund and unenrollment handled as separate actions" is Must-Have, but
+   there's no `refunds` table (payment_id, amount, reason, stripe_refund_id,
+   issued_by, is_partial). For exam-retake and recert revenue, refund
+   tracking and reporting matter.
+
+8. **API keys & webhooks have no tables.** "API layer," "API settings page,"
+   and webhook-style automation (`action_url`) are listed, but there's no
+   `api_keys` table (inbound auth) and no inbound `webhook_events` /
+   `stripe_events` log for idempotent payment confirmation. Stripe webhook
+   handling without an events table risks double-fulfilling purchases.
+
+9. **Course "versioning" is just an integer.** `courses.version` increments and
+   `content_locked` exists, but "update without wiping learner progress"
+   implies in-progress learners keep the version they started. A single
+   integer can't snapshot content; true versioning needs version snapshots or
+   a content-immutability strategy. Flag the semantics before relying on it.
+
+10. **Certificate templates have no table.** Two designs exist (CEU simple,
+    Core fancy with a "boss signature"). `certificates.template_url` is a bare
+    URL — there's no `certificate_templates` table (design, signatory name,
+    signature image, which course_type/branch it applies to). Template
+    management has no model.
+
+11. **No user deletion / anonymization model.** `automation_rules` has
+    `delete_user` and audit requires history, but `users` has no `deleted_at`
+    or anonymization path. For a PII-heavy financial-counseling org,
+    right-to-be-forgotten / data-retention needs an explicit soft-delete +
+    anonymize design (distinct from enrollment-driven `is_active`).
+
+12. **Invite tokens / company enrollment code discussed but not staged.** The
+    long invite-token NOTE describes the mechanism in detail but no
+    `invite_tokens` (token_hash, company_id, email, expires_at, used_at) or
+    `company_enrollment_codes` table is staged. Stage the table concept even
+    if the build is Phase 5/7, so the Phase 1B admin UI can be designed around it.
+
+## B. Missing features — in neither list, a certification LMS needs them
+
+13. **Revenue / sales report.** The Reports section has Overview, User, Course,
+    Branch, Learning activities, Training matrix, and Timeline — but NO
+    financial report, despite a full e-commerce stack (payments, invoices,
+    coupons, retake fees, recert fees). NACCC sells courses; they need revenue
+    by course / period / branch / coupon, refunds, and outstanding/suspended
+    (check-payment) balances. Strong add.
+
+14. **Company / employer portal (B2B).** Member firms buy seats for their
+    counselors. `companies` + `company_id` on users exist, but there's no
+    company-manager view of "my employees' progress and certification status."
+    `branch_manager` is branch-scoped, not company-scoped. A company-contact
+    dashboard is high-value for the member-firm model. ⚠️ DECISION: do member
+    firms get a self-service portal, or does NACCC staff report to them?
+
+15. **Seat / license pool for company purchases.** "Company purchase → generate
+    accounts" is listed, but there's no model for "firm bought 50 seats, 30
+    used, 20 available" to assign over time. Needs a `seat_pool` / `licenses`
+    concept. Otherwise bulk B2B is all-at-once only.
+
+16. **ADA exam accommodations.** A learner with a documented disability may need
+    extended exam time or other accommodations (ADA). No per-user accommodation
+    flag (e.g. `extra_time_multiplier`, accommodation notes) exists, and quiz
+    timers are global. For a certification body this is a real compliance need.
+    ⚠️ DECISION: does NACCC grant exam accommodations today, and how?
+
+17. **Terms-of-Service / ethics attestation tracking.** Branches store
+    `terms_of_service` TEXT, but nothing records that a user ACCEPTED them,
+    when, or which version. Credit-counseling certification often requires a
+    code-of-ethics attestation. Needs `policy_acceptances` (user_id,
+    policy_key, version, accepted_at). Compliance + audit value.
+
+18. **Historical data migration from TalentLMS.** Going live means importing
+    existing learners, PAST certificates (with their permanent numbers and
+    expiry dates), and CEU history so certified counselors don't lose standing.
+    "Bulk user import via CSV" is listed; certificate/CEU history import is not.
+    Treat as a launch-blocking migration concern, not just a feature.
+
+19. **Admin "view as / login as user" (impersonation).** Instructors can preview
+    a course as a learner, but admins can't impersonate a full user account to
+    troubleshoot support issues. Common LMS admin tool; must be audit-logged
+    and access-controlled. ⚠️ DECISION: wanted? (security trade-off.)
+
+20. **Open Badges / Credly digital credentials.** Many certification bodies
+    issue verifiable digital badges (Credly / Open Badges) alongside PDF certs,
+    which counselors add to LinkedIn. LinkedIn cert-sharing is already a toggle;
+    a real badge standard is a natural extension. ⚠️ DECISION: of interest?
+
+21. **External CEU / regulatory registry reporting.** If NACCC must report CEUs
+    or certifications to an accrediting body or national registry, that's an
+    export/integration not yet modeled. ⚠️ DECISION: any external body NACCC
+    reports counselor CEUs/certs to?
+
+22. **Exam retake cooldown.** Retakes are unlimited paid purchases, but some
+    certifications mandate a waiting period between attempts. Not modeled.
+    ⚠️ DECISION: is there a mandatory cooldown before an exam retake?
+
+## C. Pressure-tests — internal contradictions to resolve
+
+23. **CEU renewal: per-cert accumulation vs one-pool-renews-all.** ⚠️ DECISION.
+    CLAUDE.md says "one set of 16 CEU hours renews ALL eligible certificates at
+    once," but the schema tracks `certificates.accumulated_ceu_hours` PER
+    certificate (and resets per certificate). These contradict: is the 16-hour
+    threshold a single shared pool that renews every eligible cert, or 16 hours
+    per certificate? The renewal-batch tables imply shared; the per-cert column
+    implies separate. Resolve before any cert logic is built.
+
+24. **Three conflicting definitions of "inactive."** (a) The NOTE says
+    `is_active` is purely enrollment-driven with "no time-based inactivity
+    rules." (b) `automation_rules` has `user_inactive_hours` → `deactivate_user`.
+    (c) "Inactivity = expired course, internal flag." These three can fight each
+    other (an automation deactivates a user the enrollment rule reactivates).
+    ⚠️ DECISION: pick one source of truth for "active," and scope what the
+    inactivity automation is actually allowed to flip.
+
+25. **"No account until payment" has grown carve-outs.** The rule is "LMS
+    accounts only created on successful payment, no guest accounts," but there
+    are now several non-payment creation paths: complimentary enrollment (admin
+    enrolls without payment), admin-created users, company-generated accounts,
+    and invite-token registration. The rule statement should be reworded to
+    "accounts are created by payment OR by staff/invite — never by anonymous
+    self-registration," so the carve-outs aren't treated as violations.
+
+26. **Section-level features vs "sections are UI-only."** "Delay availability
+    per lesson/section" and section completion are listed, but `section` is
+    explicitly a UI-only divider with NO database row. Section-level delays and
+    section completion therefore can't persist. Either give sections a
+    lightweight DB representation or drop section-scoped scheduling/completion
+    from scope. Pick one.
+
+27. **Tenant-only notification preferences vs CAN-SPAM.** ⚠️ DECISION. The NOTE
+    forbids per-user notification preferences ("admin-controlled per tenant").
+    But CAN-SPAM requires a working per-recipient opt-out for promotional
+    (non-transactional) email. A tenant-only model can't honor individual
+    unsubscribe for marketing sends. Likely needs a narrow per-user
+    unsubscribe scoped to promotional notifications only, leaving transactional
+    email tenant-controlled. Confirm legal posture before locking this.
+
+28. **No "proctor" role, but proctors are referenced.** `exam_bookings`
+    has `proctor_user_id`, yet `roles` is only learner/instructor/branch_manager/
+    branch_viewer/admin. Internal proctors need a view of their assigned exams.
+    ⚠️ DECISION: is "proctor" a distinct role/view, or just instructors/admins
+    acting as proctors?
+
+## D. Smaller adds worth keeping (lower stakes)
+
+- Official learner transcript PDF (all courses, CEUs, certs, dates) — distinct
+  from the existing history page; useful for employers/regulators.
+- Scheduled / subscribed reports (email me this report weekly) — generalizes the
+  Nice-to-Have "manager weekly digest."
+- Survey anonymity flag — course-evaluation surveys are often anonymous;
+  `survey_responses` always carries `user_id`.
+- Certificate re-issue / correction event (e.g. misspelled name) keeping the
+  same permanent number — `renewal_count` doesn't cover corrections.
+- Tenant-level resource/policy library (handbooks, code of ethics) not tied to
+  a single course — `course_files`/`user_files` can't represent it.
+- Bulk user actions (deactivate / message / export) beyond bulk enroll.
+- Push / mobile notifications layer (mobile-responsive is in; push is not).
+
+## E. New questions for Heather (consolidated from the ⚠️ items above)
+
+- CEU renewal math: one shared 16-hour pool renews ALL certs, or 16 hours per
+  certificate? (Resolves the schema vs note contradiction — #23.)
+- What is the single source of truth for "active/inactive," and what is the
+  inactivity automation actually allowed to do? (#24.)
+- Do member firms get a self-service company portal, or does staff report to
+  them? (#14.)
+- Does NACCC grant ADA exam accommodations (extra time, etc.), and how? (#16.)
+- Is there a mandatory cooldown between exam retakes? (#22.)
+- Is "proctor" a distinct role, or do instructors/admins proctor? (#28.)
+- Per-user email unsubscribe for promotional sends — required for CAN-SPAM? (#27.)
+- Any external body NACCC reports counselor CEUs/certs to? (#21.)
+- Interest in Open Badges / Credly digital credentials? (#20.)
+- Does NACCC run ILT (instructor-led/in-person) sessions at all? (#5.)
+- Admin "login as user" for support — wanted, given the security trade-off? (#19.)
+
+---
+
+# Formstack Replacement (in discussion — started 2026-06-29)
+
+NACCC runs ~20 Formstack forms. The replacement strategy depends on the
+form's bucket: some become native LMS flows, the enrollment forms disappear
+into existing features, and some may surface new schema gaps.
+
+## Enrollment forms (7 of the 20) → group enrollment feature, NOT forms
+
+Why they exist: TalentLMS has no group enrollment, so NACCC built one
+Formstack form per program (Certification, Home At Last, World Services for
+the Blind, ed2go, etc.). The data doesn't differ — the form-per-program
+pattern is a workaround for a missing feature.
+
+LMS replacement:
+- **Single enrollment → no form.** Existing registration + checkout flow
+  (account created on payment).
+- **Group enrollment → ONE native flow**, parameterized by course, replacing
+  all 7 forms.
+
+DECIDED (2026-06-29, with office@fcnonline.org):
+- Group enrollment is **company self-service** — a company contact submits
+  the roster. This is the B2B company portal (Idea Forge #14), not just
+  admin bulk-enroll.
+- Payment is **mostly Stripe** (card → enrollments active immediately), with
+  invoice/check as a secondary minority path (enrollments created
+  **suspended** → admin activates when payment clears, riding the existing
+  suspended-enrollment path). Build Stripe as the primary group-checkout flow;
+  invoice/check is the exception, not the default. The group flow still must
+  branch on payment method.
+
+Implications and NEW gaps this surfaces:
+- ⚠️ **Pulls group enrollment out of Phase 3.** `enrollment_groups` is
+  currently "do not design until Phase 3," but retiring Formstack means group
+  enrollment must exist at cutover or NACCC loses a live capability. The
+  Phase-3 deferral conflicts with Formstack retirement — resolve the timing.
+- ⚠️ **No company-scoped role exists.** `roles` = learner/instructor/
+  branch_manager/branch_viewer/admin; `branch_manager` is branch- not
+  company-scoped, and `user_types.can_*` are platform-level. Company
+  self-service needs a "company admin" capability/view that isn't modeled.
+- Company submission must **resolve to an existing `company_id`, never create
+  one** (the invite-token/company rule) — no free-text company-name field.
+- Roster intake = typed rows and/or CSV/Excel upload (bulk import already
+  Must-Have); provisioning = system-generated passwords + individual
+  notification emails (already Must-Have).
+- Uses `payment_type = 'group'` + `company_id` on `payments` (exist) +
+  `invoices` (exist) for the invoice path.
+- ⚠️ Seat/license pool (#15) open: do companies buy a **fixed roster at once**
+  or **seats to assign over time**? Confirm with Heather.
+
+## Transactional request forms → native LMS flows
+
+- **Exam request** → native scheduling (`exam_bookings`). Gap: no
+  proctor-availability / slot model (the Calendly half).
+- **Recertification** → in-LMS batch renewal (`certificate_renewals` /
+  `renewal_batches`). Blocker: resolve the 16-hour shared-pool vs per-cert
+  contradiction (#23) before building.
+- **CEU submission** → in-LMS upload + admin review (`ceu_submissions`).
+  Appears fully modeled.
+
+## Exam-family forms (8 of the 20) → ONE native exam flow
+
+Same root cause as the enrollment forms: Formstack can't take a course/branch
+parameter, so NACCC built one form per case. They all collapse into the
+single native exam scheduling flow (`exam_bookings`), parameterized by course
+and branch:
+- **Exam request** (1)
+- **Exam request — ed2go** (1) → just a branch filter on the same flow
+- **Exam retake request** (6 — one per core course) → just course context;
+  retake adds the fee → Stripe → unlock-attempt step
+Gap (unchanged): no proctor-availability / slot model — the Calendly half.
+
+## Special forms — the interesting two
+
+- **Ethics form (pre-exam)** does TWO jobs:
+  1. **Ethics attestation** before the exam — CONFIRMS Idea Forge #17
+     (policy/ethics-acceptance tracking) is a real, in-use requirement, not
+     speculative. LMS must record acceptance (version + timestamp) and
+     **hard-gate the exam** on it. No table exists today (needs
+     `policy_acceptances`).
+  2. **Salesforce Order-object lookup for "exam eligible"** — this was an
+     IDENTITY workaround, not an eligibility engine. Formstack forms are
+     anonymous, so the SF list view (scoped for privacy so generally only the
+     person's own record shows) was how an unauthenticated form figured out
+     WHO was filling it in. DECIDED (2026-06-29): in the LMS the examinee is
+     logged in, so the lookup, list view, and privacy scoping all disappear —
+     eligibility is checked against their LMS `user_id` directly.
+     Residual open question: what DEFINES "exam eligible," and where does that
+     fact live? Most likely LMS-native ("paid order for this exam + completed
+     required coursework"), in which case Salesforce drops out of the path. If
+     eligibility depends on data the LMS can't see, it stays a Salesforce flag
+     synced in (Phase 5). ⚠️ Confirm what sets exam_eligible on the Order today.
+- **Examinee info form** — informational, no fields. NOT a form: it's a
+  `content_page` lesson (an "Examinee Information" unit). Zero data model;
+  delete from Formstack, make it a content unit.
+
+## Inventory status
+
+Mapped so far (~19 of 20): 7 enrollment, recertification, CEU submission,
+ethics, examinee info, exam request, exam request (ed2go), 6× exam retake.
+~1 form still unaccounted — pending from Heather.
+
+## New questions for Heather (Formstack)
+
+- Group enrollment forces `enrollment_groups` earlier than Phase 3 — accept that?
+- Is "company admin" a new role / portal view for company self-service?
+- Do companies buy a fixed roster, or a seat pool to assign over time?
+- Is "exam eligible" LMS-native (prereqs/progress/paid) or a Salesforce Order
+  flag synced in? (From the ethics form's SF Order-object lookup.)
+- Does the pre-exam ethics attestation need version tracking, and is it
+  per-exam or once-per-certification-cycle?
+- What is the last (~1) remaining Formstack form?

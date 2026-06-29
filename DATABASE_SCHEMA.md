@@ -1311,3 +1311,35 @@ Drives users.failed_login_attempts / locked_until enforcement._
 - [ ] Should ed2go learners see ALL CEU courses or only specific ones after certification?
 - [ ] Recertification — who initiates it, learner self-serve or admin triggers?
 - [ ] Do branches have their own payment processors or all use same Stripe account?
+
+### Formstack-surfaced schema items (from Idea Forge 2026-06-29)
+
+See CLAUDE.md "Formstack Replacement" for the full reasoning. Retiring NACCC's
+~20 Formstack forms surfaces these data-model needs:
+
+- [ ] **enrollment_groups — pulled ahead of Phase 3.** Group enrollment
+      replaces the 7 Formstack enrollment forms, so this table must exist at
+      Formstack cutover, not Phase 3. Likely columns: tenant_id, company_id,
+      course_id (or a group→courses bridge), created_by, payment_id, status,
+      branch_id. Company self-service + mostly-Stripe (invoice/check →
+      suspended enrollments). Confirm timing.
+- [ ] **Company-scoped role missing.** `roles` has no company-level role and
+      `branch_manager` is branch-scoped. Company self-service group enrollment
+      needs a "company admin" capability/view. Decide: new role row vs a
+      `user_types.can_*` flag vs a company_contacts bridge.
+- [ ] **New table `policy_acceptances`** (user_id, policy_key, version,
+      accepted_at) — pre-exam ethics attestation. Hard-gates the exam.
+      Confirms Idea Forge #17 is a real, in-use requirement.
+- [ ] **No exam-slot / proctor-availability model.** Native exam scheduling
+      replaces Formstack + Calendly, but `exam_bookings.scheduled_at` has no
+      source of bookable slots. Needs `proctor_availability` (proctor_user_id,
+      start, end, capacity) or pre-generated `exam_slots`.
+- [ ] **Define "exam eligible."** The ethics form read it off the Salesforce
+      Order object as an identity workaround (anonymous form); in the LMS the
+      learner is authenticated, so it becomes a check on their user_id. Decide
+      what SETS eligibility — likely LMS-native (paid order for the exam +
+      completed required coursework) — or whether it stays a Salesforce flag
+      synced in (Phase 5).
+- [ ] **Seat/license pool?** Do companies buy a fixed roster at once or seats
+      to assign over time? Determines whether a `seat_pool` / `licenses` table
+      is needed alongside enrollment_groups.
